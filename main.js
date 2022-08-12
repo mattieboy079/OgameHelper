@@ -1,12 +1,20 @@
-let PLAYER_CLASS_EXPLORER = 3;
-let PLAYER_CLASS_WARRIOR = 2;
-let PLAYER_CLASS_MINER = 1;
-let PLAYER_CLASS_NONE = 0;
+let PLAYER_CLASS_EXPLORER = "ontdekker";
+let PLAYER_CLASS_WARRIOR = "generaal";
+let PLAYER_CLASS_MINER = "verzamelaar";
+let PLAYER_CLASS_NONE = "-";
 
-let ALLY_CLASS_EXPLORER = 3;
-let ALLY_CLASS_WARRIOR = 2;
-let ALLY_CLASS_MINER = 1;
-let ALLY_CLASS_NONE = 0;
+let ALLY_CLASS_EXPLORER = "onderzoeker";
+let ALLY_CLASS_WARRIOR = "krijger";
+let ALLY_CLASS_MINER = "handelaar";
+let ALLY_CLASS_NONE = "-";
+
+let OVERVIEW = "overview";
+let RESOURCES = "supplies";
+let LIFEFORM = "lfbuildings";
+let LIFEFORM_RESEARCH = "lfresearch";
+let FACILITIES = "facilities";
+let RESEARCH = "research";
+
 
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
@@ -40,16 +48,32 @@ console.log(UNIVERSE);
 
 class ServerSettings{
     constructor(universe){
-        fetch(`https://${UNIVERSE}.ogame.gameforge.com/api/serverData.xml`)
+        fetch(`https://${universe}.ogame.gameforge.com/api/serverData.xml`)
         .then((rep) => rep.text())
         .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
         .then((xml) => {
-            console.log(xml.querySelector("speed").innerHTML;
+            this.universe = universe,
+            this.economySpeed = xml.querySelector("speed").innerHTML,
+            this.peacefulFleetSpeed = xml.querySelector("speedFleetPeaceful").innerHTML,
+            this.deutUsageFactor = xml.querySelector("globalDeuteriumSaveFactor").innerHTML,
+            this.topscore = xml.querySelector("topScore").innerHTML
         });
     }
 }
 
+class Planet {
+    constructor(coords){
+        this.coords = coords;
+    }
+
+
+    getData(coords){
+
+    }
+}
+
 class PlayerInfo {
+    
     constructor(){
         if (document.querySelector("#characterclass .explorer")) {
             this.playerClass = PLAYER_CLASS_EXPLORER;
@@ -60,20 +84,42 @@ class PlayerInfo {
         } else {
             this.playerClass = PLAYER_CLASS_NONE;
         }
+        
+        this.planets = [];
+        let planetList = document.querySelectorAll(".smallplanet");
+        planetList.forEach((planet, index) => {
+            let coords = planet.querySelector(".planet-koords");
+            if(coords)
+                this.planets[index] = new Planet(coords.textContent)
+        });
+
+        console.log(this.planets);
+    }
+
+
+
+    saveData(){
+
     }
 }
 
 class OgameHelper {
     constructor(){
-        let settings = new ServerSettings(UNIVERSE);
-        console.log("Economy:" + settings.economySpeed);
+        this.settings = new ServerSettings(UNIVERSE);
         this.player = new PlayerInfo();
-        console.log("Class: " + this.player.playerClass);
+        console.log(this.player);
 
-    
+        console.log("Class: " + this.player.playerClass);
+        console.log("Economy:" + this.settings.economySpeed);
+
+        let rawURL = new URL(window.location.href);
+        let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
+
+        console.log(rawURL);
+        console.log(page);
+
+        console.log(this);
         //serverSettings = new serverSettings()
-        
-        console.log(document.querySelector(".smallplanet .active").parentNode.querySelector(".planet-koords").textContent);
         
         // console.log(document.querySelectorAll(".planet-koords"));
         
