@@ -65,15 +65,9 @@ class Planet {
     constructor(coords){
         this.coords = coords;
     }
-
-
-    getData(coords){
-
-    }
 }
 
 class PlayerInfo {
-    
     constructor(){
         if (document.querySelector("#characterclass .explorer")) {
             this.playerClass = PLAYER_CLASS_EXPLORER;
@@ -90,45 +84,37 @@ class PlayerInfo {
         planetList.forEach((planet, index) => {
             let coords = planet.querySelector(".planet-koords");
             if(coords)
-                this.planets[index] = new Planet(coords.textContent)
+                this.planets[index] = new Planet(coords.textContent);
         });
 
         console.log(this.planets);
-    }
-
-
-
-    saveData(){
-
     }
 }
 
 class OgameHelper {
     constructor(){
-        this.settings = new ServerSettings(UNIVERSE);
-        this.player = new PlayerInfo();
-        console.log(this.player);
-
-        console.log("Class: " + this.player.playerClass);
-        console.log("Economy:" + this.settings.economySpeed);
-
-        let rawURL = new URL(window.location.href);
-        let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
-
-        console.log(rawURL);
-        console.log(page);
-
-        console.log(this);
-        //serverSettings = new serverSettings()
+        let data = localStorage.getItem("ogh-" + UNIVERSE);
+        console.log(data);
+        if(data){
+            this.settings = new ServerSettings(UNIVERSE);
+            this.json = JSON.parse(data);
+            console.log(this);
+        } else {
+            this.settings = new ServerSettings(UNIVERSE);
+            this.json = {};
+            this.json.player = new PlayerInfo();
+            console.log(this.json.player);
+    
+            console.log("Class: " + this.json.player.playerClass);
+            console.log("Economy:" + this.settings.economySpeed);
+             
+            this.saveData();
+        }
         
         // console.log(document.querySelectorAll(".planet-koords"));
         
         // console.log(document.querySelector(".technology.metalMine .level"));
         
-        // let metal = document.querySelector(".technology.metalMine .level").getAttribute("data-value");
-        // let crystal = document.querySelector(".technology.crystalMine .level").getAttribute("data-value");
-        // let deut = document.querySelector(".technology.deuteriumSynthesizer .level").getAttribute("data-value");
-        // let crawlers = document.querySelector(".technology.resbuggy .amount").getAttribute("data-value");
         
         // console.log("metal: " + metal);
         // console.log("crystal: " + crystal);
@@ -136,12 +122,71 @@ class OgameHelper {
         // console.log("crawlers: " + crawlers);
            
     }
+
+    saveData(){
+        console.log("data to save:");
+        console.log(this.json);   
+        localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
+    }
+
+    run(){
+        this.checkPage();
+    }
+
+    checkPage(){
+        let currentPlanet = (document.querySelector(".smallplanet .active") || document.querySelector(".smallplanet .planetlink")).parentNode;
+        let currentCoords = currentPlanet.querySelector(".planet-koords").textContent;
+        let currentIsMoon = currentPlanet.querySelector(".moonlink") ? true : false && currentPlanet.querySelector(".moonlink .active") ? true : false;
+    
+
+        let rawURL = new URL(window.location.href);
+        let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
+        console.log(page);
+        console.log(currentIsMoon);
+        if(!currentIsMoon){
+            console.log("Got here");
+            if(page === OVERVIEW){
+                //TODO: CREATE AMORTIZATION TABLE
+            } else if (page === RESOURCES){
+                console.log("update mines");
+                console.log(currentCoords);
+                console.log(this.json.player.planets.findIndex(p => p.coords == currentCoords));
+                let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
+                if(this.json.player.planets[index]){
+                    this.json.player.planets[index].metal = document.querySelector(".technology.metalMine .level").getAttribute("data-value");
+                    this.json.player.planets[index].crystal = document.querySelector(".technology.crystalMine .level").getAttribute("data-value");
+                    this.json.player.planets[index].deut = document.querySelector(".technology.deuteriumSynthesizer .level").getAttribute("data-value");
+                    this.json.player.planets[index].solar = document.querySelector(".technology.solarPlant .level").getAttribute("data-value");
+//                    this.json.player.planets[index].fusion = document.querySelector(".technology.fusionReactor .level").getAttribute("data-value");
+                    this.json.player.planets[index].crawlers = document.querySelector(".technology.resbuggy .amount").getAttribute("data-value");    
+                } else {
+                    this.json.player.planets[index] = {
+                        metal: document.querySelector(".technology.metalMine .level").getAttribute("data-value"),
+                        crystal: document.querySelector(".technology.crystalMine .level").getAttribute("data-value"),
+                        deut: document.querySelector(".technology.deuteriumSynthesizer .level").getAttribute("data-value"),
+                        solar: document.querySelector(".technology.solarPlant .level").getAttribute("data-value"),
+                        fusion: document.querySelector(".technology.fusionReactor .level").getAttribute("data-value"),
+                        crawlers: document.querySelector(".technology.resbuggy .amount").getAttribute("data-value")
+                    };
+                }
+                this.saveData();
+                //TODO: UPDATE MINES
+            } else if (page === LIFEFORM){
+                //TODO: UPDATE LIFEFORM BUILDINGS
+            } else if (page === LIFEFORM_RESEARCH){
+                //TODO: UPDATE LIFEFORM RESEARCH
+            } else if (page === FACILITIES){
+                //TODO: UPDATE FACILITIES
+            } else if (page === RESEARCH){
+                //TODO: UPDATE RESEARCH
+            }    
+        }
+    }
 }
 
 (async () => {
     let helper = new OgameHelper();
-    // setTimeout(function () {
-    //     helper.init();
-    //     helper.start();
-    // }, 0);
+    setTimeout(function () {
+        helper.run();
+    }, 0);
   })();
