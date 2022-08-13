@@ -46,64 +46,24 @@ function getUniverse(universe){
 const UNIVERSE = window.location.host.split(".")[0];
 console.log(UNIVERSE);
 
-class Planet {
-    constructor(coords){
-        this.coords = coords;
-        this.metal = 0;
-        this.crystal = 0;
-        this.deut = 0;
-        this.solar = 0;
-        this.crawlers = 0;
-    }
-}
-
-class PlayerInfo {
-    constructor(){
-        if (document.querySelector("#characterclass .explorer")) {
-            this.playerClass = PLAYER_CLASS_EXPLORER;
-        } else if (document.querySelector("#characterclass .warrior")) {
-            this.playerClass = PLAYER_CLASS_WARRIOR;
-        } else if (document.querySelector("#characterclass .miner")) {
-            this.playerClass = PLAYER_CLASS_MINER;
-        } else {
-            this.playerClass = PLAYER_CLASS_NONE;
-        }
-
-        this.geoloog = document.querySelector(".geologist.on") ? true : false;
-        this.ingenieur = document.querySelector(".engineer.on") ? true : false;
-        this.legerleiding = this.geoloog && this.ingenieur && (document.querySelector(".commander.on") ? true : false) && (document.querySelector(".admiral.on") ? true : false) && (document.querySelector(".technocrat.on") ? true : false);
-
-        this.allyClass = ALLY_CLASS_NONE;
-        //TODO: GET ALLY CLASS
-        
-        this.ratio = [3, 2, 1];
-        this.astro = 0;
-        this.plasma = 0;
-
-        this.planets = [];
-        let planetList = document.querySelectorAll(".smallplanet");
-        planetList.forEach((planet, index) => {
-            let coords = planet.querySelector(".planet-koords");
-            if(coords)
-                this.planets[index] = new Planet(coords.textContent);
-        });
-
-        console.log(this.planets);
-    }
-}
-
 class OgameHelper {
     constructor(){
         let data = localStorage.getItem("ogh-" + UNIVERSE);
+        //data = undefined;
         console.log(data);
         if(data && data !== "undefined"){
             this.json = JSON.parse(data);
+            if(!this.json.player){
+                this.getPlayerInfo();
+            }
             if(!this.json.settings){
                 this.getServerSettings(UNIVERSE);
             }
+            this.saveData();
         } else {
             console.log("new")
             this.json = {};
+            this.getPlayerInfo();
             this.getServerSettings(UNIVERSE);
             console.log(this.json);
         }
@@ -119,6 +79,40 @@ class OgameHelper {
         // console.log("crawlers: " + crawlers);
         
         this.run();
+    }
+
+    getPlayerInfo(){
+        this.json.player = {};
+        if (document.querySelector("#characterclass .explorer")) {
+            this.json.player.playerClass = PLAYER_CLASS_EXPLORER;
+        } else if (document.querySelector("#characterclass .warrior")) {
+            this.json.player.playerClass = PLAYER_CLASS_WARRIOR;
+        } else if (document.querySelector("#characterclass .miner")) {
+            this.json.player.playerClass = PLAYER_CLASS_MINER;
+        } else {
+            this.json.player.playerClass = PLAYER_CLASS_NONE;
+        }
+
+        this.json.player.geoloog = document.querySelector(".geologist.on") ? true : false;
+        this.json.player.ingenieur = document.querySelector(".engineer.on") ? true : false;
+        this.json.player.legerleiding = this.json.player.geoloog && this.json.player.ingenieur && (document.querySelector(".commander.on") ? true : false) && (document.querySelector(".admiral.on") ? true : false) && (document.querySelector(".technocrat.on") ? true : false);
+
+        this.json.player.allyClass = ALLY_CLASS_NONE;
+        //TODO: GET ALLY CLASS
+        
+        this.json.player.ratio = [3, 2, 1];
+        this.json.player.astro = 0;
+        this.json.player.plasma = 0;
+
+        this.json.player.planets = [];
+        let planetList = document.querySelectorAll(".smallplanet");
+        planetList.forEach((planet, index) => {
+            let coords = planet.querySelector(".planet-koords");
+            if(coords)
+                this.json.player.planets[index] = this.newPlanet(coords.textContent);
+        });
+
+        console.log(this);
     }
 
     getServerSettings(universe){
@@ -265,6 +259,21 @@ class OgameHelper {
         this.checkPage();
     }
 
+    newPlanet(coords){
+        let newplanet = {
+            coords: coords,
+            metal: 0,
+            crystal: 0,
+            deut: 0,
+            solar: 0,
+            crawlers: 0,
+            maxTemp: 43
+            //TODO: GET MAXTEMP            
+        };
+        console.log(newplanet);
+        return newplanet;
+    }
+
     checkPlanets(){
         console.log("checking planets");
         let changed = false;
@@ -272,10 +281,15 @@ class OgameHelper {
         planetList.forEach((planet, index) => {
             let coords = planet.querySelector(".planet-koords");
             if(coords){
+                console.log("search coords: " + coords.textContent);
                 if(!this.json.player.planets.find(p => p.coords == coords.textContent)){
                     console.log("new coord: " + coords.textContent);
                     changed = true;
-                    this.json.player.planets.push(new Planet(coords.textContent));
+                    this.json.player.planets.push(this.newPlanet(coords.textContent));
+                } else if (Object.keys(planet).length != Object.keys((this.newPlanet("1:1:1")).length)) {
+                    console.log("new coord: " + coords.textContent);
+                    changed = true;
+                    this.json.player.planets[index] = this.newPlanet(coords.textContent);            
                 }
             }
         });
@@ -297,37 +311,44 @@ class OgameHelper {
         let currentHasMoon = currentPlanet.querySelector(".moonlink") ? true : false;
         let currentIsMoon = currentHasMoon && currentPlanet.querySelector(".moonlink.active") ? true : false;
     
-        let data = document.querySelectorAll("span#temperatureContentField");
-        console.log(data);
+        // let data = document.querySelectorAll("span#temperatureContentField");
+        // console.log(data);
+        // console.log(data[0]);
 
-        let temp = data[0];
+        // let maxTemp = document.getElementById("temperatureContentField" ).textContent;
+        // console.log(maxTemp);
 
-        console.log(temp);
+        // console.log(data[0].innerText);
+        // console.log(data[0].outerText);
+        // console.log(data[0].innerHTML);
+        // console.log(data[0].outerHTML);
+        // console.log(data[0].textContent);
 
+   
 
-        let data2 = document.querySelectorAll(".planet-koords");
+        // let data2 = document.querySelectorAll(".planet-koords");
 
-        console.log(data2);
-        console.log(textContent);
+        // console.log(data2);
+        // console.log(textContent);
 
-        let planetDetails = document.querySelectorAll("planetDetails");
-        console.log(planetDetails);
+        // let planetDetails = document.querySelectorAll("planetDetails");
+        // console.log(planetDetails);
 
-        console.log(data);
-        console.log(data[0].textContent);
-        let tempstring = data[1].outerHTML;
-        // document.querySelectorAll(".data").forEach(data => {
-        //     if(data.outerText.includes("°C")){
-        //         tempstring = data.outerText;
-        //     }
-        // });
-        console.log(tempstring);
+        // console.log(data);
+        // console.log(data[0].textContent);
+        // let tempstring = data[1].outerHTML;
+        // // document.querySelectorAll(".data").forEach(data => {
+        // //     if(data.outerText.includes("°C")){
+        // //         tempstring = data.outerText;
+        // //     }
+        // // });
+        // console.log(tempstring);
 
         let rawURL = new URL(window.location.href);
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if(!currentIsMoon){
             if(page === OVERVIEW){
-                let maxTemp = 0;
+                let maxTemp = 43;
                 // let splits = textContent[3].split("°C");
                 // console.log(splits);
                 // // splits.reverse().forEach((item) => {
@@ -336,6 +357,10 @@ class OgameHelper {
                 //         maxTemp = parsed;
                 //     }
                 // });
+
+                if(!this.player){
+
+                }
 
                 this.checkStaff();
                 let totalAmortization = [];
@@ -398,6 +423,7 @@ class OgameHelper {
                 //TODO: UPDATE RESEARCH
             }    
         }
+        this.saveData();
     }
 }
 
