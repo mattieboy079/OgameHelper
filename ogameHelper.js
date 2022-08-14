@@ -49,7 +49,7 @@ console.log(UNIVERSE);
 class OgameHelper {
     constructor(){
         let data = localStorage.getItem("ogh-" + UNIVERSE);
-        //data = undefined;
+        data = undefined;
         console.log(data);
         if(data && data !== "undefined"){
             this.json = JSON.parse(data);
@@ -68,15 +68,6 @@ class OgameHelper {
             console.log(this.json);
         }
         
-        // console.log(document.querySelectorAll(".planet-koords"));
-        
-        // console.log(document.querySelector(".technology.metalMine .level"));
-        
-        
-        // console.log("metal: " + metal);
-        // console.log("crystal: " + crystal);
-        // console.log("deut: " + deut);
-        // console.log("crawlers: " + crawlers);
         
         this.run();
     }
@@ -115,7 +106,7 @@ class OgameHelper {
         console.log(this);
     }
 
-    getServerSettings(universe){
+    async getServerSettings(universe){
         let url = getServerSettingsURL(universe);
         console.log(url);
         fetch(url)
@@ -336,44 +327,11 @@ class OgameHelper {
         let currentHasMoon = currentPlanet.querySelector(".moonlink") ? true : false;
         let currentIsMoon = currentHasMoon && currentPlanet.querySelector(".moonlink.active") ? true : false;
     
-        // let data = document.querySelectorAll("span#temperatureContentField");
-        // console.log(data);
-        // console.log(data[0]);
-
-        // let maxTemp = document.getElementById("temperatureContentField" ).textContent;
-        // console.log(maxTemp);
-
-        // console.log(data[0].innerText);
-        // console.log(data[0].outerText);
-        // console.log(data[0].innerHTML);
-        // console.log(data[0].outerHTML);
-        // console.log(data[0].textContent);
-
-   
-
-        // let data2 = document.querySelectorAll(".planet-koords");
-
-        // console.log(data2);
-        // console.log(textContent);
-
-        // let planetDetails = document.querySelectorAll("planetDetails");
-        // console.log(planetDetails);
-
-        // console.log(data);
-        // console.log(data[0].textContent);
-        // let tempstring = data[1].outerHTML;
-        // // document.querySelectorAll(".data").forEach(data => {
-        // //     if(data.outerText.includes("°C")){
-        // //         tempstring = data.outerText;
-        // //     }
-        // // });
-        // console.log(tempstring);
-
         let rawURL = new URL(window.location.href);
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if(!currentIsMoon){
             if(page === OVERVIEW){
-                //console.log(textContent);
+                console.log(textContent);
 
                 let maxTemp = 43;
                 // let splits = textContent[3].split("°C");
