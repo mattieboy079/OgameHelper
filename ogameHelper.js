@@ -187,24 +187,36 @@ class OgameHelper {
         let crystalProd = 0;
         let deutProd = 0;   
         if(productionType === "metal"){
-            metalProd = (30 + this.getRawProduction(planet, productionType, level) * this.json.settings.economySpeed * this.getFactor(planet, productionType) * (1 + this.getBonus(planet, productionType)));
+            metalProd = (30 + this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, productionType);
         } else if (productionType === "crystal"){
             crystalProd = (15 + this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, productionType);
         } else if (productionType === "deut"){
             deutProd = (this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed;
         } else if (productionType === "plasma"){
-            this.player.planets.forEach(planet => {
+            this.json.player.planets.forEach(planet => {
                 metalProd += this.getRawProduction(planet, "metal", planet.metal) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
                 crystalProd += this.getRawProduction(planet, "crystal", planet.crystal) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
                 deutProd += this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
             });
-            metalProd *= 0.01;
-            crystalProd *= 0.0066;
-            deutProd *= 0.0033;
+            metalProd *= 0.01 * level;
+            crystalProd *= 0.0066 * level;
+            deutProd *= 0.0033 * level;
         } else if (productionType === "astro"){
-            metalProd = 0;
-            crystalProd = 0;
-            deutProd = 0;
+            let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
+            this.json.player.planets.forEach(planet => {
+                if(planet.metal > highestMetal) highestMetal = planet.metal;
+                if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
+                if(planet.deut > highestDeut) highestDeut = planet.deut;
+            });
+
+            let planet = {
+                coords: "1:1:8",
+                maxTemp: 43
+            };
+
+            metalProd += (30 + this.getRawProduction(planet, "metal", highestMetal) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
+            crystalProd += (15 + this.getRawProduction(planet, "crystal", highestCrystal) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
+            deutProd += (this.getRawProduction(planet, "deut", highestDeut) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed;
         } else {
             return 0;
         }  
@@ -270,7 +282,20 @@ class OgameHelper {
             maxTemp: 43
             //TODO: GET MAXTEMP            
         };
-        console.log(newplanet);
+        return newplanet;
+    }
+
+    remakePlanet(planet){
+        let newplanet = {
+            coords: planet.coords,
+            metal: planet.metal ? planet.metal : 0,
+            crystal: planet.crystal ? planet.crystal : 0,
+            deut: planet.deut ? planet.deut : 0,
+            solar: planet.solar ? planet.solar : 0,
+            crawlers: planet.crawlers ? planet.crawlers : 0,
+            maxTemp: planet.maxTemp ? planet.maxTemp : 43
+            //TODO: GET MAXTEMP            
+        };
         return newplanet;
     }
 
@@ -278,18 +303,18 @@ class OgameHelper {
         console.log("checking planets");
         let changed = false;
         let planetList = document.querySelectorAll(".smallplanet");
-        planetList.forEach((planet, index) => {
+        planetList.forEach((planet) => {
             let coords = planet.querySelector(".planet-koords");
             if(coords){
-                console.log("search coords: " + coords.textContent);
                 if(!this.json.player.planets.find(p => p.coords == coords.textContent)){
-                    console.log("new coord: " + coords.textContent);
                     changed = true;
                     this.json.player.planets.push(this.newPlanet(coords.textContent));
-                } else if (Object.keys(planet).length != Object.keys((this.newPlanet("1:1:1")).length)) {
-                    console.log("new coord: " + coords.textContent);
-                    changed = true;
-                    this.json.player.planets[index] = this.newPlanet(coords.textContent);            
+                } else {
+                    let foundIndex = this.json.player.planets.findIndex(p => p.coords == coords.textContent);
+                    if(Object.keys(this.json.player.planets[foundIndex]).length != Object.keys(this.newPlanet(coords.textContent)).length) {
+                        changed = true;
+                        this.json.player.planets[foundIndex] = this.newPlanet(coords.textContent);                
+                    }
                 }
             }
         });
@@ -348,7 +373,7 @@ class OgameHelper {
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if(!currentIsMoon){
             if(page === OVERVIEW){
-                console.log(textContent);
+                //console.log(textContent);
 
                 let maxTemp = 43;
                 // let splits = textContent[3].split("°C");
@@ -368,22 +393,47 @@ class OgameHelper {
                 let totalAmortization = [];
 
                 this.json.player.planets.forEach((planet) => {
-                    this.getMSECosts("metal", planet.metal);
-                    this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal));
-                    this.getMSECosts("crystal", planet.crystal);
-                    this.getMSECosts("deut", planet.deut);
-
-                    let amort = this.getMSECosts("metal", planet.metal)
-
-                    totalAmortization.push({ coords: planet.coords, building: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts("metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal))});
-                    totalAmortization.push({ coords: planet.coords, building: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts("crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal))});
-                    totalAmortization.push({ coords: planet.coords, building: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts("deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut))});
+                    totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts("metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
+                    totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts("crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
+                    totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts("deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
                 });
 
-                this.getMSECosts("plasma", this.json.player.plasma);
-                this.getMSECosts("astro", this.json.player.astro);
+                totalAmortization.push({ coords: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts("plasma", parseInt(this.json.player.plasma)) / this.getExtraMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
+
+                //astro
+                let totalMSECostsAstro = 0;
+
+                totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro));
+                if(this.json.player.astro % 2 == 1){
+                    totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro) + 1);
+                } 
+
+                let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
+                this.json.player.planets.forEach(planet => {
+                    if(planet.metal > highestMetal) highestMetal = planet.metal;
+                    if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
+                    if(planet.deut > highestDeut) highestDeut = planet.deut;
+                });
+
+                for (let l = 0; l < highestMetal; l++){
+                    totalMSECostsAstro += this.getMSECosts("metal", l);
+                }
+
+                for (let l = 0; l < highestCrystal; l++){
+                    totalMSECostsAstro += this.getMSECosts("crystal", l);
+                }
+
+                for (let l = 0; l < highestDeut; l++){
+                    totalMSECostsAstro += this.getMSECosts("deut", l);
+                }
 
 
+                let astroLevelString = (parseInt(this.json.player.astro) + 1)
+                if(this.json.player.astro % 2 == 1){
+                    astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
+                }
+
+                totalAmortization.push({ coords: "account", technology: "astro", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
                 totalAmortization.sort((a,b) => a.amortization - b.amortization);
                 console.log(totalAmortization);
                 //TODO: CREATE AMORTIZATION TABLE

@@ -8,14 +8,10 @@
         {
             "exclude_matches": ["https://*.ogame.gameforge.com/game/admin2/*"],
             "matches": ["https://*.ogame.gameforge.com/game/*"],
-            "js": ["main.js"]
+            "js": ["ogameHelper.js"]
         }
     ],
 
-    "web_accessible_resources": ["ogameHelper.js"],
     
-    "permissions": ["storage", "https://*.ogame.gameforge.com/game/*"],
-    "background": {
-        "scripts": ["background.js"]  
-    }
+    "permissions": ["storage", "https://*.ogame.gameforge.com/game/*"]
 }
