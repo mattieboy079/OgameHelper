@@ -16,6 +16,12 @@
 
     "web_accessible_resources": ["ogameHelper.js"],
 
+    "icons": {
+        "16": "resources/logo16.png",
+        "48": "resources/logo48.png",
+        "128": "resources/logo128.png"
+      },
+
     "permissions": ["storage", "https://*.ogame.gameforge.com/game/*"],
     "background": {
         "scripts": ["background.js"]

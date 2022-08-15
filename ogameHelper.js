@@ -51,16 +51,13 @@ class OgameHelper {
         let data = localStorage.getItem("ogh-" + UNIVERSE);
         //data = undefined;
         console.log(data);
-        if(data && data !== "undefined"){
+        if(data && data !== "undefined"){   
             this.json = JSON.parse(data);
             if(!this.json.player){
                 this.getPlayerInfo();
                 this.saveData();
             }
-            if(!this.json.settings){
-                this.getServerSettings(UNIVERSE);
-                this.saveData();
-            }
+            this.getServerSettings(UNIVERSE);
         } else {
             console.log("new")
             this.json = {};
@@ -100,11 +97,21 @@ class OgameHelper {
         let planetList = document.querySelectorAll(".smallplanet");
         planetList.forEach((planet, index) => {
             let coords = planet.querySelector(".planet-koords");
-            if(coords)
-                this.json.player.planets[index] = this.newPlanet(coords.textContent);
+            if(coords){
+                this.json.player.planets[index] = this.newPlanet(this.trimCoords(coords));
+            }
         });
 
         console.log(this);
+    }
+
+    trimCoords(coords){
+        if(coords.textContent.startsWith("[")){
+            return coords.textContent.substring(1, coords.textContent.length - 1);
+        } else {
+            return coords.textContent;
+        }
+        
     }
 
     async getServerSettings(universe){
@@ -116,6 +123,7 @@ class OgameHelper {
         .then((xml) => {
             this.json.settings = {};
             this.json.settings.universe = universe,
+            this.json.settings.version = xml.querySelector("version").innerHTML,
             this.json.settings.economySpeed = xml.querySelector("speed").innerHTML,
             this.json.settings.peacefulFleetSpeed = xml.querySelector("speedFleetPeaceful").innerHTML,
             this.json.settings.deutUsageFactor = xml.querySelector("globalDeuteriumSaveFactor").innerHTML,
@@ -301,14 +309,15 @@ class OgameHelper {
                     coords.textContent = coords.textContent.substring(1, coords.textContent.length - 1);
                 }
 
-                if(!this.json.player.planets.find(p => p.coords == coords.textContent)){
+                let trimmedCoords = this.trimCoords(coords);
+                if(!this.json.player.planets.find(p => p.coords == trimmedCoords)){
                     changed = true;
-                    this.json.player.planets.push(this.newPlanet(coords.textContent));
+                    this.json.player.planets.push(this.newPlanet(trimmedCoords));
                 } else {
-                    let foundIndex = this.json.player.planets.findIndex(p => p.coords == coords.textContent);
-                    if(Object.keys(this.json.player.planets[foundIndex]).length != Object.keys(this.newPlanet(coords.textContent)).length) {
+                    let foundIndex = this.json.player.planets.findIndex(p => p.coords == trimmedCoords);
+                    if(Object.keys(this.json.player.planets[foundIndex]).length != Object.keys(this.newPlanet(trimmedCoords)).length) {
                         changed = true;
-                        this.json.player.planets[foundIndex] = this.newPlanet(coords.textContent);                
+                        this.json.player.planets[foundIndex] = this.newPlanet(trimmedCoords);                
                     }
                 }
             }
@@ -383,10 +392,14 @@ class OgameHelper {
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
         console.log(totalAmortization);
 
-
-
-        let div = document.querySelector('.amortizationtable');
-        div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        let div;
+        if(this.json.settings.version && this.json.settings.version.startsWith("9")) {
+            div = document.querySelector('.amortizationtableV9');
+            div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtableV9"}));
+        } else {
+            div = document.querySelector('.amortizationtable');
+            div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        }
         let table = document.createElement('table');
         table.style.width = '100%';
         table.setAttribute('border', '1');
@@ -414,7 +427,8 @@ class OgameHelper {
                 coords = totalAmortization[r - 1].coords;
                 technology = totalAmortization[r - 1].technology;
                 level = totalAmortization[r - 1].level;
-                amortization = totalAmortization[r - 1].amortization + " days";
+                
+                amortization = Math.round(parseFloat(totalAmortization[r - 1].amortization) * 100) / 100 + " days";
             }
 
             let td1 = document.createElement('td');
@@ -442,7 +456,7 @@ class OgameHelper {
 
     checkPage(){
         let currentPlanet = (document.querySelector(".smallplanet .active") || document.querySelector(".smallplanet .planetlink")).parentNode;
-        let currentCoords = currentPlanet.querySelector(".planet-koords").textContent;
+        let currentCoords = this.trimCoords(currentPlanet.querySelector(".planet-koords"));
         let currentHasMoon = currentPlanet.querySelector(".moonlink") ? true : false;
         let currentIsMoon = currentHasMoon && currentPlanet.querySelector(".moonlink.active") ? true : false;
     
@@ -452,7 +466,10 @@ class OgameHelper {
             if(page === OVERVIEW){
                 this.checkPlanets();
                 console.log(textContent);
+                console.log(this.json.player.planets);
+                console.log(currentCoords);
                 let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
+                console.log(index);
                 if(this.json.player.planets[index]){
                     this.json.player.planets[index].maxTemp = parseInt(textContent[3].split("°C")[1].split(" ")[2]);
                 } else {
