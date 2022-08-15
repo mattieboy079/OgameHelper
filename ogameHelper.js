@@ -49,17 +49,18 @@ console.log(UNIVERSE);
 class OgameHelper {
     constructor(){
         let data = localStorage.getItem("ogh-" + UNIVERSE);
-        data = undefined;
+        //data = undefined;
         console.log(data);
         if(data && data !== "undefined"){
             this.json = JSON.parse(data);
             if(!this.json.player){
                 this.getPlayerInfo();
+                this.saveData();
             }
             if(!this.json.settings){
                 this.getServerSettings(UNIVERSE);
+                this.saveData();
             }
-            this.saveData();
         } else {
             console.log("new")
             this.json = {};
@@ -202,7 +203,7 @@ class OgameHelper {
 
             let planet = {
                 coords: "1:1:8",
-                maxTemp: 43
+                maxTemp: 50 // average temp for pos 8
             };
 
             metalProd += (30 + this.getRawProduction(planet, "metal", highestMetal) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
@@ -248,7 +249,8 @@ class OgameHelper {
         } else if (productionType === "crystal"){
             return 20 * level * Math.pow(1.1, level);
         } else if (productionType === "deut"){
-            return 10 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (planet.maxTemp - 20));
+            if(planet.maxTemp) return 10 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (planet.maxTemp - 20));
+            else return 10 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (50 - 20));
         } else {
             return 0;
         }
@@ -270,8 +272,7 @@ class OgameHelper {
             deut: 0,
             solar: 0,
             crawlers: 0,
-            maxTemp: 43
-            //TODO: GET MAXTEMP            
+            maxTemp: undefined        
         };
         return newplanet;
     }
@@ -284,8 +285,7 @@ class OgameHelper {
             deut: planet.deut ? planet.deut : 0,
             solar: planet.solar ? planet.solar : 0,
             crawlers: planet.crawlers ? planet.crawlers : 0,
-            maxTemp: planet.maxTemp ? planet.maxTemp : 43
-            //TODO: GET MAXTEMP            
+            maxTemp: planet.maxTemp ? planet.maxTemp : undefined
         };
         return newplanet;
     }
@@ -297,6 +297,10 @@ class OgameHelper {
         planetList.forEach((planet) => {
             let coords = planet.querySelector(".planet-koords");
             if(coords){
+                if(coords.textContent.startsWith("[")){
+                    coords.textContent = coords.textContent.substring(1, coords.textContent.length - 1);
+                }
+
                 if(!this.json.player.planets.find(p => p.coords == coords.textContent)){
                     changed = true;
                     this.json.player.planets.push(this.newPlanet(coords.textContent));
@@ -311,6 +315,7 @@ class OgameHelper {
         });
 
         if(changed){
+            console.log("savingdata");
             this.saveData();
         }
     }
@@ -319,6 +324,120 @@ class OgameHelper {
         this.json.player.geoloog = document.querySelector(".geologist.on") ? true : false;
         this.json.player.ingenieur = document.querySelector(".engineer.on") ? true : false;
         this.json.player.legerleiding = this.json.player.geoloog && this.json.player.ingenieur && (document.querySelector(".commander.on") ? true : false) && (document.querySelector(".admiral.on") ? true : false) && (document.querySelector(".technocrat.on") ? true : false);
+    }
+
+    createDOM(element, options, content) {
+        let e = document.createElement(element);
+        for (var key in options) {
+            e.setAttribute(key, options[key]);
+        }
+        if (content || content == 0) e.html(content);
+        return e;
+    }
+
+    createAmortizationTable(){
+        let totalAmortization = [];
+
+        this.json.player.planets.forEach((planet) => {
+            totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts("metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
+            totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts("crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
+            totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts("deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
+        });
+
+        totalAmortization.push({ coords: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts("plasma", parseInt(this.json.player.plasma)) / this.getExtraMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
+
+        //astro
+        let totalMSECostsAstro = 0;
+
+        totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro));
+        if(this.json.player.astro % 2 == 1){
+            totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro) + 1);
+        } 
+
+        let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
+        this.json.player.planets.forEach(planet => {
+            if(planet.metal > highestMetal) highestMetal = planet.metal;
+            if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
+            if(planet.deut > highestDeut) highestDeut = planet.deut;
+        });
+
+        for (let l = 0; l < highestMetal; l++){
+            totalMSECostsAstro += this.getMSECosts("metal", l);
+        }
+
+        for (let l = 0; l < highestCrystal; l++){
+            totalMSECostsAstro += this.getMSECosts("crystal", l);
+        }
+
+        for (let l = 0; l < highestDeut; l++){
+            totalMSECostsAstro += this.getMSECosts("deut", l);
+        }
+
+
+        let astroLevelString = (parseInt(this.json.player.astro) + 1)
+        if(this.json.player.astro % 2 == 1){
+            astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
+        }
+
+        totalAmortization.push({ coords: "account", technology: "astro", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
+        totalAmortization.sort((a,b) => a.amortization - b.amortization);
+        console.log(totalAmortization);
+
+
+
+        let div = document.querySelector('.amortizationtable');
+        div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        let table = document.createElement('table');
+        table.style.width = '100%';
+        table.setAttribute('border', '1');
+        let tableBody = document.createElement('tbody');
+
+        // document.getElementById('productionboxBottom').clientHeight / 15;
+        // for(let i = 0; i < document.getElementById('productionboxBottom').clientHeight / 15; i++){
+        //     let tr = document.createElement('tr');
+        //     let td = document.createElement('td');
+        //     tr.appendChild(td);
+        //     tableBody.appendChild(tr);
+        // }
+
+        for(let r = 0; r < totalAmortization.length + 1; r++){
+            let tr = document.createElement('tr');
+            tr.style.marginLeft = 10;
+            let coords, technology, level, amortization;
+
+            if(r == 0){
+                coords = "Coords";
+                technology = "Technology";
+                level = "Level";
+                amortization = "Return of Interest";
+            } else {
+                coords = totalAmortization[r - 1].coords;
+                technology = totalAmortization[r - 1].technology;
+                level = totalAmortization[r - 1].level;
+                amortization = totalAmortization[r - 1].amortization + " days";
+            }
+
+            let td1 = document.createElement('td');
+            td1.appendChild(document.createTextNode(coords));
+            tr.appendChild(td1);
+
+            let td2 = document.createElement('td');
+            td2.appendChild(document.createTextNode(technology));
+            tr.appendChild(td2);
+
+            let td3 = document.createElement('td');
+            td3.appendChild(document.createTextNode(level));
+            tr.appendChild(td3);
+
+            let td4 = document.createElement('td');
+            td4.appendChild(document.createTextNode(amortization));
+            tr.appendChild(td4);
+
+            tableBody.appendChild(tr);
+        }
+        table.appendChild(tableBody);
+        div.appendChild(table);
+        
     }
 
     checkPage(){
@@ -331,69 +450,23 @@ class OgameHelper {
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if(!currentIsMoon){
             if(page === OVERVIEW){
+                this.checkPlanets();
                 console.log(textContent);
-
-                let maxTemp = 43;
-                // let splits = textContent[3].split("°C");
-                // console.log(splits);
-                // // splits.reverse().forEach((item) => {
-                //     let parsed = parseInt(item);
-                //     if (!maxTemp || maxTemp < parsed) {
-                //         maxTemp = parsed;
-                //     }
-                // });
-
-                if(!this.player){
-
+                let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
+                if(this.json.player.planets[index]){
+                    this.json.player.planets[index].maxTemp = parseInt(textContent[3].split("°C")[1].split(" ")[2]);
+                } else {
+                    this.json.player.planets[index] = {
+                        maxTemp: parseInt(textContent[3].split("°C")[1].split(" ")[2])
+                    };
                 }
+                
+                console.log("savingdata");
+                this.saveData();
 
                 this.checkStaff();
-                let totalAmortization = [];
-
-                this.json.player.planets.forEach((planet) => {
-                    totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts("metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
-                    totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts("crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
-                    totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts("deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
-                });
-
-                totalAmortization.push({ coords: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts("plasma", parseInt(this.json.player.plasma)) / this.getExtraMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
-
-                //astro
-                let totalMSECostsAstro = 0;
-
-                totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro));
-                if(this.json.player.astro % 2 == 1){
-                    totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro) + 1);
-                } 
-
-                let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
-                this.json.player.planets.forEach(planet => {
-                    if(planet.metal > highestMetal) highestMetal = planet.metal;
-                    if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
-                    if(planet.deut > highestDeut) highestDeut = planet.deut;
-                });
-
-                for (let l = 0; l < highestMetal; l++){
-                    totalMSECostsAstro += this.getMSECosts("metal", l);
-                }
-
-                for (let l = 0; l < highestCrystal; l++){
-                    totalMSECostsAstro += this.getMSECosts("crystal", l);
-                }
-
-                for (let l = 0; l < highestDeut; l++){
-                    totalMSECostsAstro += this.getMSECosts("deut", l);
-                }
-
-
-                let astroLevelString = (parseInt(this.json.player.astro) + 1)
-                if(this.json.player.astro % 2 == 1){
-                    astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
-                }
-
-                totalAmortization.push({ coords: "account", technology: "astro", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
-                totalAmortization.sort((a,b) => a.amortization - b.amortization);
-                console.log(totalAmortization);
+                
+                this.createAmortizationTable();
                 //TODO: CREATE AMORTIZATION TABLE
             } else if (page === RESOURCES){
                 this.checkPlanets();
@@ -413,10 +486,11 @@ class OgameHelper {
                         crystal: document.querySelector(".technology.crystalMine .level").getAttribute("data-value"),
                         deut: document.querySelector(".technology.deuteriumSynthesizer .level").getAttribute("data-value"),
                         solar: document.querySelector(".technology.solarPlant .level").getAttribute("data-value"),
-                        fusion: document.querySelector(".technology.fusionReactor .level").getAttribute("data-value"),
+                        //fusion: document.querySelector(".technology.fusionReactor .level").getAttribute("data-value"),
                         crawlers: document.querySelector(".technology.resbuggy .amount").getAttribute("data-value")
                     };
                 }
+                console.log("savingdata");
                 this.saveData();
                 //TODO: GET FUSION/STORAGES
             } else if (page === LIFEFORM){
@@ -430,10 +504,10 @@ class OgameHelper {
                 this.json.player.plasma = document.querySelector(".technology.plasmaTechnology .level").getAttribute("data-value");
                 this.json.player.astro = document.querySelector(".technology.astrophysicsTechnology .level").getAttribute("data-value");
                 this.saveData();
+                console.log("savingdata");
                 //TODO: UPDATE RESEARCH
             }    
         }
-        this.saveData();
     }
 }
 
