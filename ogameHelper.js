@@ -353,7 +353,7 @@ class OgameHelper {
             totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts("deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
         });
 
-        totalAmortization.push({ coords: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts("plasma", parseInt(this.json.player.plasma)) / this.getExtraMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
+        totalAmortization.push({ coords: "account", technology: "plasma technology", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts("plasma", parseInt(this.json.player.plasma)) / this.getExtraMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
 
         //astro
         let totalMSECostsAstro = 0;
@@ -388,7 +388,7 @@ class OgameHelper {
             astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
         }
 
-        totalAmortization.push({ coords: "account", technology: "astro", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
+        totalAmortization.push({ coords: "account", technology: "astrophysics", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
         console.log(totalAmortization);
 
