@@ -279,8 +279,10 @@ class OgameHelper {
             crystal: 0,
             deut: 0,
             solar: 0,
+            fusion:0,
+            satellite: 0,
             crawlers: 0,
-            maxTemp: undefined        
+            maxTemp: this.getAverageTemp(coords)        
         };
         return newplanet;
     }
@@ -292,10 +294,16 @@ class OgameHelper {
             crystal: planet.crystal ? planet.crystal : 0,
             deut: planet.deut ? planet.deut : 0,
             solar: planet.solar ? planet.solar : 0,
+            fusion: planet.fusion ? planet.fusion : 0,
+            satellite: planet.satellite ? planet.satellite : 0,
             crawlers: planet.crawlers ? planet.crawlers : 0,
-            maxTemp: planet.maxTemp ? planet.maxTemp : undefined
+            maxTemp: planet.maxTemp ? planet.maxTemp : this.getAverageTemp(planet.coords)
         };
         return newplanet;
+    }
+
+    getAverageTemp(coords){
+        
     }
 
     checkPlanets(){
@@ -491,12 +499,19 @@ class OgameHelper {
                 console.log("Planetindex: " + this.json.player.planets.findIndex(p => p.coords == currentCoords));
                 let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
                 if(this.json.player.planets[index]){
+                    console.log(document.querySelectorAll(".technology"));
                     this.json.player.planets[index].metal = document.querySelector(".technology.metalMine .level").getAttribute("data-value");
+                    if(document.querySelector(".technology.metalMine").getAttribute("data-status") == "active") this.json.player.planets[index].metal++;
                     this.json.player.planets[index].crystal = document.querySelector(".technology.crystalMine .level").getAttribute("data-value");
+                    if(document.querySelector(".technology.crystalMine").getAttribute("data-status") == "active") this.json.player.planets[index].crystal++;
                     this.json.player.planets[index].deut = document.querySelector(".technology.deuteriumSynthesizer .level").getAttribute("data-value");
+                    if(document.querySelector(".technology.deuteriumSynthesizer").getAttribute("data-status") == "active") this.json.player.planets[index].deut++;
                     this.json.player.planets[index].solar = document.querySelector(".technology.solarPlant .level").getAttribute("data-value");
-//                    this.json.player.planets[index].fusion = document.querySelector(".technology.fusionReactor .level").getAttribute("data-value");
-                    this.json.player.planets[index].crawlers = document.querySelector(".technology.resbuggy .amount").getAttribute("data-value");    
+                    if(document.querySelector(".technology.solarPlant").getAttribute("data-status") == "active") this.json.player.planets[index].solar++;
+                    this.json.player.planets[index].fusion = document.querySelector(".technology.fusionPlant .level").getAttribute("data-value");
+                    if(document.querySelector(".technology.fusionPlant").getAttribute("data-status") == "active") this.json.player.planets[index].fusion++;
+                    this.json.player.planets[index].crawlers = document.querySelector(".technology.resbuggy .amount").getAttribute("data-value");   
+                    this.json.player.planets[index].satellite = document.querySelector(".technology.solarSatellite .amount").getAttribute("data-value");
                 } else {
                     this.json.player.planets[index] = {
                         metal: document.querySelector(".technology.metalMine .level").getAttribute("data-value"),
