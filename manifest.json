@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Ogame Calculator",
     "description": "Several calculations to improve your ogame experience!",
     "version": "0.1",
@@ -14,16 +14,19 @@
         }
     ],
 
-    "web_accessible_resources": ["ogameHelper.js"],
+    "web_accessible_resources": [{
+        "resources": ["ogameHelper.js", "resources/*"],
+        "matches": ["<all_urls>"]
+    }],
 
     "icons": {
         "16": "resources/logo16.png",
         "48": "resources/logo48.png",
         "128": "resources/logo128.png"
-      },
+    },
 
     "permissions": ["storage", "https://*.ogame.gameforge.com/game/*"],
     "background": {
-        "scripts": ["background.js"]
+        "service_worker": "background.js"
     }
 }

@@ -422,7 +422,7 @@ class OgameHelper {
                 coords = "Coords";
                 technology = "Technology";
                 level = "Level";
-                amortization = "Return of Interest";
+                amortization = "Return of Investment";
             } else {
                 coords = totalAmortization[r - 1].coords;
                 technology = totalAmortization[r - 1].technology;
