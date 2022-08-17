@@ -19,6 +19,7 @@ let LIFEFORM = "lfbuildings";
 let LIFEFORM_RESEARCH = "lfresearch";
 let FACILITIES = "facilities";
 let RESEARCH = "research";
+let ALLIANCE = "alliance";
 
 
 function getXMLData(xml){
@@ -163,171 +164,176 @@ class OgameHelper {
         if (upgradeType === "plasma"){
             if(this.json.player.ion < 5){
                 for(let l = this.json.player.ion; l < 5; l++){
-                    metalCost += this.getMSECosts("ion", l);
+                    metalCost += this.getMSECosts(planet, "ion", l);
                 }
             }
             if(this.json.player.laser < 10){
                 for(let l = this.json.player.laser; l < 10; l++){
-                    metalCost += this.getMSECosts("laser", l);
+                    metalCost += this.getMSECosts(planet, "laser", l);
                 }
             }
             if(this.json.player.energy < 8){
                 for(let l = this.json.player.energy; l < 8; l++){
-                    metalCost += this.getMSECosts("energy", l);
+                    metalCost += this.getMSECosts(planet, "energy", l);
                 }
             }
         } else if (upgradeType === "astro"){
             if(this.json.player.impuls < 3){
                 for(let l = this.json.player.impuls; l < 3; l++){
-                    metalCost += this.getMSECosts("impuls", l);
+                    metalCost += this.getMSECosts(planet, "impuls", l);
                 }
             }
             if(this.json.player.spy < 4 - this.json.player.technocrat ? 3 : 0){
                 for(let l = this.json.player.spy; l < 4 - this.json.player.technocrat ? 3 : 0; l++){
-                    metalCost += this.getMSECosts("spy", l);
+                    metalCost += this.getMSECosts(planet, "spy", l);
                 }
             }
             if(this.json.player.energy < 1){
                 for(let l = this.json.player.energy; l < 1; l++){
-                    metalCost += this.getMSECosts("energy", l);
+                    metalCost += this.getMSECosts(planet, "energy", l);
                 }
             }
         } else if (upgradeType === "high energy smelting"){
             if(parseInt(planet.lifeforms.buildings.researchCentre) < 5){
                 for(let l = parseInt(planet.lifeforms.buildings.researchCentre); l < 5; l++){
-                    metalCost += this.getMSECosts("research centre", l);
+                    metalCost += this.getMSECosts(planet, "research centre", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.residentialSector) < 12){
                 for(let l = parseInt(planet.lifeforms.buildings.residentialSector); l < 12; l++){
-                    metalCost += this.getMSECosts("residential sector", l);
+                    metalCost += this.getMSECosts(planet, "residential sector", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.biosphereFarm) < 13){
                 for(let l = parseInt(planet.lifeforms.buildings.biosphereFarm); l < 13; l++){
-                    metalCost += this.getMSECosts("biosphere farm", l);
+                    metalCost += this.getMSECosts(planet, "biosphere farm", l);
                 }
             }
         } else if (upgradeType === "fusion powered production"){
             if(parseInt(planet.lifeforms.buildings.academyOfSciences) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.academyOfSciences); l < 1; l++){
-                    metalCost += this.getMSECosts("academy of sciences", l);
+                    metalCost += this.getMSECosts(planet, "academy of sciences", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.residentialSector) < 40){
                 for(let l = parseInt(planet.lifeforms.buildings.residentialSector); l < 40; l++){
-                    metalCost += this.getMSECosts("residential sector", l);
+                    metalCost += this.getMSECosts(planet, "residential sector", l);
                 }
             }
         } else if (upgradeType === "magma forge") {
             if(parseInt(planet.lifeforms.buildings.runeTechnologium) < 5){
                 for(let l = parseInt(planet.lifeforms.buildings.runeTechnologium); l < 5; l++){
-                    metalCost += this.getMSECosts("rune technologium", l);
+                    metalCost += this.getMSECosts(planet, "rune technologium", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 12){
                 for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 12; l++){
-                    metalCost += this.getMSECosts("meditation enclave", l);
+                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.crystalFarm) < 13){
                 for(let l = parseInt(planet.lifeforms.buildings.crystalFarm); l < 13; l++){
-                    metalCost += this.getMSECosts("crystal farm", l);
+                    metalCost += this.getMSECosts(planet, "crystal farm", l);
                 }
             }
         } else if (upgradeType === "crystal refinery") {
             if(parseInt(planet.lifeforms.buildings.megalith) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.megalith); l < 1; l++){
-                    metalCost += this.getMSECosts("megalith", l);
+                    metalCost += this.getMSECosts(planet, "megalith", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.runeForge) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.runeForge); l < 1; l++){
-                    metalCost += this.getMSECosts("rune forge", l);
+                    metalCost += this.getMSECosts(planet, "rune forge", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 40){
                 for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 40; l++){
-                    metalCost += this.getMSECosts("meditation enclave", l);
+                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
                 }
             }
         } else if (upgradeType === "deuterium synthesizer") {
             if(parseInt(planet.lifeforms.buildings.megalith) < 2){
                 for(let l = parseInt(planet.lifeforms.buildings.megalith); l < 2; l++){
-                    metalCost += this.getMSECosts("megalith", l);
+                    metalCost += this.getMSECosts(planet, "megalith", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.runeForge) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.runeForge); l < 1; l++){
-                    metalCost += this.getMSECosts("rune forge", l);
+                    metalCost += this.getMSECosts(planet, "rune forge", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 40){
                 for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 40; l++){
-                    metalCost += this.getMSECosts("meditation enclave", l);
+                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
                 }
             }
         } else if (upgradeType === "mineral research centre") {
             if(parseInt(planet.lifeforms.buildings.oriktorium) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.oriktorium); l < 1; l++){
-                    metalCost += this.getMSECosts("oriktorium", l);
+                    metalCost += this.getMSECosts(planet, "oriktorium", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.crystalRefinery) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.crystalRefinery); l < 1; l++){
-                    metalCost += this.getMSECosts("crystal refinery", l);
+                    metalCost += this.getMSECosts(planet, "crystal refinery", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.megalith) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.megalith); l < 1; l++){
-                    metalCost += this.getMSECosts("megalith", l);
+                    metalCost += this.getMSECosts(planet, "megalith", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.runeForge) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.runeForge); l < 1; l++){
-                    metalCost += this.getMSECosts("rune forge", l);
+                    metalCost += this.getMSECosts(planet, "rune forge", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 40){
                 for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 40; l++){
-                    metalCost += this.getMSECosts("meditation enclave", l);
+                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
                 }
             }
         } else if (upgradeType === "high performance synthesiser") {
             if(parseInt(planet.lifeforms.buildings.microchipAssemblyLine) < 2){
                 for(let l = parseInt(planet.lifeforms.buildings.microchipAssemblyLine); l < 2; l++){
-                    metalCost += this.getMSECosts("microchip assembly line", l);
+                    metalCost += this.getMSECosts(planet, "microchip assembly line", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.updateNetwork) < 1){
                 for(let l = parseInt(planet.lifeforms.buildings.updateNetwork); l < 1; l++){
-                    metalCost += this.getMSECosts("update network", l);
+                    metalCost += this.getMSECosts(planet, "update network", l);
                 }
             }
             if(parseInt(planet.lifeforms.buildings.assemblyLine) < 40){
                 for(let l = parseInt(planet.lifeforms.buildings.assemblyLine); l < 40; l++){
-                    metalCost += this.getMSECosts("assembly line", l);
+                    metalCost += this.getMSECosts(planet, "assembly line", l);
                 }
             }
         }
         return metalCost;
     }
 
-    getMSECosts(upgradeType, level){
+    getMSECosts(planet, upgradeType, level){
         level = parseInt(level);
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalCost = 0;
         let crystalCost = 0;
         let deutCost = 0;
+        let resProdBuild = false;
+        let rockTalBuild = false;
         if(upgradeType === "metal"){
             metalCost = 60 * Math.pow(1.5, level);
             crystalCost = 15 * Math.pow(1.5, level);
+            resProdBuild = true;
         } else if (upgradeType === "crystal"){
             metalCost = 48 * Math.pow(1.6, level);
             crystalCost = 24 * Math.pow(1.6, level);
+            resProdBuild = true;
         } else if (upgradeType === "deut"){
             metalCost = 225 * Math.pow(1.5, level);
             crystalCost = 75 * Math.pow(1.5, level);
+            resProdBuild = true;
         } else if (upgradeType === "ion"){
             metalCost = 1000 * Math.pow(2, level);
             crystalCost = 300 * Math.pow(2, level);
@@ -383,41 +389,54 @@ class OgameHelper {
         else if (upgradeType === "meditation enclave") {
             metalCost = 9 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 3 * Math.pow(1.2, level) * (level + 1);
+            rockTalBuild = true;
         } else if (upgradeType === "crystal farm") {
             metalCost = 7 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.2, level) * (level + 1);
+            rockTalBuild = true;
         } else if (upgradeType === "rune technologium") {
             metalCost = 40000 * Math.pow(1.3, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.3, level) * (level + 1);
             deutCost = 15000 * Math.pow(1.3, level) * (level + 1);
+            rockTalBuild = true;
         } else if (upgradeType === "rune forge") {
             metalCost = 5000 * Math.pow(1.7, level) * (level + 1);
             crystalCost = 3800 * Math.pow(1.7, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.7, level) * (level + 1);
+            rockTalBuild = true;
         } else if (upgradeType === "oriktorium") {
             metalCost = 50000 * Math.pow(1.65, level) * (level + 1);
             crystalCost = 40000 * Math.pow(1.65, level) * (level + 1);
             deutCost = 50000 * Math.pow(1.65, level) * (level + 1);
+            rockTalBuild = true;
         } else if (upgradeType === "magma forge") {
             metalCost = 10000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 8000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.4, level) * (level + 1);
+            resProdBuild = true;
+            rockTalBuild = true;
         } else if (upgradeType === "megalith") {
             metalCost = 50000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 35000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 15000 * Math.pow(1.5, level) * (level + 1);
+            rockTalBuild = true;
         } else if (upgradeType === "crystal refinery") {
             metalCost = 85000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 44000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.4, level) * (level + 1);
+            resProdBuild = true;
+            rockTalBuild = true;
         } else if (upgradeType === "deuterium synthesizer") {
             metalCost = 120000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 50000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.4, level) * (level + 1);
+            resProdBuild = true;
+            rockTalBuild = true;
         } else if (upgradeType === "mineral research centre") {
             metalCost = 250000 * Math.pow(1.8, level) * (level + 1);
             crystalCost = 150000 * Math.pow(1.8, level) * (level + 1);
             deutCost = 100000 * Math.pow(1.8, level) * (level + 1);
+            rockTalBuild = true;
         } 
         //MECHAS
         else if (upgradeType === "assembly line") {
@@ -438,6 +457,16 @@ class OgameHelper {
         } else {
             return 0;
         }
+
+        if(planet && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
+            let factor = 1;
+            if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith);
+            if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre);
+            metalCost *= factor;
+            crystalCost *= factor;
+            deutCost *= factor;
+        }
+
         return (metalCost + crystalCost * ratio[0] / ratio[1] + deutCost * ratio[0] / ratio[2]); 
     }
 
@@ -696,185 +725,51 @@ class OgameHelper {
         return e;
     }
 
+    createAmortizationWithPrerequisite(planet, upgradeType, level){
+        //high energy smelting
+        let mseProd = this.getMSEProduction(planet, upgradeType, parseInt(level));
+        let mseCosts = this.getMSECosts(planet, upgradeType, level);
+        let preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
+        mseCosts += preMseCosts;
+        let amor = mseCosts / mseProd;
+        if(preMseCosts > 0) {
+            let x = 1;
+            while(this.getMSECosts(planet, upgradeType, level + x) / this.getMSEProduction(planet, upgradeType, parseInt(level) + x) < amor){
+                mseCosts += this.getMSECosts(planet, upgradeType, level + x);
+                mseProd += this.getMSEProduction(planet, upgradeType, parseInt(level) + x);
+                amor = mseCosts / mseProd;
+                x++;
+            }
+            console.log(planet.coords + " -- "+ upgradeType +" -- " + (x - 1) + " extra levels");
+            if(x > 1) {
+                return { coords: planet.coords, technology: upgradeType, level: (parseInt(level) + 1) + "-" + (parseInt(level) + x), amortization: amor / 24 };
+            } else {
+                return { coords: planet.coords, technology: upgradeType, level: (parseInt(level) + x), amortization: amor / 24 };
+            }                    }
+        else{
+            return { coords: planet.coords, technology: upgradeType, level: (parseInt(level) + 1), amortization: amor / 24 };
+        }
+    }
+
     createAmortizationTable(){
         let totalAmortization = [];
 
         this.json.player.planets.forEach((planet) => {
-            totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts("metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
-            totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts("crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
-            totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts("deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
+            totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts(planet, "metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
+            totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts(planet, "crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
+            totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts(planet, "deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
             
             if(this.json.settings.version.startsWith("9") && planet.lifeforms.lifeformClass){
                 if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                    //high energy smelting
-                    let mseProd = this.getMSEProduction(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting));
-                    let mseCosts = this.getMSECosts("high energy smelting", planet.lifeforms.buildings.highEnergySmelting);
-                    let preMseCosts = this.getPrerequisiteMSECosts(planet, "high energy smelting");
-                    mseCosts += preMseCosts;
-                    let amor = mseCosts / mseProd;
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("high energy smelting", planet.lifeforms.buildings.highEnergySmelting + x) / this.getMSEProduction(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting) + x) < amor){
-                            mseCosts += this.getMSECosts("high energy smelting", planet.lifeforms.buildings.highEnergySmelting + x);
-                            mseProd += this.getMSEProduction(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        console.log(planet.coords + " -- high energy smelting -- " + (x - 1) + " extra levels");
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "high energy smelting", level: (parseInt(planet.lifeforms.buildings.highEnergySmelting) + 1) + "-" + (parseInt(planet.lifeforms.buildings.highEnergySmelting) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "high energy smelting", level: (parseInt(planet.lifeforms.buildings.highEnergySmelting) + x), amortization: amor / 24 });
-                        }                    }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "high energy smelting", level: (parseInt(planet.lifeforms.buildings.highEnergySmelting) + 1), amortization: amor / 24 });
-                    }
-                    
-                    //fusion powered production
-                    mseProd = this.getMSEProduction(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction));
-                    mseCosts = this.getMSECosts("fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction);
-                    preMseCosts = this.getPrerequisiteMSECosts(planet, "fusion powered production");
-                    mseCosts += preMseCosts;
-                    amor = mseCosts / mseProd;
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction + x) / this.getMSEProduction(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction) + x) < amor){
-                            mseCosts += this.getMSECosts("fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction + x);
-                            mseProd += this.getMSEProduction(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        console.log(planet.coords + " -- fusion powered production -- " + (x - 1) + " extra levels");
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "fusion powered production", level: (parseInt(planet.lifeforms.buildings.fusionPoweredProduction) + 1) + "-" + (parseInt(planet.lifeforms.buildings.fusionPoweredProduction) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "fusion powered production", level: (parseInt(planet.lifeforms.buildings.fusionPoweredProduction) + x), amortization: amor / 24 });
-                        }                  }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "fusion powered production", level: (parseInt(planet.lifeforms.buildings.fusionPoweredProduction) + 1), amortization: amor / 24 });
-                    }
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
                 } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                    //magma forge
-                    let mseProd = this.getMSEProduction(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge));
-                    let mseCosts = this.getMSECosts("magma forge", parseInt(planet.lifeforms.buildings.magmaForge));
-                    let preMseCosts = this.getPrerequisiteMSECosts(planet, "magma forge");
-                    mseCosts += preMseCosts;
-                    let amor = mseCosts / mseProd;
-                    console.log(mseProd +" -- "+mseCosts+" -- "+ preMseCosts+" -- "+amor);
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("magma forge", parseInt(planet.lifeforms.buildings.magmaForge) + x) / this.getMSEProduction(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge) + x) < amor){
-                            console.log(this.getMSEProduction(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge) + x) +" -- "+this.getMSECosts("magma forge", parseInt(planet.lifeforms.buildings.magmaForge) + x))
-                            mseCosts += this.getMSECosts("magma forge", parseInt(planet.lifeforms.buildings.magmaForge) + x);
-                            mseProd += this.getMSEProduction(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "magma forge", level: (parseInt(planet.lifeforms.buildings.magmaForge) + 1) + "-" + (parseInt(planet.lifeforms.buildings.magmaForge) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "magma forge", level: (parseInt(planet.lifeforms.buildings.magmaForge) + x), amortization: amor / 24 });
-                        }                    }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "magma forge", level: (parseInt(planet.lifeforms.buildings.magmaForge) + 1), amortization: amor / 24 });
-                    }
-
-                    //crystal refinery
-                    mseProd = this.getMSEProduction(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery));
-                    mseCosts = this.getMSECosts("crystal refinery", planet.lifeforms.buildings.crystalRefinery);
-                    preMseCosts = this.getPrerequisiteMSECosts(planet, "crystal refinery");
-                    mseCosts += preMseCosts;
-                    amor = mseCosts / mseProd;
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("crystal refinery", planet.lifeforms.buildings.crystalRefinery + x) / this.getMSEProduction(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery) + x) < amor){
-                            mseCosts += this.getMSECosts("crystal refinery", planet.lifeforms.buildings.crystalRefinery + x);
-                            mseProd += this.getMSEProduction(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        console.log(planet.coords + " -- crystal refinery -- " + (x - 1) + " extra levels");
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "crystal refinery", level: (parseInt(planet.lifeforms.buildings.crystalRefinery) + 1) + "-" + (parseInt(planet.lifeforms.buildings.crystalRefinery) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "crystal refinery", level: (parseInt(planet.lifeforms.buildings.crystalRefinery) + x), amortization: amor / 24 });
-                        }
-                    }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "crystal refinery", level: (parseInt(planet.lifeforms.buildings.crystalRefinery) + 1), amortization: amor / 24 });
-                    }
-                    
-                    //deuterium synthesizer
-                    mseProd = this.getMSEProduction(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer));
-                    mseCosts = this.getMSECosts("deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer);
-                    preMseCosts = this.getPrerequisiteMSECosts(planet, "deuterium synthesizer");
-                    mseCosts += preMseCosts;
-                    amor = mseCosts / mseProd;
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer + x) / this.getMSEProduction(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer) + x) < amor){
-                            mseCosts += this.getMSECosts("deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer + x);
-                            mseProd += this.getMSEProduction(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        console.log(planet.coords + " -- deuterium synthesizer -- " + (x - 1) + " extra levels");
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "deuterium synthesizer", level: (parseInt(planet.lifeforms.buildings.deuteriumSynthesizer) + 1) + "-" + (parseInt(planet.lifeforms.buildings.deuteriumSynthesizer) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "deuterium synthesizer", level: (parseInt(planet.lifeforms.buildings.deuteriumSynthesizer) + x), amortization: amor / 24 });
-                        }                    }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "deuterium synthesizer", level: (parseInt(planet.lifeforms.buildings.deuteriumSynthesizer) + 1), amortization: amor / 24 });
-                    }
-
-                    //mineral research centre
-                    mseProd = this.getMSEProduction(planet, "mineral research centre", parseInt(planet.lifeforms.buildings.mineralResearchCentre));
-                    mseCosts = this.getMSECosts("mineral research centre", planet.lifeforms.buildings.mineralResearchCentre);
-                    preMseCosts = this.getPrerequisiteMSECosts(planet, "mineral research centre");
-                    mseCosts += preMseCosts;
-                    amor = mseCosts / mseProd;
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("mineral research centre", planet.lifeforms.buildings.mineralResearchCentre + x) / this.getMSEProduction(planet, "mineral research centre", parseInt(planet.lifeforms.buildings.mineralResearchCentre) + x) < amor){
-                            mseCosts += this.getMSECosts("mineral research centre", planet.lifeforms.buildings.mineralResearchCentre + x);
-                            mseProd += this.getMSEProduction(planet, "mineral research centre", parseInt(planet.lifeforms.buildings.mineralResearchCentre) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        console.log(planet.coords + " -- mineral research centre -- " + (x - 1) + " extra levels");
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "mineral research centre", level: (parseInt(planet.lifeforms.buildings.mineralResearchCentre) + 1) + "-" + (parseInt(planet.lifeforms.buildings.mineralResearchCentre) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "mineral research centre", level: (parseInt(planet.lifeforms.buildings.mineralResearchCentre) + x), amortization: amor / 24 });
-                        }                    }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "mineral research centre", level: (parseInt(planet.lifeforms.buildings.mineralResearchCentre) + 1), amortization: amor / 24 });
-                    }
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", planet.lifeforms.buildings.magmaForge));
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", planet.lifeforms.buildings.crystalRefinery));
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer));
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", planet.lifeforms.buildings.mineralResearchCentre));
                 } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                    //high performance synthesiser
-                    let mseProd = this.getMSEProduction(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer));
-                    let mseCosts = this.getMSECosts("high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer);
-                    let preMseCosts = this.getPrerequisiteMSECosts(planet, "high performance synthesiser");
-                    mseCosts += preMseCosts;
-                    let amor = mseCosts / mseProd;
-                    if(preMseCosts > 0) {
-                        let x = 1;
-                        while(this.getMSECosts("high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer + x) / this.getMSEProduction(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer) + x) < amor){
-                            mseCosts += this.getMSECosts("high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer + x);
-                            mseProd += this.getMSEProduction(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer) + x);
-                            amor = mseCosts / mseProd;
-                            x++;
-                        }
-                        console.log(planet.coords + " -- high performance synthesiser -- " + (x - 1) + " extra levels");
-                        if(x > 1) {
-                            totalAmortization.push({ coords: planet.coords, technology: "high performance synthesiser", level: (parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer) + 1) + "-" + (parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer) + x), amortization: amor / 24 });
-                        } else {
-                            totalAmortization.push({ coords: planet.coords, technology: "high performance synthesiser", level: (parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer) + x), amortization: amor / 24 });
-                        }                    }
-                    else{
-                        totalAmortization.push({ coords: planet.coords, technology: "high performance synthesiser", level: (parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer) + 1), amortization: amor / 24 });
-                    }
+                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer));
                 } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                 } else {
                     console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -882,14 +777,14 @@ class OgameHelper {
             }
         });
 
-        totalAmortization.push({ coords: "account", technology: "plasma technology", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts("plasma", parseInt(this.json.player.plasma)) / this.getMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
+        totalAmortization.push({ coords: "account", technology: "plasma technology", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts(undefined, "plasma", parseInt(this.json.player.plasma)) / this.getMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
 
         //astro
         let totalMSECostsAstro = 0;
 
-        totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro));
+        totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
         if(this.json.player.astro % 2 == 1){
-            totalMSECostsAstro += this.getMSECosts("astro", parseInt(this.json.player.astro) + 1);
+            totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro) + 1);
         } 
 
         let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
@@ -899,16 +794,18 @@ class OgameHelper {
             if(planet.deut > highestDeut) highestDeut = planet.deut;
         });
 
+        let p = this.newPlanet("1:1:8");
+
         for (let l = 0; l < highestMetal; l++){
-            totalMSECostsAstro += this.getMSECosts("metal", l);
+            totalMSECostsAstro += this.getMSECosts(p, "metal", l);
         }
 
         for (let l = 0; l < highestCrystal; l++){
-            totalMSECostsAstro += this.getMSECosts("crystal", l);
+            totalMSECostsAstro += this.getMSECosts(p, "crystal", l);
         }
 
         for (let l = 0; l < highestDeut; l++){
-            totalMSECostsAstro += this.getMSECosts("deut", l);
+            totalMSECostsAstro += this.getMSECosts(p, "deut", l);
         }
 
 
@@ -1016,30 +913,31 @@ class OgameHelper {
             //TODO: CREATE AMORTIZATION TABLE
         } else if (page === RESOURCES){
             this.checkPlanets();
-            console.log("update mines");
-            console.log("Planetindex: " + this.json.player.planets.findIndex(p => p.coords == currentCoords));
-            let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
-            if(this.json.player.planets[index]){
-                this.json.player.planets[index].metal = this.getTechnologyLevel("metalMine");
-                this.json.player.planets[index].crystal = this.getTechnologyLevel("crystalMine");
-                this.json.player.planets[index].deut = this.getTechnologyLevel("deuteriumSynthesizer");
-                this.json.player.planets[index].solar = this.getTechnologyLevel("solarPlant");
-                this.json.player.planets[index].fusion = this.getTechnologyLevel("fusionPlant");
-                this.json.player.planets[index].crawlers = document.querySelector(".technology.resbuggy .amount").getAttribute("data-value");   
-                this.json.player.planets[index].satellite = document.querySelector(".technology.solarSatellite .amount").getAttribute("data-value");
-            } else {
-                this.json.player.planets[index] = {
-                    metal: this.getTechnologyLevel("metalMine"),
-                    crystal: this.getTechnologyLevel("crystalMine"),
-                    deut: this.getTechnologyLevel("deuteriumSynthesizer"),
-                    solar: this.getTechnologyLevel("solarPlant"),
-                    fusion: this.getTechnologyLevel("fusionPlant"),
-                    crawlers: document.querySelector(".technology.resbuggy .amount").getAttribute("data-value"),
-                    satellite: document.querySelector(".technology.solarSatellite .amount").getAttribute("data-value")
-                };
+            if(!currentIsMoon){
+                console.log("update mines");
+                console.log("Planetindex: " + this.json.player.planets.findIndex(p => p.coords == currentCoords));
+                let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
+                if(this.json.player.planets[index]){
+                    this.json.player.planets[index].metal = this.getTechnologyLevel("metalMine");
+                    this.json.player.planets[index].crystal = this.getTechnologyLevel("crystalMine");
+                    this.json.player.planets[index].deut = this.getTechnologyLevel("deuteriumSynthesizer");
+                    this.json.player.planets[index].solar = this.getTechnologyLevel("solarPlant");
+                    this.json.player.planets[index].fusion = this.getTechnologyLevel("fusionPlant");
+                    this.json.player.planets[index].crawlers = document.querySelector(".technology.resbuggy .amount").getAttribute("data-value");   
+                    this.json.player.planets[index].satellite = document.querySelector(".technology.solarSatellite .amount").getAttribute("data-value");
+                } else {
+                    this.json.player.planets[index] = {
+                        metal: this.getTechnologyLevel("metalMine"),
+                        crystal: this.getTechnologyLevel("crystalMine"),
+                        deut: this.getTechnologyLevel("deuteriumSynthesizer"),
+                        solar: this.getTechnologyLevel("solarPlant"),
+                        fusion: this.getTechnologyLevel("fusionPlant"),
+                        crawlers: document.querySelector(".technology.resbuggy .amount").getAttribute("data-value"),
+                        satellite: document.querySelector(".technology.solarSatellite .amount").getAttribute("data-value")
+                    };
+                }
+                this.saveData();    
             }
-            console.log("savingdata");
-            this.saveData();
             //TODO: GET FUSION/STORAGES
         } else if (page === LIFEFORM){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
@@ -1119,7 +1017,10 @@ class OgameHelper {
             this.saveData();
             console.log("savingdata");
             //TODO: UPDATE RESEARCH
-        }    
+        } else if (page === ALLIANCE) {
+            console.log("ally");
+            console.log(document.querySelector(".sprite.allianceclass"));
+        }  
     }
 
     getTechnologyLevel(technologysearch){

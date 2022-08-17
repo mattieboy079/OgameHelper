@@ -25,7 +25,7 @@
         "128": "resources/logo128.png"
     },
 
-    "permissions": ["storage", "https://*.ogame.gameforge.com/game/*"],
+    "permissions": ["https://*.ogame.gameforge.com/game/*"],
     "background": {
         "service_worker": "background.js"
     }
