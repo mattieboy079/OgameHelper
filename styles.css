@@ -3,8 +3,8 @@
     outline: 1px solid #000;
     padding: 10px;
     min-width: 125px;
-    margin: 10px 0 0 0;
-    width: 654px;
+    margin: 10px 20px 0 0;
+    width: 650px;
     position: relative;
     z-index: 10;
 }
@@ -12,10 +12,10 @@
 .amortizationtableV9 {
     background: #171d23;
     outline: 1px solid #000;
-    padding: 10px;
+    padding: 20px;
     min-width: 125px;
     margin: 380px 0 0 0;
-    width: 654px;
+    width: 630px;
     position: relative;
     z-index: 10;
 }
