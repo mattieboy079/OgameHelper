@@ -70,9 +70,6 @@ class OgameHelper {
             this.getServerSettings(UNIVERSE);
             console.log(this.json);
         }
-        
-        
-        this.run();
     }
 
     getPlayerInfo(){
@@ -133,6 +130,7 @@ class OgameHelper {
         .then((xml) => {
             this.json.settings = {};
             this.json.settings.universe = universe,
+            this.json.settings.lifeforms = xml.querySelector("lifeformSettings") ? true : false;
             this.json.settings.version = xml.querySelector("version").innerHTML,
             this.json.settings.economySpeed = xml.querySelector("speed").innerHTML,
             this.json.settings.peacefulFleetSpeed = xml.querySelector("speedFleetPeaceful").innerHTML,
@@ -140,6 +138,7 @@ class OgameHelper {
             this.json.settings.topscore = xml.querySelector("topScore").innerHTML    
             this.saveData();
         });
+        console.log(this.json.settings);
     }
 
     saveData(){
@@ -155,8 +154,25 @@ class OgameHelper {
         let plasmaBonus = this.json.player.plasma ? this.json.player.plasma * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
         let processorBonus = planet.crawlers ? planet.crawlers * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0;
+        let lifeformBonus = 0;
+        if(planet.lifeforms && planet.lifeforms.lifeformClass){
+            let lifeformBuilingBonus = 0;
+            let lifeformTechBonus = 0;
+            if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
+                if(resource == "metal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.magmaForge;
+                else if(resource == "crystal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.fusionPoweredProduction;
+                else if(resource == "deut") lifeformBuilingBonus = 0.01 * planet.lifeforms.buildings.fusionPoweredProduction;
+            } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
+                if(resource == "metal") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.magmaForge;
+                else if(resource == "crystal") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.crystalRefinery;
+                else if(resource == "deut") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.deuteriumSynthesizer;
+            } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
+                if(resource == "deut") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.deuteriumSynthesizer;
+            }
+            lifeformBonus = lifeformBuilingBonus + lifeformTechBonus;
+        }
 
-        return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus;
+        return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus + lifeformBonus;
     }
 
     getPrerequisiteMSECosts(planet, upgradeType){
@@ -458,7 +474,7 @@ class OgameHelper {
             return 0;
         }
 
-        if(planet && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
+        if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
             if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith);
             if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre);
@@ -587,7 +603,7 @@ class OgameHelper {
     }
 
     newPlanet(coords){
-        if(this.json.settings.version.startsWith("9")){
+        if(this.json.settings.lifeforms){
             return {
                 coords: coords,
                 metal: 0,
@@ -616,7 +632,7 @@ class OgameHelper {
     }
 
     remakePlanet(planet){
-        if(this.json.settings.version.startsWith("9")){
+        if(this.json.settings.lifeforms){
             return {
                 coords: planet.coords,
                 metal: planet.metal ? planet.metal : 0,
@@ -759,7 +775,7 @@ class OgameHelper {
             totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts(planet, "crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
             totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts(planet, "deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
             
-            if(this.json.settings.version.startsWith("9") && planet.lifeforms.lifeformClass){
+            if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                 if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                     totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
                     totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
@@ -817,15 +833,10 @@ class OgameHelper {
         totalAmortization.push({ coords: "account", technology: "astrophysics", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
         console.log(totalAmortization);
+        
+        let div = document.querySelector('.amortizationtableV9');
+        div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtableV9"}));
 
-        let div;
-        if(this.json.settings.version && this.json.settings.version.startsWith("9")) {
-            div = document.querySelector('.amortizationtableV9');
-            div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtableV9"}));
-        } else {
-            div = document.querySelector('.amortizationtable');
-            div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtable"}));
-        }
         let table = document.createElement('table');
         table.style.width = '100%';
         table.setAttribute('border', '1');
@@ -1000,13 +1011,19 @@ class OgameHelper {
             //TODO: UPDATE LIFEFORM BUILDINGS
         } else if (page === LIFEFORM_RESEARCH){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
-            let planet =  this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
+            let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
             console.log(document.querySelectorAll(".technology"));
+            let techs = [];
+            for(let s = 1; s <= 18; s++){
+                let tech = this.getTechnologyFromSlot(s);
+                if(tech) techs.push(tech);
+            }
+            console.log(techs);
+            planet.lifeforms.techs = techs;
             //TODO: UPDATE LIFEFORM RESEARCH
         } else if (page === FACILITIES){
             //TODO: UPDATE FACILITIES
         } else if (page === RESEARCH){
-            console.log(document.querySelectorAll(".technology"));
             this.json.player.plasma = this.getTechnologyLevel("plasmaTechnology");
             this.json.player.astro = this.getTechnologyLevel("astrophysicsTechnology");
             this.json.player.energy = this.getTechnologyLevel("energyTechnology");
@@ -1015,7 +1032,6 @@ class OgameHelper {
             this.json.player.impuls = this.getTechnologyLevel("impulseDriveTechnology");
             this.json.player.spy = this.getTechnologyLevel("espionageTechnology");
             this.saveData();
-            console.log("savingdata");
             //TODO: UPDATE RESEARCH
         } else if (page === ALLIANCE) {
             console.log("ally");
@@ -1029,8 +1045,25 @@ class OgameHelper {
         return level;
     }
 
+    getTechnologyFromSlot(slot){
+        if(slot < 10){
+            slot = "0" + slot;
+        }
+
+        for(let i = 1; i <= 4; i++){
+            if(document.querySelector(".technology.lifeformTech1" + i + "2" + slot)){
+                return {
+                    name: document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("title"),
+                    level: document.querySelector(".technology.lifeformTech1" + i + "2" + slot + " .level").getAttribute("data-value")
+                }
+            }    
+        }
+
+        return undefined;
+    }
+
     checkCurrentLifeform(planet){
-        let lifeformClass;
+        let lifeformClass = "none";
         if (document.querySelector("#lifeform .lifeform1")) {
             lifeformClass = LIFEFORM_CLASS_MENSEN;
         } else if (document.querySelector("#lifeform .lifeform2")) {
@@ -1048,7 +1081,7 @@ class OgameHelper {
         if(!planet.lifeforms.lifeformClass || lifeformClass != planet.lifeforms.lifeformClass){
             planet.lifeforms.lifeformClass = lifeformClass;
             planet.lifeforms.buildings = {};
-            planet.lifeforms.techs = {};
+            planet.lifeforms.techs = [];
         }
         return planet;
     }
@@ -1056,7 +1089,7 @@ class OgameHelper {
 
 (async () => {
     let helper = new OgameHelper();
-    // setTimeout(function () {
-    //     helper.run();
-    // }, 0);
+    setTimeout(function () {
+        helper.run();
+    }, 0);
   })();
