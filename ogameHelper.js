@@ -477,11 +477,11 @@ class OgameHelper {
             metalCost = 7000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
-        } else if (upgradeType === "Acoustic Scanning") {
+        } else if (upgradeType === "Acoustic Scanning" || upgradeType === "Akoestisch Scannen") {
             metalCost = 7500 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 12500 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
-        } else if (upgradeType === "High Energy Pump Systems") {
+        } else if (upgradeType === "High Energy Pump Systems" || upgradeType === "Hoge Energie Pomp Systemen") {
             metalCost = 15000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
