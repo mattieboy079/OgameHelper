@@ -21,6 +21,12 @@ let FACILITIES = "facilities";
 let RESEARCH = "research";
 let ALLIANCE = "alliance";
 
+let METAALMIJN;
+let KRISTALMIJN;
+let DEUTFABRIEK;
+let PLASMATECHNIEK;
+let ASTROFYSICA;
+
 
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
@@ -46,10 +52,22 @@ function getUniverse(universe){
     return getXMLData(fetch(`https://${universe}.ogame.gameforge.com/api/universe.xml`));
 }
 
-
-
-
 const UNIVERSE = window.location.host.split(".")[0];
+
+
+
+
+function getLanguage(){
+    fetch(`https://${UNIVERSE}.ogame.gameforge.com/api/localization.xml`)
+    .then((rep) => rep.text())
+    .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
+    .then((xml) => {
+        console.log(xml.querySelector("techs"));
+        //METAALMIJN = xml.querySelector("")
+    });
+}
+
+
 console.log(UNIVERSE);
 
 class OgameHelper {
@@ -845,37 +863,39 @@ class OgameHelper {
         }
     }
 
-    createAmortizationTable(){
+    createAmortizationTable(coords = undefined){
         let totalAmortization = [];
 
         this.json.player.planets.forEach((planet) => {
-            totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts(planet, "metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
-            totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts(planet, "crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
-            totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts(planet, "deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
-            
-            if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
-                if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
-                } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", planet.lifeforms.buildings.magmaForge));
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", planet.lifeforms.buildings.crystalRefinery));
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer));
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", planet.lifeforms.buildings.mineralResearchCentre));
-                } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                    totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer));
-                } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
-                } else {
-                    console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
-                }
-
-                planet.lifeforms.techs.forEach(tech => {
-                    let extraMSE = this.getMSEProduction(planet, tech.name, parseInt(tech.level));
-                    if(extraMSE > 0){
-                        let mseCost = this.getMSECosts(planet, tech.name, parseInt(tech.level));
-                        totalAmortization.push({ coords: planet.coords, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
+            if(!coords || planet.coords == coords){
+                totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts(planet, "metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
+                totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts(planet, "crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
+                totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts(planet, "deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
+                
+                if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
+                    if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
+                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", planet.lifeforms.buildings.magmaForge));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", planet.lifeforms.buildings.crystalRefinery));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", planet.lifeforms.buildings.mineralResearchCentre));
+                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer));
+                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
+                    } else {
+                        console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
-                });
+    
+                    planet.lifeforms.techs.forEach(tech => {
+                        let extraMSE = this.getMSEProduction(planet, tech.name, parseInt(tech.level));
+                        if(extraMSE > 0){
+                            let mseCost = this.getMSECosts(planet, tech.name, parseInt(tech.level));
+                            totalAmortization.push({ coords: planet.coords, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
+                        }
+                    });
+                }    
             }
         });
 
@@ -921,7 +941,7 @@ class OgameHelper {
         console.log(totalAmortization);
         
         let div = document.querySelector('.amortizationtableV9');
-        div = document.querySelector("#inhalt").appendChild(this.createDOM("div", { class: "amortizationtableV9"}));
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtableV9"}));
 
         let table = document.createElement('table');
         table.style.width = '100%';
@@ -1035,6 +1055,7 @@ class OgameHelper {
                 }
                 this.saveData();    
             }
+            this.createAmortizationTable(currentCoords);
             //TODO: GET FUSION/STORAGES
         } else if (page === LIFEFORM){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
