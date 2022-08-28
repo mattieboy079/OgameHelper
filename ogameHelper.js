@@ -528,6 +528,17 @@ class OgameHelper {
             crystalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
         } 
+
+        //LIFEFORMTECHS T2
+        else if (upgradeType === "Depth Souding" || upgradeType == "Dieptepeiling"){
+            metalCost = 70000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
+        } else if (upgradeType === "Enhanced Production Technologies" || upgradeType == "Vebeterde Productie Technologiën"){
+            metalCost = 80000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 50000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
+        }
         
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
@@ -643,7 +654,26 @@ class OgameHelper {
             //TODO: Calc expo bonus
         } else if (productionType == "Enhanced Sensor Technology" || productionType == "Verbeterde Sensortechnologie") {
             //TODO: Calc expo bonus
-        } else {
+        } 
+        
+        //LIFEFORMTECHS T2
+        else if (productionType === "Depth Souding" || productionType == "Dieptepeiling"){
+            this.json.player.planets.forEach(p => {
+                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            });
+        } else if (productionType === "Enhanced Production Technologies" || productionType == "Vebeterde Productie Technologiën"){
+            this.json.player.planets.forEach(p => {
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
+            });
+        } 
+        
+        
+        
+        
+        
+        else {
             return 0;
         }  
 
