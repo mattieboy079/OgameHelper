@@ -534,7 +534,7 @@ class OgameHelper {
             metalCost = 70000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
-        } else if (upgradeType === "Enhanced Production Technologies" || upgradeType == "Vebeterde Productie Technologiën"){
+        } else if (upgradeType === "Enhanced Production Technologies" || upgradeType == "Verbeterde Productie Technologiën"){
             metalCost = 80000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 50000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
@@ -661,7 +661,7 @@ class OgameHelper {
             this.json.player.planets.forEach(p => {
                 metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             });
-        } else if (productionType === "Enhanced Production Technologies" || productionType == "Vebeterde Productie Technologiën"){
+        } else if (productionType === "Enhanced Production Technologies" || productionType == "Verbeterde Productie Technologiën"){
             this.json.player.planets.forEach(p => {
                 metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
                 crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
