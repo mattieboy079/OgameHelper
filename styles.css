@@ -1,4 +1,4 @@
-.amortizationtableV9 {
+.amortizationtable {
     background: #171d23;
     outline: 1px solid #000;
     padding: 20px;
@@ -7,4 +7,15 @@
     width: 630px;
     position: relative;
     z-index: 10;
+}
+
+.accountproduction {
+    background: #171d23;
+    outline: 1px solid #000;
+    padding: 20px;
+    min-width: 125px;
+    margin: 10px 0 0 0;
+    width: 630px;
+    position: relative;
+    z-index: 10;    
 }

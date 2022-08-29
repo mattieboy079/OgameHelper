@@ -167,7 +167,7 @@ class OgameHelper {
 
     getBonus(planet, resource){
         let verzamelaarBonus = this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.25 : 0;
-        let handelaarBonus = this.json.player.allianceClass === ALLY_CLASS_MINER ? 0.05 : 0;
+        let handelaarBonus = this.json.player.allyClass === ALLY_CLASS_MINER ? 0.05 : 0;
         let plasmaFactor = resource === "metal" ? 0.01 : (resource === "crystal" ? 0.0066 : 0.0033);
         let plasmaBonus = this.json.player.plasma ? this.json.player.plasma * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
@@ -970,8 +970,17 @@ class OgameHelper {
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
         console.log(totalAmortization);
         
-        let div = document.querySelector('.amortizationtableV9');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtableV9"}));
+
+        //create table
+        this.removeButtons();
+
+        let div = document.querySelector('.amortizationtable');
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div.addEventListener("click", () => {
+            let div = document.querySelector('.amortizationtable');
+            div.remove();
+            this.checkPage();
+        })
 
         let table = document.createElement('table');
         table.style.width = '100%';
@@ -1027,6 +1036,107 @@ class OgameHelper {
         
     }
 
+    createAccountProduction(){
+        this.removeButtons();
+
+        let div = document.querySelector('.accountproduction');
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "accountproduction"}));
+        div.addEventListener("click", () => {
+            let div = document.querySelector('.accountproduction');
+            div.remove();
+            this.checkPage();
+        })
+
+        let table = document.createElement('table');
+        table.style.width = '100%';
+        table.setAttribute('border', '1');
+        let tableBody = document.createElement('tbody');
+
+        let planets = this.json.player.planets;
+        planets.sort((a,b) => parseInt(a.coords.split(":")[2]) - parseInt(b.coords.split(":")[2]));
+        planets.sort((a,b) => parseInt(a.coords.split(":")[1]) - parseInt(b.coords.split(":")[1]));
+        planets.sort((a,b) => parseInt(a.coords.split(":")[0]) - parseInt(b.coords.split(":")[0]));
+        console.log(planets);
+
+        let metalProd = 0, crystalProd = 0, deutProd = 0;
+
+        planets.forEach(p => {
+            let tr = document.createElement('tr');
+            tr.style.marginLeft = 10;
+            let text = p.coords + " - " + p.metal + "/" + p.crystal + "/" + p.deut + " - " + p.maxTemp + "°C - " + p.crawlers + "/" + this.calcMaxCrawlers(p) + " crawlers";
+            
+            metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+            deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
+            
+            tr.appendChild(document.createTextNode(text));
+            tableBody.appendChild(tr);
+        });
+
+        let tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("------"));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Plasmatechnology: " + this.json.player.plasma));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Astrophysics: " + this.json.player.astro));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Geologist: " + (this.json.player.geologist ? "On" : "Off")));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Commanding Staff: " + ((this.json.player.commander && this.json.player.admiral && this.json.player.engineer && this.json.player.geologist && this.json.player.technocrat) ? "On" : "Off")));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("------"));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Total Production:"));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Per hour: " + this.getBigNumber(metalProd) + " metal, " + this.getBigNumber(crystalProd) + " crystal, " + this.getBigNumber(deutProd) + " deut"));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Per day: " + this.getBigNumber(metalProd * 24) + " metal, " + this.getBigNumber(crystalProd * 24) + " crystal, " + this.getBigNumber(deutProd * 24) + " deut"));
+        tableBody.appendChild(tr);
+
+        tr = document.createElement('tr');
+        tr.appendChild(document.createTextNode("Per week: " + this.getBigNumber(metalProd * 24 * 7) + " metal, " + this.getBigNumber(crystalProd * 24 * 7) + " crystal, " + this.getBigNumber(deutProd * 24 * 7) + " deut"));
+        tableBody.appendChild(tr);
+
+        table.appendChild(tableBody);
+        div.appendChild(table);
+        //TODO: CREATE ACCOUNT PRODUCTION
+    }
+
+    getBigNumber(number){
+        number = Math.round(number);
+        number = number.toString();
+        let digits = number.length;
+        console.log(digits); 
+
+        for(let d = 3, dotsplaced = 0; d < digits; d+=3, dotsplaced++){
+            console.log(number);
+            console.log(number.substring(0, digits - d));
+            number = number.substring(0, digits - d) + "." + number.substring(digits - d, digits + dotsplaced);
+        }
+
+        return number;
+    }
+
+    calcMaxCrawlers(planet){
+        return ((parseInt(planet.metal) + parseInt(planet.crystal) + parseInt(planet.deut)) * 8) * ((this.json.player.playerClass == PLAYER_CLASS_MINER && this.json.player.geologist) ? 1.1 : 1);
+    }
+
     checkPage(){
         let currentPlanet = (document.querySelector(".smallplanet .active") || document.querySelector(".smallplanet .planetlink")).parentNode;
         let currentCoords = this.trimCoords(currentPlanet.querySelector(".planet-koords"));
@@ -1056,7 +1166,7 @@ class OgameHelper {
 
                 this.checkStaff();
             }
-            this.createAmortizationTable();
+            this.createButtons();
             //TODO: CREATE AMORTIZATION TABLE
         } else if (page === RESOURCES){
             this.checkPlanets();
@@ -1085,7 +1195,7 @@ class OgameHelper {
                 }
                 this.saveData();    
             }
-            this.createAmortizationTable(currentCoords);
+            this.createButtons(currentCoords);
             //TODO: GET FUSION/STORAGES
         } else if (page === LIFEFORM){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
@@ -1171,9 +1281,45 @@ class OgameHelper {
             this.saveData();
             //TODO: UPDATE RESEARCH
         } else if (page === ALLIANCE) {
-            console.log("ally");
-            console.log(document.querySelector(".sprite.allianceclass"));
+            if (document.querySelector(".value.alliance_class.small.explorer")) {
+                this.json.player.allyClass = ALLY_CLASS_EXPLORER;
+            } else if (document.querySelector(".value.alliance_class.small.warrior")) {
+                this.json.player.allyClass = ALLY_CLASS_WARRIOR;
+            } else if (document.querySelector(".value.alliance_class.small.trader")) {
+                this.json.player.allyClass = ALLY_CLASS_MINER;
+            } else {
+                this.json.player.allyClass = ALLY_CLASS_NONE;
+            }
+            this.saveData();
         }  
+    }
+
+    createButtons(coords = undefined){
+        let div = document.querySelector('.amortizationtable');
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div.addEventListener("click", () => this.createAmortizationTable(coords));
+        div.appendChild(document.createTextNode("Amortization Table"));
+
+        console.log("buttons: " + coords);
+        if(coords == undefined){
+            console.log("button2")
+            div = document.querySelector('.accountproduction');
+            div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "accountproduction"}));
+            div.addEventListener("click", () => this.createAccountProduction(coords));
+            div.appendChild(document.createTextNode("Account Production"));    
+        }
+    }
+
+    removeButtons(){
+        let div = document.querySelector('.amortizationtable');
+        if(div){
+            div.remove();
+        }
+
+        div = document.querySelector('.accountproduction');
+        if(div){
+            div.remove();
+        }
     }
 
     getTechnologyLevel(technologysearch){
