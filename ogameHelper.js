@@ -555,20 +555,30 @@ class OgameHelper {
             deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;
         } else if (upgradeType === "Improved Stellarator" || upgradeType == "Verbeterde Stellarator"){
-            //TODO
-            return 0;
+            metalCost = 75000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 55000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 25000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;        
         } else if (upgradeType === "Sixth Sense" || upgradeType == "Zesde Zintuig"){
-            //TODO
-            return 0;
+            metalCost = 120000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 30000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 25000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;        
         } else if (upgradeType === "Seismic Mining Technology" || upgradeType == ""){
-            //TODO
-            return 0;
+            metalCost = 120000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 30000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 25000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;        
         } else if (upgradeType === "Psychoharmoniser" || upgradeType == "Psychoharmonisator"){
-            //TODO
-            return 0;
+            metalCost = 100000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;        
         } else if (upgradeType === "Magma-Powered Pump Systems" || upgradeType == ""){
-            //TODO
-            return 0;
+            metalCost = 100000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;        
         } 
         
         
