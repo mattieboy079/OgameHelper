@@ -733,14 +733,19 @@ class OgameHelper {
         } else if (productionType === "Sixth Sense" || productionType == "Zesde Zintuig"){
             metalProd = 0.002 * this.calcExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24;
         } else if (productionType === "Seismic Mining Technology" || productionType == ""){
-            //TODO
-            return 0;
+            this.json.player.planets.forEach(p => {
+                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+            });
         } else if (productionType === "Psychoharmoniser" || productionType == "Psychoharmonisator"){
-            //TODO
-            return 0;
-        } else if (productionType === "Magma-Powered Pump Systems" || productionType == ""){
-            //TODO
-            return 0;
+            this.json.player.planets.forEach(p => {
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
+            });
+        } else if (productionType === "Magma-Powered Pump Systems" || productionType == "Magma-aangedreven Pompsystemen"){
+            this.json.player.planets.forEach(p => {
+                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
+            });
         } 
         
         
