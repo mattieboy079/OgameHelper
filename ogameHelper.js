@@ -76,16 +76,16 @@ class OgameHelper {
         if(data && data !== "undefined"){   
             this.json = JSON.parse(data);
             //this.json.player = undefined;
+            this.getServerSettings(UNIVERSE);
             if(!this.json.player){
                 this.getPlayerInfo();
                 this.saveData();
             }
-            this.getServerSettings(UNIVERSE);
         } else {
             console.log("new")
             this.json = {};
-            this.getPlayerInfo();
             this.getServerSettings(UNIVERSE);
+            this.getPlayerInfo();
             console.log(this.json);
         }
     }
@@ -123,7 +123,8 @@ class OgameHelper {
         planetList.forEach((planet, index) => {
             let coords = planet.querySelector(".planet-koords");
             if(coords){
-                this.json.player.planets[index] = this.newPlanet(this.trimCoords(coords));
+                let name = planet.querySelector(".planet-name").textContent;
+                this.json.player.planets[index] = this.newPlanet(this.trimCoords(coords), name);
             }
         });
 
@@ -177,7 +178,7 @@ class OgameHelper {
             let lifeformBuilingBonus = 0;
             let lifeformTechBonus = 0;
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                if(resource == "metal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.magmaForge;
+                if(resource == "metal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.highEnergySmelting;
                 else if(resource == "crystal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.fusionPoweredProduction;
                 else if(resource == "deut") lifeformBuilingBonus = 0.01 * planet.lifeforms.buildings.fusionPoweredProduction;
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
@@ -354,8 +355,7 @@ class OgameHelper {
         let metalCost = 0;
         let crystalCost = 0;
         let deutCost = 0;
-        let resProdBuild = false;
-        let rockTalBuild = false;
+        let resProdBuild = false, rockTalBuild = false, techUpgrade = false;
         if(upgradeType === "metal"){
             metalCost = 60 * Math.pow(1.5, level);
             crystalCost = 15 * Math.pow(1.5, level);
@@ -495,38 +495,47 @@ class OgameHelper {
             metalCost = 7000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Acoustic Scanning" || upgradeType === "Akoestisch Scannen") {
             metalCost = 7500 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 12500 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "High Energy Pump Systems" || upgradeType === "Hoge Energie Pomp Systemen") {
             metalCost = 15000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Magma-Powered Production"|| upgradeType == "Magma-Aangedreven Productie") {
             metalCost = 25000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Catalyser Technology" || upgradeType == "Katalysatortechnologie") {
             metalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 6000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Automated Transport Lines" || upgradeType == "Geautomatiseerde Transportlijnen") {
             metalCost = 50000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 50000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Sulphide Process" || upgradeType == "Sulfideproces") {
             metalCost = 7500 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 12500 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Telekinetic Tractor Beam" || upgradeType == "Telekinetische Tractorstraal") {
             metalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 15000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 7500 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Enhanced Sensor Technology" || upgradeType == "Verbeterde Sensortechnologie") {
             metalCost = 25000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } 
 
         //LIFEFORMTECHS T2
@@ -534,12 +543,59 @@ class OgameHelper {
             metalCost = 70000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
+        } else if (upgradeType === "Hardened Diamond Drill Heads" || upgradeType == "Verharde Diamanten Boorkoppen"){
+            metalCost = 85000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 35000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;
         } else if (upgradeType === "Enhanced Production Technologies" || upgradeType == "Verbeterde Productie Technologiën"){
             metalCost = 80000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 50000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
-        }
+            techUpgrade = true;
+        } else if (upgradeType === "Improved Stellarator" || upgradeType == "Verbeterde Stellarator"){
+            //TODO
+            return 0;
+        } else if (upgradeType === "Sixth Sense" || upgradeType == "Zesde Zintuig"){
+            //TODO
+            return 0;
+        } else if (upgradeType === "Seismic Mining Technology" || upgradeType == ""){
+            //TODO
+            return 0;
+        } else if (upgradeType === "Psychoharmoniser" || upgradeType == "Psychoharmonisator"){
+            //TODO
+            return 0;
+        } else if (upgradeType === "Magma-Powered Pump Systems" || upgradeType == ""){
+            //TODO
+            return 0;
+        } 
         
+        
+        if(techUpgrade){
+            let factor = 1;
+            if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_MENSEN){
+                if(planet.lifeforms.buildings.researchCentre > 1){
+                    factor -= planet.lifeforms.buildings.researchCentre * 0.005;
+                }
+            } else if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
+                if(planet.lifeforms.buildings.runeTechnologium > 1){
+                    factor -= planet.lifeforms.buildings.runeTechnologium * 0.005;
+                } 
+            } else if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_MECHA){
+                if(planet.lifeforms.buildings.roboticsResearchCentre > 1){
+                    factor -= planet.lifeforms.buildings.roboticsResearchCentre * 0.0025;
+                } 
+            } else if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_KAELESH){
+                if(planet.lifeforms.buildings.vortexChamber > 1){
+                    factor -= planet.lifeforms.buildings.vortexChamber * 0.0025;
+                } 
+            }
+            metalCost *= factor;
+            crystalCost *= factor;
+            deutCost *= factor;
+        }
+
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
             if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith);
@@ -622,11 +678,11 @@ class OgameHelper {
                 crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
                 deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
             });
-        } else if (productionType == "Acoustic Scanning") {
+        } else if (productionType == "Acoustic Scanning" || productionType == "Akoestisch Scannen") {
             this.json.player.planets.forEach(p => {
                 crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
             });
-        } else if (productionType == "High Energy Pump Systems") {
+        } else if (productionType == "High Energy Pump Systems" || productionType == "Hoge Energie Pomp Systemen") {
             this.json.player.planets.forEach(p => {
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
             });
@@ -651,13 +707,17 @@ class OgameHelper {
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
             });
         } else if (productionType == "Telekinetic Tractor Beam" || productionType == "Telekinetische Tractorstraal") {
-            //TODO: Calc expo bonus
+            metalProd = 0.002 * this.calcExpoShipProd() * this.getAmountOfExpeditionsPerDay() / 24;
         } else if (productionType == "Enhanced Sensor Technology" || productionType == "Verbeterde Sensortechnologie") {
-            //TODO: Calc expo bonus
+            metalProd = 0.002 * this.calcExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24;
         } 
         
         //LIFEFORMTECHS T2
         else if (productionType === "Depth Souding" || productionType == "Dieptepeiling"){
+            this.json.player.planets.forEach(p => {
+                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            });
+        } else if (productionType === "Hardened Diamond Drill Heads" || productionType == "Verharde Diamanten Boorkoppen"){
             this.json.player.planets.forEach(p => {
                 metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             });
@@ -667,6 +727,20 @@ class OgameHelper {
                 crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
                 deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
             });
+        } else if (productionType === "Improved Stellarator" || productionType == "Verbeterde Stellarator"){
+            //TODO
+            return 0;
+        } else if (productionType === "Sixth Sense" || productionType == "Zesde Zintuig"){
+            metalProd = 0.002 * this.calcExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24;
+        } else if (productionType === "Seismic Mining Technology" || productionType == ""){
+            //TODO
+            return 0;
+        } else if (productionType === "Psychoharmoniser" || productionType == "Psychoharmonisator"){
+            //TODO
+            return 0;
+        } else if (productionType === "Magma-Powered Pump Systems" || productionType == ""){
+            //TODO
+            return 0;
         } 
         
         
@@ -678,6 +752,11 @@ class OgameHelper {
         }  
 
         return (metalProd + crystalProd * ratio[0] / ratio[1] + deutProd * ratio[0] / ratio[2]);
+    }
+
+    getAmountOfExpeditionsPerDay(){
+        return 70;
+        //TODO: Get actual amount of expeditions
     }
 
     getFactor(planet, productionType){
@@ -728,10 +807,11 @@ class OgameHelper {
         this.checkPage();
     }
 
-    newPlanet(coords){
+    newPlanet(coords, name){
         if(this.json.settings.lifeforms){
             return {
                 coords: coords,
+                name: name,
                 metal: 0,
                 crystal: 0,
                 deut: 0,
@@ -745,6 +825,7 @@ class OgameHelper {
         } else {
             return {
                 coords: coords,
+                name: name,
                 metal: 0,
                 crystal: 0,
                 deut: 0,
@@ -814,13 +895,16 @@ class OgameHelper {
         planetList.forEach((planet) => {
             let coords = planet.querySelector(".planet-koords");
             if(coords){
+                let name = planet.querySelector(".planet-name");
+                name = name.textContent;
                 let trimmedCoords = this.trimCoords(coords);
                 if(!this.json.player.planets.find(p => p.coords == trimmedCoords)){
                     changed = true;
-                    this.json.player.planets.push(this.newPlanet(trimmedCoords));
+                    this.json.player.planets.push(this.newPlanet(trimmedCoords, name));
                 } else {
                     let foundIndex = this.json.player.planets.findIndex(p => p.coords == trimmedCoords);
-                    if(Object.keys(this.json.player.planets[foundIndex]).length != Object.keys(this.newPlanet(trimmedCoords)).length) {
+                    this.json.player.planets[foundIndex].name = name;
+                    if(Object.keys(this.json.player.planets[foundIndex]).length != Object.keys(this.newPlanet(trimmedCoords, name)).length) {
                         changed = true;
                         this.json.player.planets[foundIndex] = this.remakePlanet(this.json.player.planets[foundIndex]);                
                     }
@@ -835,7 +919,7 @@ class OgameHelper {
             });
             let newPlanetList = [];
             this.json.player.planets.forEach((planet) => {
-                if(planetCoords.find(p => p.coords == planet.coords)){
+                if(planetCoords.find(c => c == planet.coords)){
                     newPlanetList.push(planet);
                 }
             });
@@ -884,35 +968,55 @@ class OgameHelper {
             }
             console.log(planet.coords + " -- "+ upgradeType +" -- " + (x - 1) + " extra levels");
             if(x > 1) {
-                return { coords: planet.coords, technology: upgradeType, level: (parseInt(level) + 1) + "-" + (parseInt(level) + x), amortization: amor / 24 };
+                return { 
+                    coords: planet.coords, 
+                    name: planet.name, 
+                    technology: upgradeType, 
+                    level: (parseInt(level) + 1) + "-" + (parseInt(level) + x), 
+                    amortization: amor / 24 };
             } else {
-                return { coords: planet.coords, technology: upgradeType, level: (parseInt(level) + x), amortization: amor / 24 };
-            }                    }
+                return { 
+                    coords: planet.coords, 
+                    name: planet.name, 
+                    technology: upgradeType, 
+                    level: (parseInt(level) + x), 
+                    amortization: amor / 24 };
+            }                    
+        }
         else{
-            return { coords: planet.coords, technology: upgradeType, level: (parseInt(level) + 1), amortization: amor / 24 };
+            return { 
+                coords: planet.coords, 
+                name: planet.name, 
+                technology: upgradeType, 
+                level: (parseInt(level) + 1), 
+                amortization: amor / 24 
+            };
         }
     }
 
     createAmortizationTable(coords = undefined){
-        let totalAmortization = [];
+        let expoProfit = this.calcExpoProfit();
+        console.log("expo: " + this.getBigNumber(expoProfit));
 
+        let totalAmortization = [];
         this.json.player.planets.forEach((planet) => {
             if(!coords || planet.coords == coords){
-                totalAmortization.push({ coords: planet.coords, technology: "metal", level: (parseInt(planet.metal) + 1), amortization: this.getMSECosts(planet, "metal", planet.metal) / this.getExtraMSEProduction(planet, "metal", parseInt(planet.metal)) / 24 });
-                totalAmortization.push({ coords: planet.coords, technology: "crystal", level: (parseInt(planet.crystal) + 1), amortization: this.getMSECosts(planet, "crystal", planet.crystal) / this.getExtraMSEProduction(planet, "crystal", parseInt(planet.crystal)) / 24});
-                totalAmortization.push({ coords: planet.coords, technology: "deut", level: (parseInt(planet.deut) + 1), amortization: this.getMSECosts(planet, "deut", planet.deut) / this.getExtraMSEProduction(planet, "deut", parseInt(planet.deut)) / 24});
-                
+                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal));
+                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal));
+                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut));
+
+
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting)));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction)));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", planet.lifeforms.buildings.magmaForge));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", planet.lifeforms.buildings.crystalRefinery));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", planet.lifeforms.buildings.mineralResearchCentre));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge)));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery)));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer)));
+//                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", parseInt(planet.lifeforms.buildings.mineralResearchCentre)));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer)));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -922,14 +1026,14 @@ class OgameHelper {
                         let extraMSE = this.getMSEProduction(planet, tech.name, parseInt(tech.level));
                         if(extraMSE > 0){
                             let mseCost = this.getMSECosts(planet, tech.name, parseInt(tech.level));
-                            totalAmortization.push({ coords: planet.coords, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
+                            totalAmortization.push({ coords: planet.coords, name: planet.name, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
                         }
                     });
                 }    
             }
         });
 
-        totalAmortization.push({ coords: "account", technology: "plasma technology", level: (parseInt(this.json.player.plasma) + 1), amortization: this.getMSECosts(undefined, "plasma", parseInt(this.json.player.plasma)) / this.getMSEProduction(undefined, "plasma", parseInt(this.json.player.plasma)) / 24});
+        totalAmortization.push({ coords: "account", name: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma))});
 
         //astro
         let totalMSECostsAstro = 0;
@@ -946,7 +1050,7 @@ class OgameHelper {
             if(planet.deut > highestDeut) highestDeut = planet.deut;
         });
 
-        let p = this.newPlanet("1:1:8");
+        let p = this.newPlanet("1:1:8", "temp");
 
         for (let l = 0; l < highestMetal; l++){
             totalMSECostsAstro += this.getMSECosts(p, "metal", l);
@@ -995,22 +1099,35 @@ class OgameHelper {
         //     tableBody.appendChild(tr);
         // }
 
+        //recursive list
+        let tempAccount = Object.assign({}, this.json.player);
+        let amortizationList = [];
+        for(let o = 0; o < 50; o++){
+            
+        }
+
+
+        //Every unit once
         for(let r = 0; r < totalAmortization.length + 1; r++){
             let tr = document.createElement('tr');
             tr.style.marginLeft = 10;
-            let coords, technology, level, amortization;
+            let coords, name, technology, level, amortization;
 
             if(r == 0){
                 coords = "Coords";
+                name = "Name";
                 technology = "Technology";
                 level = "Level";
                 amortization = "Return of Investment";
             } else {
                 coords = totalAmortization[r - 1].coords;
+                name = totalAmortization[r - 1].name;
                 technology = totalAmortization[r - 1].technology;
                 level = totalAmortization[r - 1].level;
                 
-                amortization = Math.round(parseFloat(totalAmortization[r - 1].amortization) * 100) / 100 + " days";
+                amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
+                if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig")
+                    amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
             }
 
             let td1 = document.createElement('td');
@@ -1018,22 +1135,170 @@ class OgameHelper {
             tr.appendChild(td1);
 
             let td2 = document.createElement('td');
-            td2.appendChild(document.createTextNode(technology));
+            td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
             tr.appendChild(td2);
 
             let td3 = document.createElement('td');
-            td3.appendChild(document.createTextNode(level));
+            td3.appendChild(document.createTextNode(technology));
             tr.appendChild(td3);
 
             let td4 = document.createElement('td');
-            td4.appendChild(document.createTextNode(amortization));
+            td4.appendChild(document.createTextNode(level));
             tr.appendChild(td4);
+
+            let td5 = document.createElement('td');
+            td5.appendChild(document.createTextNode(amortization));
+            tr.appendChild(td5);
 
             tableBody.appendChild(tr);
         }
         table.appendChild(tableBody);
         div.appendChild(table);
         
+    }
+
+    createAmortizationList(){
+        let totalAmortization = [];
+        this.json.player.planets.forEach((planet) => {
+            if(!coords || planet.coords == coords){
+                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal));
+                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal));
+                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut));
+
+
+                if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
+                    if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
+                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", planet.lifeforms.buildings.magmaForge));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", planet.lifeforms.buildings.crystalRefinery));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", planet.lifeforms.buildings.mineralResearchCentre));
+                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer));
+                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
+                    } else {
+                        console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
+                    }
+    
+                    planet.lifeforms.techs.forEach(tech => {
+                        let extraMSE = this.getMSEProduction(planet, tech.name, parseInt(tech.level));
+                        if(extraMSE > 0){
+                            let mseCost = this.getMSECosts(planet, tech.name, parseInt(tech.level));
+                            totalAmortization.push({ coords: planet.coords, name: planet.name, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
+                        }
+                    });
+                }    
+            }
+        });
+
+        totalAmortization.push({ coords: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma) + 1)});
+
+        //astro
+        let totalMSECostsAstro = 0;
+
+        totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
+        if(this.json.player.astro % 2 == 1){
+            totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro) + 1);
+        } 
+
+        let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
+        this.json.player.planets.forEach(planet => {
+            if(planet.metal > highestMetal) highestMetal = planet.metal;
+            if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
+            if(planet.deut > highestDeut) highestDeut = planet.deut;
+        });
+
+        let p = this.newPlanet("1:1:8", "temp");
+
+        for (let l = 0; l < highestMetal; l++){
+            totalMSECostsAstro += this.getMSECosts(p, "metal", l);
+        }
+
+        for (let l = 0; l < highestCrystal; l++){
+            totalMSECostsAstro += this.getMSECosts(p, "crystal", l);
+        }
+
+        for (let l = 0; l < highestDeut; l++){
+            totalMSECostsAstro += this.getMSECosts(p, "deut", l);
+        }
+
+
+        let astroLevelString = (parseInt(this.json.player.astro) + 1)
+        if(this.json.player.astro % 2 == 1){
+            astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
+        }
+
+        totalAmortization.push({ 
+            coords: "account", 
+            name: "-",
+            technology: "astrophysics", 
+            level: astroLevelString, 
+            amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24
+        });
+
+        totalAmortization.sort((a,b) => a.amortization - b.amortization);
+        console.log(totalAmortization);
+
+        return totalAmortization;
+    }
+
+    updateAmortizationList(amortizationList){
+        let lastUpgrade = amortizationList[0];
+        
+        for(let a = 1; a < amortizationList.length; a++){
+            if(lastUpgrade.name == "metal"){
+                if(a.name == "plasma" || a.name == "High-Performance Extractors" || a.name == "Magma-Powered Production" || a.name == "Automated Transport Lines" ||
+                a.name == "Enhanced Production Technologies" || a.name == "Psychoharmoniser" || a.name == "Artificial Swarm Intelligence" || a.name == "Depth Sounding" ||
+                a.name == "Hardened Diamond Drill Heads"){
+
+                }
+            } else if (lastUpgrade.name == "crystal"){
+
+            } else if (lastUpgrade.name == "deut"){
+
+            } else if (lastUpgrade.name == "high energy smelting" || lastUpgrade.name == "magma forge"){
+
+            } else if (lastUpgrade.name == "fusion powered production") {
+
+            } else if (lastUpgrade.name == "crystal refinery") {
+
+            } else if (lastUpgrade.name == "deuterium synthesizer" || lastUpgrade.name == "high performance synthesiser") {
+
+            } else if (lastUpgrade.name == "plasma") {
+
+            } else if (lastUpgrade.name == "High-Performance Extractors" || lastUpgrade.name == "Magma-Powered Production" || lastUpgrade.name == "Automated Transport Lines" ||
+            lastUpgrade.name == "Enhanced Production Technologies" || lastUpgrade.name == "Psychoharmoniser" || lastUpgrade.name == "Artificial Swarm Intelligence") {
+
+            } else if (lastUpgrade.name == "Depth Sounding" || lastUpgrade.name == "Hardened Diamond Drill Heads") {
+
+            } else if (lastUpgrade.name == "Acoustic Scanning" || lastUpgrade.name == "Seismic Mining Technology") {
+                
+            } else if (lastUpgrade.name == "Catalyser Technology" || lastUpgrade.name == "Sulphide Process" || lastUpgrade.name == "High Energy Pump Systems" ||
+            lastUpgrade.name == "Magma-Powered Pump Systems") {
+                
+            } 
+        }
+    }
+
+    createAmortization(planet, technology, level){
+        return { 
+            coords: planet.coords, 
+            name: planet.name, 
+            technology: technology, 
+            level: (parseInt(level) + 1), 
+            amortization: this.calculateAmortization(planet, technology, level)
+        };
+    }
+
+    calculateAmortization(planet, technology, level){
+        if(planet == undefined || planet == "account"){
+            return Math.round(this.getMSECosts(planet, technology, parseInt(level)) / this.getMSEProduction(planet, technology, parseInt(level)) / 24 * 100) / 100;
+            //TODO: plasma and astro
+        } else {
+            return Math.round(this.getMSECosts(planet, technology, parseInt(level)) / this.getExtraMSEProduction(planet, technology, parseInt(level)) / 24 * 100) / 100;
+        }
     }
 
     createAccountProduction(){
@@ -1118,15 +1383,55 @@ class OgameHelper {
         //TODO: CREATE ACCOUNT PRODUCTION
     }
 
+    calcExpoProfit(){
+        let blackHoleMSE, fuelCostMSE;
+        blackHoleMSE = 0;
+        fuelCostMSE = 0;
+        return this.calcExpoShipProd() + this.calcExpoResProd() - blackHoleMSE / 300 - fuelCostMSE; 
+    }
+
+    GetAverageFind(){
+        let maxBase;
+        let topscore = this.json.settings.topscore;
+        if(topscore < 10000){ maxBase = 40000; }
+        else if(topscore < 100000) {maxBase = 500000;}
+        else if(topscore < 1000000) {maxBase = 1200000;}
+        else if(topscore < 5000000) {maxBase = 1800000;}
+        else if(topscore < 25000000) {maxBase = 2400000;}
+        else if(topscore < 50000000) {maxBase = 3000000;}
+        else if(topscore < 75000000) {maxBase = 3600000;}
+        else if(topscore < 100000000) {maxBase = 4200000;}
+        else {maxBase = 5000000;}
+
+        let max = maxBase * 2 //pathfinder
+        max *= (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 1.5 * parseInt(this.json.settings.economySpeed) : 1)
+        let averageFactor = (0.89 * (10 + 50) + 0.1 * (52 + 100) + 0.01 * (102 + 200)) / 2;
+
+        return max * averageFactor / 200;
+
+    }
+
+    calcExpoResProd(){
+        let ratio = this.json.player.ratio;
+        let metalMSE, crystalMSE, deutMSE;
+        metalMSE = this.GetAverageFind();
+        crystalMSE = this.GetAverageFind() / 2 * ratio[0] / ratio[1];
+        deutMSE = this.GetAverageFind() / 3 * ratio[0] / ratio[2];
+        return 0.325 * (0.685 * metalMSE + 0.24 * crystalMSE + 0.075 * deutMSE);
+    }
+
+    calcExpoShipProd(){
+        let ratio = this.json.player.ratio;
+        let shipMSE = this.GetAverageFind() * (0.54 + .46 * ratio[0] / ratio[1] + 0.093 * ratio[0] / ratio[2]);
+        return 0.22 * shipMSE;
+    }
+
     getBigNumber(number){
         number = Math.round(number);
         number = number.toString();
         let digits = number.length;
-        console.log(digits); 
 
         for(let d = 3, dotsplaced = 0; d < digits; d+=3, dotsplaced++){
-            console.log(number);
-            console.log(number.substring(0, digits - d));
             number = number.substring(0, digits - d) + "." + number.substring(digits - d, digits + dotsplaced);
         }
 
@@ -1167,7 +1472,6 @@ class OgameHelper {
                 this.checkStaff();
             }
             this.createButtons();
-            //TODO: CREATE AMORTIZATION TABLE
         } else if (page === RESOURCES){
             this.checkPlanets();
             if(!currentIsMoon){
