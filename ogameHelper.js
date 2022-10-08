@@ -619,7 +619,10 @@ class OgameHelper {
     }
 
     getMSEProduction(planet, productionType, level){
-        level = parseInt(level);
+        if(productionType != "astro"){
+            level = parseInt(level);
+        }
+
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalProd = 0;
         let crystalProd = 0;
@@ -655,6 +658,36 @@ class OgameHelper {
             metalProd += (30 + this.getRawProduction(p, "metal", highestMetal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             crystalProd += (15 + this.getRawProduction(p, "crystal", highestCrystal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
             deutProd += (this.getRawProduction(p, "deut", highestDeut) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed;
+
+            if(level.toString().includes("-")){
+                let levelString = level.split(" - ");
+                level = levelString[0];
+                let maxlevel = parseInt(levelString[1]);
+                for(let i = parseInt(levelString[0]) + 1; i <= maxlevel; i++){
+                    level += " & " + i;
+                }
+            }
+
+            if(level.toString().includes("&")){
+                level = level.split(" & ");
+                level.forEach(l => {
+                    l = parseInt(l);
+                    for(let i = 1; i * i <= l; i++){
+                        if(i * i == l){
+                            //TODO: FIX TEMP FORMULA
+                            metalProd += this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots() * this.calcExpoProfit() / 24;
+                        }
+                    }    
+                });    
+            }
+            else{
+                for(let i = 1; i * i <= level; i++){
+                    if(i * i == level){
+                        //TODO: FIX TEMP FORMULA
+                        metalProd += this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots() * this.calcExpoProfit() / 24;
+                    }
+                }  
+            }
         } else if (productionType === "high energy smelting") {
             metalProd = 0.015 * this.getRawProduction(planet, "metal", planet.metal) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
         } else if (productionType === "fusion powered production") {
@@ -772,6 +805,11 @@ class OgameHelper {
     getAmountOfExpeditionsPerDay(){
         return 70;
         //TODO: Get actual amount of expeditions
+    }
+
+    getAmountOfExpeditionSlots(){
+        return 7;
+        //TODO: Get actual amount of exposlots
     }
 
     getFactor(planet, productionType){
@@ -1051,11 +1089,11 @@ class OgameHelper {
         totalAmortization.push({ coords: "account", name: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma))});
 
         //astro
-        let totalMSECostsAstro = 0;
+        let totalMSECostsAstro1 = 0;
 
-        totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
+        totalMSECostsAstro1 += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
         if(this.json.player.astro % 2 == 1){
-            totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro) + 1);
+            totalMSECostsAstro1 += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro) + 1);
         } 
 
         let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
@@ -1068,25 +1106,63 @@ class OgameHelper {
         let p = this.newPlanet("1:1:8", "temp");
 
         for (let l = 0; l < highestMetal; l++){
-            totalMSECostsAstro += this.getMSECosts(p, "metal", l);
+            totalMSECostsAstro1 += this.getMSECosts(p, "metal", l);
         }
 
         for (let l = 0; l < highestCrystal; l++){
-            totalMSECostsAstro += this.getMSECosts(p, "crystal", l);
+            totalMSECostsAstro1 += this.getMSECosts(p, "crystal", l);
         }
 
         for (let l = 0; l < highestDeut; l++){
-            totalMSECostsAstro += this.getMSECosts(p, "deut", l);
+            totalMSECostsAstro1 += this.getMSECosts(p, "deut", l);
         }
 
 
-        let astroLevelString = (parseInt(this.json.player.astro) + 1)
+        let astroLevelString1 = (parseInt(this.json.player.astro) + 1)
+        
         if(this.json.player.astro % 2 == 1){
-            astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
+            astroLevelString1 += " & " + (parseInt(this.json.player.astro) + 2);
         }
 
-        totalAmortization.push({ coords: "account", technology: "astrophysics", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24});
+        let l = 1;
+        //next astro level for expo
+        for(let i = 1; i * i < parseInt(this.json.player.astro); i++, l++);
+
+        let nextAstro = l*l;
+        let newPlanets = 0;
+        let totalMSECostsAstro = 0;
+        for(let a = parseInt(this.json.player.astro); a < nextAstro; a++){
+            if(a % 2 == 0){
+                newPlanets++;
+            }
+            totalMSECostsAstro += this.getMSECosts(undefined, "astro", a);
+        }
+
+        for (let l = 0; l < highestMetal; l++){
+            totalMSECostsAstro += newPlanets * this.getMSECosts(p, "metal", l);
+        }
+
+        for (let l = 0; l < highestCrystal; l++){
+            totalMSECostsAstro += newPlanets * this.getMSECosts(p, "crystal", l);
+        }
+
+        for (let l = 0; l < highestDeut; l++){
+            totalMSECostsAstro += newPlanets * this.getMSECosts(p, "deut", l);
+        }
+
+        let astroLevelString = (parseInt(this.json.player.astro) + 1);
+        if(parseInt(this.json.player.astro) + 1 < nextAstro){
+            astroLevelString += " - " + nextAstro;
+        }
+
+        if(totalMSECostsAstro / this.getMSEProduction(undefined, "astro", astroLevelString) < totalMSECostsAstro1 / this.getMSEProduction(undefined, "astro", astroLevelString1)){
+            totalAmortization.push({ coords: "account", name: "account", technology: "astrophysics", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", astroLevelString) / 24});
+        } else {
+            totalAmortization.push({ coords: "account", name: "account", technology: "astrophysics", level: astroLevelString1, amortization: totalMSECostsAstro1 / this.getMSEProduction(undefined, "astro", astroLevelString1) / 24});
+        }
+
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
+
         console.log(totalAmortization);
         
 
