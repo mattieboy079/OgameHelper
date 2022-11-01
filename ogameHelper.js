@@ -574,7 +574,7 @@ class OgameHelper {
             crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;        
-        } else if (upgradeType === "Magma-Powered Pump Systems" || upgradeType == ""){
+        } else if (upgradeType === "Magma-Powered Pump Systems" || upgradeType == "Magma-aangedreven Pompsystemen"){
             metalCost = 100000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
@@ -1163,7 +1163,10 @@ class OgameHelper {
 
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
 
+        let finalAmortization = this.createAmortizationListString(totalAmortization, 50);
+
         console.log(totalAmortization);
+        console.log(finalAmortization);
         
 
         //create table
@@ -1335,42 +1338,87 @@ class OgameHelper {
         return totalAmortization;
     }
 
+    createAmortizationListString(amortizationList, amount){
+        let finalList = [];
+        
+
+        for(let i = 0; i < amount; i++){
+            let lastUpgrade = amortizationList[0];
+            console.log(lastUpgrade);
+            finalList.push({
+                coords: lastUpgrade.coords, 
+                name: lastUpgrade.name, 
+                technology: lastUpgrade.technology, 
+                level: lastUpgrade.level, 
+                amortization: lastUpgrade.amortization
+            });
+
+            if(lastUpgrade.level.toString().includes("-")) {
+                lastUpgrade.level = parseInt(lastUpgrade.level.split("-")[1]) + 1;
+            } else {
+                lastUpgrade.level = parseInt(lastUpgrade.level) + 1;
+            }
+
+            lastUpgrade.amortization = this.calculateAmortization(this.getPlanetByCoords(lastUpgrade.coords), lastUpgrade.technology, lastUpgrade.level);
+
+            console.log(lastUpgrade);
+            amortizationList[0] = lastUpgrade;
+            amortizationList.sort((a,b) => a.amortization - b.amortization);
+        }
+
+
+        return finalList;
+    }
+
+    getPlanetByCoords(coords){
+        return this.json.player.planets.find(p => p.coords == coords);
+    }
+
     updateAmortizationList(amortizationList){
         let lastUpgrade = amortizationList[0];
         
-        for(let a = 1; a < amortizationList.length; a++){
-            if(lastUpgrade.name == "metal"){
-                if(a.name == "plasma" || a.name == "High-Performance Extractors" || a.name == "Magma-Powered Production" || a.name == "Automated Transport Lines" ||
-                a.name == "Enhanced Production Technologies" || a.name == "Psychoharmoniser" || a.name == "Artificial Swarm Intelligence" || a.name == "Depth Sounding" ||
-                a.name == "Hardened Diamond Drill Heads"){
 
-                }
-            } else if (lastUpgrade.name == "crystal"){
+        // for(let a = 1; a < amortizationList.length; a++){
+        //     if(lastUpgrade.name == "metal"){
+        //         if(a.name == "plasma" || a.name == "High-Performance Extractors" || a.name == "Magma-Powered Production" || a.name == "Automated Transport Lines" ||
+        //         a.name == "Enhanced Production Technologies" || a.name == "Psychoharmoniser" || a.name == "Artificial Swarm Intelligence" || a.name == "Depth Sounding" ||
+        //         a.name == "Hardened Diamond Drill Heads"){
 
-            } else if (lastUpgrade.name == "deut"){
+        //         }
+        //     } else if (lastUpgrade.name == "crystal"){
+        //         if(a.name == "plasma" || a.name == "High-Performance Extractors" || a.name == "Magma-Powered Production" || a.name == "Automated Transport Lines" ||
+        //         a.name == "Enhanced Production Technologies" || a.name == "Psychoharmoniser" || a.name == "Artificial Swarm Intelligence" || a.name == "Depth Sounding" ||
+        //         a.name == "Hardened Diamond Drill Heads"){
 
-            } else if (lastUpgrade.name == "high energy smelting" || lastUpgrade.name == "magma forge"){
+        //         }
+        //     } else if (lastUpgrade.name == "deut"){
+        //         if(a.name == "plasma" || a.name == "High-Performance Extractors" || a.name == "Magma-Powered Production" || a.name == "Automated Transport Lines" ||
+        //         a.name == "Enhanced Production Technologies" || a.name == "Psychoharmoniser" || a.name == "Artificial Swarm Intelligence" || a.name == "Depth Sounding" ||
+        //         a.name == "Hardened Diamond Drill Heads"){
 
-            } else if (lastUpgrade.name == "fusion powered production") {
+        //         }
+        //     } else if (lastUpgrade.name == "high energy smelting" || lastUpgrade.name == "magma forge"){
 
-            } else if (lastUpgrade.name == "crystal refinery") {
+        //     } else if (lastUpgrade.name == "fusion powered production") {
 
-            } else if (lastUpgrade.name == "deuterium synthesizer" || lastUpgrade.name == "high performance synthesiser") {
+        //     } else if (lastUpgrade.name == "crystal refinery") {
 
-            } else if (lastUpgrade.name == "plasma") {
+        //     } else if (lastUpgrade.name == "deuterium synthesizer" || lastUpgrade.name == "high performance synthesiser") {
 
-            } else if (lastUpgrade.name == "High-Performance Extractors" || lastUpgrade.name == "Magma-Powered Production" || lastUpgrade.name == "Automated Transport Lines" ||
-            lastUpgrade.name == "Enhanced Production Technologies" || lastUpgrade.name == "Psychoharmoniser" || lastUpgrade.name == "Artificial Swarm Intelligence") {
+        //     } else if (lastUpgrade.name == "plasma") {
 
-            } else if (lastUpgrade.name == "Depth Sounding" || lastUpgrade.name == "Hardened Diamond Drill Heads") {
+        //     } else if (lastUpgrade.name == "High-Performance Extractors" || lastUpgrade.name == "Magma-Powered Production" || lastUpgrade.name == "Automated Transport Lines" ||
+        //     lastUpgrade.name == "Enhanced Production Technologies" || lastUpgrade.name == "Psychoharmoniser" || lastUpgrade.name == "Artificial Swarm Intelligence") {
 
-            } else if (lastUpgrade.name == "Acoustic Scanning" || lastUpgrade.name == "Seismic Mining Technology") {
+        //     } else if (lastUpgrade.name == "Depth Sounding" || lastUpgrade.name == "Hardened Diamond Drill Heads") {
+
+        //     } else if (lastUpgrade.name == "Acoustic Scanning" || lastUpgrade.name == "Seismic Mining Technology") {
                 
-            } else if (lastUpgrade.name == "Catalyser Technology" || lastUpgrade.name == "Sulphide Process" || lastUpgrade.name == "High Energy Pump Systems" ||
-            lastUpgrade.name == "Magma-Powered Pump Systems") {
+        //     } else if (lastUpgrade.name == "Catalyser Technology" || lastUpgrade.name == "Sulphide Process" || lastUpgrade.name == "High Energy Pump Systems" ||
+        //     lastUpgrade.name == "Magma-Powered Pump Systems") {
                 
-            } 
-        }
+        //     } 
+        // }
     }
 
     createAmortization(planet, technology, level){
