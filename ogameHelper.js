@@ -1047,10 +1047,134 @@ class OgameHelper {
         }
     }
 
-    createAmortizationTable(coords = undefined){
+    createAmortizationTable(coords = undefined, listType){
         let expoProfit = this.calcExpoProfit();
         console.log("expo: " + this.getBigNumber(expoProfit));
 
+        
+
+        //create table
+        this.removeButtons();
+
+        let div = document.querySelector('.amortizationtable');
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div.addEventListener("click", () => {
+            let div = document.querySelector('.amortizationtable');
+            div.remove();
+            this.checkPage();
+        })
+
+        let table = document.createElement('table');
+        table.style.width = '100%';
+        table.setAttribute('border', '1');
+        let tableBody = document.createElement('tbody');
+
+
+
+        if(listType == "recursive"){
+            
+            let totalAmortization = this.createAmortizationListString(this.createAbsoluteAmortizationList(coords), 50);        
+
+            for(let r = 0; r < totalAmortization.length + 1; r++){
+                let tr = document.createElement('tr');
+                tr.style.marginLeft = 10;
+                let coords, name, technology, level, amortization;
+    
+                if(r == 0){
+                    coords = "Coords";
+                    name = "Name";
+                    technology = "Technology";
+                    level = "Level";
+                    amortization = "Return of Investment";
+                } else {
+                    coords = totalAmortization[r - 1].coords;
+                    name = totalAmortization[r - 1].name;
+                    technology = totalAmortization[r - 1].technology;
+                    level = totalAmortization[r - 1].level;
+                    
+                    amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
+                    if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig")
+                        amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
+                }
+    
+                let td1 = document.createElement('td');
+                td1.appendChild(document.createTextNode(coords));
+                tr.appendChild(td1);
+    
+                let td2 = document.createElement('td');
+                td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
+                tr.appendChild(td2);
+    
+                let td3 = document.createElement('td');
+                td3.appendChild(document.createTextNode(technology));
+                tr.appendChild(td3);
+    
+                let td4 = document.createElement('td');
+                td4.appendChild(document.createTextNode(level));
+                tr.appendChild(td4);
+    
+                let td5 = document.createElement('td');
+                td5.appendChild(document.createTextNode(amortization));
+                tr.appendChild(td5);
+    
+                tableBody.appendChild(tr);
+            }
+        } else {
+          
+            let totalAmortization = this.createAbsoluteAmortizationList(coords);
+            //Every unit once
+            for(let r = 0; r < totalAmortization.length + 1; r++){
+                let tr = document.createElement('tr');
+                tr.style.marginLeft = 10;
+                let coords, name, technology, level, amortization;
+    
+                if(r == 0){
+                    coords = "Coords";
+                    name = "Name";
+                    technology = "Technology";
+                    level = "Level";
+                    amortization = "Return of Investment";
+                } else {
+                    coords = totalAmortization[r - 1].coords;
+                    name = totalAmortization[r - 1].name;
+                    technology = totalAmortization[r - 1].technology;
+                    level = totalAmortization[r - 1].level;
+                    
+                    amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
+                    if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig")
+                        amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
+                }
+    
+                let td1 = document.createElement('td');
+                td1.appendChild(document.createTextNode(coords));
+                tr.appendChild(td1);
+    
+                let td2 = document.createElement('td');
+                td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
+                tr.appendChild(td2);
+    
+                let td3 = document.createElement('td');
+                td3.appendChild(document.createTextNode(technology));
+                tr.appendChild(td3);
+    
+                let td4 = document.createElement('td');
+                td4.appendChild(document.createTextNode(level));
+                tr.appendChild(td4);
+    
+                let td5 = document.createElement('td');
+                td5.appendChild(document.createTextNode(amortization));
+                tr.appendChild(td5);
+    
+                tableBody.appendChild(tr);
+            }
+        }
+        //recursive list
+
+        table.appendChild(tableBody);
+        div.appendChild(table);
+    }
+
+    createAbsoluteAmortizationList(coords){
         let totalAmortization = [];
         this.json.player.planets.forEach((planet) => {
             if(!coords || planet.coords == coords){
@@ -1117,7 +1241,6 @@ class OgameHelper {
             totalMSECostsAstro1 += this.getMSECosts(p, "deut", l);
         }
 
-
         let astroLevelString1 = (parseInt(this.json.player.astro) + 1)
         
         if(this.json.player.astro % 2 == 1){
@@ -1126,7 +1249,7 @@ class OgameHelper {
 
         let l = 1;
         //next astro level for expo
-        for(let i = 1; i * i < parseInt(this.json.player.astro); i++, l++);
+        for(let i = 1; i * i < parseInt(this.json.player.astro + 1); i++, l++);
 
         let nextAstro = l*l;
         let newPlanets = 0;
@@ -1162,179 +1285,6 @@ class OgameHelper {
         }
 
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
-
-        let finalAmortization = this.createAmortizationListString(totalAmortization, 50);
-
-        console.log(totalAmortization);
-        console.log(finalAmortization);
-        
-
-        //create table
-        this.removeButtons();
-
-        let div = document.querySelector('.amortizationtable');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
-        div.addEventListener("click", () => {
-            let div = document.querySelector('.amortizationtable');
-            div.remove();
-            this.checkPage();
-        })
-
-        let table = document.createElement('table');
-        table.style.width = '100%';
-        table.setAttribute('border', '1');
-        let tableBody = document.createElement('tbody');
-
-        // document.getElementById('productionboxBottom').clientHeight / 15;
-        // for(let i = 0; i < document.getElementById('productionboxBottom').clientHeight / 15; i++){
-        //     let tr = document.createElement('tr');
-        //     let td = document.createElement('td');
-        //     tr.appendChild(td);
-        //     tableBody.appendChild(tr);
-        // }
-
-        //recursive list
-        let tempAccount = Object.assign({}, this.json.player);
-        let amortizationList = [];
-        for(let o = 0; o < 50; o++){
-            
-        }
-
-
-        //Every unit once
-        for(let r = 0; r < totalAmortization.length + 1; r++){
-            let tr = document.createElement('tr');
-            tr.style.marginLeft = 10;
-            let coords, name, technology, level, amortization;
-
-            if(r == 0){
-                coords = "Coords";
-                name = "Name";
-                technology = "Technology";
-                level = "Level";
-                amortization = "Return of Investment";
-            } else {
-                coords = totalAmortization[r - 1].coords;
-                name = totalAmortization[r - 1].name;
-                technology = totalAmortization[r - 1].technology;
-                level = totalAmortization[r - 1].level;
-                
-                amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
-                if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig")
-                    amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
-            }
-
-            let td1 = document.createElement('td');
-            td1.appendChild(document.createTextNode(coords));
-            tr.appendChild(td1);
-
-            let td2 = document.createElement('td');
-            td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
-            tr.appendChild(td2);
-
-            let td3 = document.createElement('td');
-            td3.appendChild(document.createTextNode(technology));
-            tr.appendChild(td3);
-
-            let td4 = document.createElement('td');
-            td4.appendChild(document.createTextNode(level));
-            tr.appendChild(td4);
-
-            let td5 = document.createElement('td');
-            td5.appendChild(document.createTextNode(amortization));
-            tr.appendChild(td5);
-
-            tableBody.appendChild(tr);
-        }
-        table.appendChild(tableBody);
-        div.appendChild(table);
-        
-    }
-
-    createAmortizationList(){
-        let totalAmortization = [];
-        this.json.player.planets.forEach((planet) => {
-            if(!coords || planet.coords == coords){
-                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal));
-                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal));
-                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut));
-
-
-                if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
-                    if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", planet.lifeforms.buildings.highEnergySmelting));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", planet.lifeforms.buildings.fusionPoweredProduction));
-                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", planet.lifeforms.buildings.magmaForge));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", planet.lifeforms.buildings.crystalRefinery));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", planet.lifeforms.buildings.deuteriumSynthesizer));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", planet.lifeforms.buildings.mineralResearchCentre));
-                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", planet.lifeforms.buildings.highPerformanceSynthesizer));
-                    } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
-                    } else {
-                        console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
-                    }
-    
-                    planet.lifeforms.techs.forEach(tech => {
-                        let extraMSE = this.getMSEProduction(planet, tech.name, parseInt(tech.level));
-                        if(extraMSE > 0){
-                            let mseCost = this.getMSECosts(planet, tech.name, parseInt(tech.level));
-                            totalAmortization.push({ coords: planet.coords, name: planet.name, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
-                        }
-                    });
-                }    
-            }
-        });
-
-        totalAmortization.push({ coords: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma) + 1)});
-
-        //astro
-        let totalMSECostsAstro = 0;
-
-        totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
-        if(this.json.player.astro % 2 == 1){
-            totalMSECostsAstro += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro) + 1);
-        } 
-
-        let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
-        this.json.player.planets.forEach(planet => {
-            if(planet.metal > highestMetal) highestMetal = planet.metal;
-            if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
-            if(planet.deut > highestDeut) highestDeut = planet.deut;
-        });
-
-        let p = this.newPlanet("1:1:8", "temp");
-
-        for (let l = 0; l < highestMetal; l++){
-            totalMSECostsAstro += this.getMSECosts(p, "metal", l);
-        }
-
-        for (let l = 0; l < highestCrystal; l++){
-            totalMSECostsAstro += this.getMSECosts(p, "crystal", l);
-        }
-
-        for (let l = 0; l < highestDeut; l++){
-            totalMSECostsAstro += this.getMSECosts(p, "deut", l);
-        }
-
-
-        let astroLevelString = (parseInt(this.json.player.astro) + 1)
-        if(this.json.player.astro % 2 == 1){
-            astroLevelString += " & " + (parseInt(this.json.player.astro) + 2);
-        }
-
-        totalAmortization.push({ 
-            coords: "account", 
-            name: "-",
-            technology: "astrophysics", 
-            level: astroLevelString, 
-            amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", undefined) / 24
-        });
-
-        totalAmortization.sort((a,b) => a.amortization - b.amortization);
-        console.log(totalAmortization);
-
         return totalAmortization;
     }
 
@@ -1344,7 +1294,6 @@ class OgameHelper {
 
         for(let i = 0; i < amount; i++){
             let lastUpgrade = amortizationList[0];
-            console.log(lastUpgrade);
             finalList.push({
                 coords: lastUpgrade.coords, 
                 name: lastUpgrade.name, 
@@ -1360,8 +1309,9 @@ class OgameHelper {
             }
 
             lastUpgrade.amortization = this.calculateAmortization(this.getPlanetByCoords(lastUpgrade.coords), lastUpgrade.technology, lastUpgrade.level);
-
-            console.log(lastUpgrade);
+            if(isNaN(lastUpgrade.amortization)){
+                lastUpgrade.amortization = 1000000000;
+            }
             amortizationList[0] = lastUpgrade;
             amortizationList.sort((a,b) => a.amortization - b.amortization);
         }
@@ -1371,7 +1321,8 @@ class OgameHelper {
     }
 
     getPlanetByCoords(coords){
-        return this.json.player.planets.find(p => p.coords == coords);
+        let index = this.json.player.planets.findIndex(p => p.coords == coords);
+        return this.json.player.planets[index];
     }
 
     updateAmortizationList(amortizationList){
@@ -1432,11 +1383,12 @@ class OgameHelper {
     }
 
     calculateAmortization(planet, technology, level){
-        if(planet == undefined || planet == "account"){
-            return Math.round(this.getMSECosts(planet, technology, parseInt(level)) / this.getMSEProduction(planet, technology, parseInt(level)) / 24 * 100) / 100;
+        if(technology == "astro"){
             //TODO: plasma and astro
-        } else {
+        } else if (technology == "metal" || technology == "crystal" || technology == "deut"){
             return Math.round(this.getMSECosts(planet, technology, parseInt(level)) / this.getExtraMSEProduction(planet, technology, parseInt(level)) / 24 * 100) / 100;
+        } else {
+            return Math.round(this.getMSECosts(planet, technology, parseInt(level)) / this.getMSEProduction(planet, technology, parseInt(level)) / 24 * 100) / 100;
         }
     }
 
@@ -1738,14 +1690,17 @@ class OgameHelper {
     }
 
     createButtons(coords = undefined){
-        let div = document.querySelector('.amortizationtable');
+        let div = document.querySelector('.amortizationtableAbsolute');
         div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
-        div.addEventListener("click", () => this.createAmortizationTable(coords));
-        div.appendChild(document.createTextNode("Amortization Table"));
+        div.addEventListener("click", () => this.createAmortizationTable(coords, "absolute"));
+        div.appendChild(document.createTextNode("Absolute Amortization Table"));
 
-        console.log("buttons: " + coords);
+        div = document.querySelector('.amortizationtableRecursive');
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div.addEventListener("click", () => this.createAmortizationTable(coords, "recursive"));
+        div.appendChild(document.createTextNode("Recursive Amortization Table"));
+
         if(coords == undefined){
-            console.log("button2")
             div = document.querySelector('.accountproduction');
             div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "accountproduction"}));
             div.addEventListener("click", () => this.createAccountProduction(coords));
@@ -1755,6 +1710,11 @@ class OgameHelper {
 
     removeButtons(){
         let div = document.querySelector('.amortizationtable');
+        if(div){
+            div.remove();
+        }
+
+        div = document.querySelector('.amortizationtable');
         if(div){
             div.remove();
         }
