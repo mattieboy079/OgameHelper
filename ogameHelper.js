@@ -190,7 +190,7 @@ class OgameHelper {
             }
             lifeformBonus = lifeformBuilingBonus + lifeformTechBonus;
         }
-
+        //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
         return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus + lifeformBonus;
     }
 
@@ -564,7 +564,7 @@ class OgameHelper {
             crystalCost = 30000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;        
-        } else if (upgradeType === "Seismic Mining Technology" || upgradeType == ""){
+        } else if (upgradeType === "Seismic Mining Technology" || upgradeType == "Seismische Mijntechnologie"){
             metalCost = 120000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 30000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.5, level) * (level + 1);
@@ -775,7 +775,7 @@ class OgameHelper {
             return 0;
         } else if (productionType === "Sixth Sense" || productionType == "Zesde Zintuig"){
             metalProd = 0.002 * this.calcExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24;
-        } else if (productionType === "Seismic Mining Technology" || productionType == ""){
+        } else if (productionType === "Seismic Mining Technology" || productionType == "Seismische Mijntechnologie"){
             this.json.player.planets.forEach(p => {
                 crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
             });
@@ -1469,9 +1469,42 @@ class OgameHelper {
         tr.appendChild(document.createTextNode("Per week: " + this.getBigNumber(metalProd * 24 * 7) + " metal, " + this.getBigNumber(crystalProd * 24 * 7) + " crystal, " + this.getBigNumber(deutProd * 24 * 7) + " deut"));
         tableBody.appendChild(tr);
 
+        if(this.json.player.playerClass === PLAYER_CLASS_EXPLORER)
+        {
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("------"));
+            tableBody.appendChild(tr);
+            
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_MINER + " when doing less then " + this.getBigNumber(this.calcMinerBonusProfitHour() * 24 * 7 / this.calcExpoProfit()) + " expeditions per week."));
+            tableBody.appendChild(tr);    
+        }
+
         table.appendChild(tableBody);
         div.appendChild(table);
         //TODO: CREATE ACCOUNT PRODUCTION
+    }
+
+    calcMinerBonusProfitHour(){
+        let planets = this.json.player.planets;
+        let ratio = this.json.player.ratio;
+        let metalProdMiner = 0, crystalProdMiner = 0, deutProdMiner = 0;
+        let metalProd = 0, crystalProd = 0, deutProd = 0;
+
+        planets.forEach(p => {
+            let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1) - p.crawlers) * 0.00045;
+            let extraCrawlersBonus = maxCrawlerBonus - p.crawlers * 0.0002;
+
+            metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+            deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
+
+            metalProdMiner += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + 0.25 + extraCrawlersBonus + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            crystalProdMiner += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + 0.25 + extraCrawlersBonus + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+            deutProdMiner += (this.getRawProduction(p, "deut", p.deut) * (1 + 0.25 + extraCrawlersBonus + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
+        });
+
+        return metalProdMiner - metalProd + (crystalProdMiner - crystalProd) * ratio[0] / ratio[1] + (deutProdMiner - deutProd) * ratio[0] / ratio[2];
     }
 
     calcExpoProfit(){
@@ -1508,13 +1541,45 @@ class OgameHelper {
         metalMSE = this.GetAverageFind();
         crystalMSE = this.GetAverageFind() / 2 * ratio[0] / ratio[1];
         deutMSE = this.GetAverageFind() / 3 * ratio[0] / ratio[2];
-        return 0.325 * (0.685 * metalMSE + 0.24 * crystalMSE + 0.075 * deutMSE);
+        return 0.325 * (0.685 * metalMSE + 0.24 * crystalMSE + 0.075 * deutMSE) * (1 + this.calcExpoResBonus());
+    }
+
+    calcExpoResBonus(){
+        if(this.json.settings.lifeforms){
+            let bonus = 0;
+            this.json.player.planets.forEach(p => {
+                p.lifeforms.techs.forEach(t => {
+                    if(t.name == "Verbeterde Sensortechnologie" || t.name == "Zesde Zintuig"){
+                        bonus += 0.002 * t.level;
+                    }
+                });
+            });
+            return bonus;
+        } else {
+            return 0;
+        }
     }
 
     calcExpoShipProd(){
         let ratio = this.json.player.ratio;
         let shipMSE = this.GetAverageFind() * (0.54 + .46 * ratio[0] / ratio[1] + 0.093 * ratio[0] / ratio[2]);
-        return 0.22 * shipMSE;
+        return 0.22 * shipMSE * (1 + this.calcExpoShipBonus());
+    }
+
+    calcExpoShipBonus(){
+        if(this.json.settings.lifeforms){
+            let bonus = 0;
+            this.json.player.planets.forEach(p => {
+                p.lifeforms.techs.forEach(t => {
+                    if(t.name == "Telekinetische Tractorstraal"){
+                        bonus += 0.002 * t.level;
+                    }
+                });
+            });
+            return bonus;
+        } else {
+            return 0;
+        }
     }
 
     getBigNumber(number){
@@ -1677,12 +1742,16 @@ class OgameHelper {
             //TODO: UPDATE RESEARCH
         } else if (page === ALLIANCE) {
             if (document.querySelector(".value.alliance_class.small.explorer")) {
+                console.log("ally ontdekker");
                 this.json.player.allyClass = ALLY_CLASS_EXPLORER;
             } else if (document.querySelector(".value.alliance_class.small.warrior")) {
+                console.log("ally generaal");
                 this.json.player.allyClass = ALLY_CLASS_WARRIOR;
             } else if (document.querySelector(".value.alliance_class.small.trader")) {
+                console.log("ally trader");
                 this.json.player.allyClass = ALLY_CLASS_MINER;
             } else {
+                console.log("ally geen");
                 this.json.player.allyClass = ALLY_CLASS_NONE;
             }
             this.saveData();
