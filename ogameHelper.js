@@ -809,8 +809,7 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionSlots(){
-        return 7;
-        //TODO: Get actual amount of exposlots
+        return Math.floor(Math.sqrt(parseInt(this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0);
     }
 
     getFactor(planet, productionType){
@@ -1483,7 +1482,6 @@ class OgameHelper {
 
         table.appendChild(tableBody);
         div.appendChild(table);
-        //TODO: CREATE ACCOUNT PRODUCTION
     }
 
     calcMinerBonusProfitHour(){
