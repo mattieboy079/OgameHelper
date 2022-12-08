@@ -803,7 +803,8 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionsPerDay(){
-        return 70;
+        let rounds = 10;
+        return rounds * this.getAmountOfExpeditionSlots();
         //TODO: Get actual amount of expeditions
     }
 
