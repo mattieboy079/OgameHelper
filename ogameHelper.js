@@ -1168,7 +1168,6 @@ class OgameHelper {
                 tableBody.appendChild(tr);
             }
         }
-        //recursive list
 
         table.appendChild(tableBody);
         div.appendChild(table);
@@ -1303,16 +1302,12 @@ class OgameHelper {
             });
 
             if(lastUpgrade.level.toString().includes("-")) {
-                lastUpgrade.level = parseInt(lastUpgrade.level.split("-")[1]) + 1;
+                lastUpgrade.level = parseInt(lastUpgrade.level.toString().split("-")[1]);
             } else {
-                lastUpgrade.level = parseInt(lastUpgrade.level) + 1;
+                lastUpgrade.level = parseInt(lastUpgrade.level);
             }
 
-            lastUpgrade.amortization = this.calculateAmortization(this.getPlanetByCoords(lastUpgrade.coords), lastUpgrade.technology, lastUpgrade.level);
-            if(isNaN(lastUpgrade.amortization)){
-                lastUpgrade.amortization = 1000000000;
-            }
-            amortizationList[0] = lastUpgrade;
+            amortizationList[0] = this.createAmortization(this.getPlanetByCoords(lastUpgrade.coords), lastUpgrade.technology, lastUpgrade.level);
             amortizationList.sort((a,b) => a.amortization - b.amortization);
         }
 
