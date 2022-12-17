@@ -1775,6 +1775,78 @@ class OgameHelper {
             div.addEventListener("click", () => this.createAccountProduction(coords));
             div.appendChild(document.createTextNode("Account Production"));    
         }
+
+        let btn = document.createElement("button")
+        btn.innerHTML = "Ogame Calculator";
+        btn.addEventListener("click", () => this.openSettings());
+        div = document.querySelector("#menuTable");
+        div.appendChild(btn);
+    }
+
+    openSettings(){
+        console.log("Button clicked");
+        let container = this.createDOM("div", { class: "popup" });
+        container.appendChild(document.createTextNode("Text"));
+        this.openPopup(container);
+    }
+    
+    openPopup(popup){
+        if(popup == null) return;
+
+        let overlay = document.getElementById('overlay');
+        popup.classList.add("active");
+        overlay.classList.add("active");
+    }
+
+    closePopup(popup){
+        if(popup == null) return;
+        
+        let overlay = document.getElementById('overlay');
+        popup.classList.remove("active");
+        overlay.classList.remove("active");
+    }
+
+    popup(header, content) {
+        let overlay = document.querySelector(".popup");
+        if (!overlay) {
+          overlay = document.body.appendChild(this.createDOM("div", { class: "popup" }));
+          overlay.addEventListener("click", (event) => {
+            if (event.target == overlay) {
+              if (this.json.welcome) return;
+              overlay.classList.remove("ogl-active");
+            }
+          });
+        }
+        let dialog = overlay.querySelector(".popup-dialog");
+        if (!dialog) {
+          dialog = overlay.appendChild(this.createDOM("div", { class: "popup-dialog" }));
+          let close = dialog.appendChild(this.createDOM("div", { class: "close-tooltip" }));
+          close.addEventListener("click", () => {
+            if (this.json.welcome) {
+              this.json.welcome = false;
+              this.saveData();
+              if (this.playerClass == 0) {
+                window.location.href = `https://s${this.universe}-${this.gameLang}.ogame.gameforge.com/game/index.php?page=ingame&component=characterclassselection`;
+              } else {
+                window.location.href = `https://s${this.universe}-${this.gameLang}.ogame.gameforge.com/game/index.php?page=ingame&component=overview`;
+              }
+            }
+            overlay.classList.remove("ogl-active");
+          });
+        }
+        let top = dialog.querySelector("header") || dialog.appendChild(this.createDOM("header"));
+        let body =
+          dialog.querySelector(".popup-Content") ||
+          dialog.appendChild(this.createDOM("div", { class: "popup-Content" }));
+        top.html("");
+        body.html("");
+        if (header) {
+          top.appendChild(header);
+        }
+        if (content) {
+          body.appendChild(content);
+        }
+        overlay.classList.add("popup-active");
     }
 
     removeButtons(){
