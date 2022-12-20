@@ -1786,34 +1786,40 @@ class OgameHelper {
     openSettings(){
         console.log("Button clicked");
 
-        let stylesheet = document.createElement("style");
+        // let stylesheet = document.createElement("style");
 
-        let styles = `
-            .overlay {
-                position: fixed;
-                display: none;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0,0,0,.5);
-                z-index: 9999;
-            }
+        // let styles = `
+        //     .overlay {
+        //         position: fixed;
+        //         display: none;
+        //         top: 0;
+        //         left: 0;
+        //         right: 0;
+        //         bottom: 0;
+        //         background-color: rgba(0,0,0,.5);
+        //         z-index: 9999;
+        //     }
             
-            .overlay-active {
-                display: block;
-            }
-        `;
+        //     .overlay-active {
+        //         display: block;
+        //     }
+        // `;
 
-        stylesheet.innerHTML = styles;
-        document.body.appendChild(stylesheet);
+        // stylesheet.innerHTML = styles;
+        // document.body.appendChild(stylesheet);
 
         let container = document.createElement("div");
         container.classList.add("overlay");
 
         let popupTemplate = `
-            <div class="popup">
-                test
+            <div class="popup.active">
+                <div class="popup-header">
+                    <div class="title">Header</div>
+                    <button settings-close-button class="close-button">&times;</button>
+                </div>
+                <div class="popup-body">
+                    Some content
+                </div>
             </div>
         `;
 
@@ -1827,7 +1833,7 @@ class OgameHelper {
         if (!container) return;
         
         
-        container.classList.add("overlay-active");
+        // container.classList.add(".overlay-active");
     }
 
     closePopup(popup){
