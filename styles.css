@@ -21,20 +21,20 @@
 }
 
 .popup {
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0);
+    transform: translate(-50%, -50%) scale(1);
     border: 1px solid black;
     border-radius: 10px;
-    z-index: 100;
     background-color: #171d23;
-    width: 500px;
-    max-width: 80%;
+    width: 80%;
+    max-width: 400px;
 }
 
 .popup.active {
     transform: translate(-50%, -50%) scale(1);
+    display: block;
 }
 
 .popup-header {
@@ -57,30 +57,15 @@
     background: none;
     font-size: 1.25rem;
     font-weight: bold;
+    color: white;
 }
 
 .popup-body {
-    padding: 10px 15px
+    padding: 10px 15px;
 }
 
-/* #overlay {
-    position: relative;
-    opacity: 0;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, .5);
-    pointer-events: none;
-}
-
-#overlay.active {
-    opacity: 1;
-    pointer-events: all;
-} */
-
-.overlay {
-    position: relative;
+.popup-overlay {
+    position: fixed;
     display: none;
     top: 0;
     left: 0;
@@ -90,7 +75,7 @@
     z-index: 9999;
 }
 
-.overlay .overlay-active {
+.popup-overlay.active {
     display: block;
 }
 
