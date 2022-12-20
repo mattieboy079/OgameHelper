@@ -1810,16 +1810,26 @@ class OgameHelper {
 
         let container = document.createElement("div");
         container.classList.add("popup-overlay");
-        container.classList.add("active");
+
+        let ratioString = this.json.player.ratio[0] + "/" + this.json.player.ratio[1] + "/" + this.json.player.ratio[2];
 
         let popupTemplate = `
             <div class="popup">
                 <div class="popup-header">
-                    <div class="title">Header</div>
+                    <div class="title">Calculator Settings</div>
                     <button settings-close-button class="close-button">&times;</button>
                 </div>
                 <div class="popup-body">
-                    Some content
+                    <table>
+                    <tr>    
+                        <td><label for="Ratio">Ratio:</label></td>
+                        <td><input type="text" id="Ratio" ratio="Ratio" value="${ratioString}"></td>
+                    </tr>
+                    <tr>    
+                        <td><label for="Exporounds">Expo rounds per day:</label></td>
+                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" value="${this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots()}"></td>
+                    </tr>
+                    </table>
                 </div>
             </div>
         `;
@@ -1830,19 +1840,21 @@ class OgameHelper {
         this.openPopup(container);
     }
     
-    openPopup(container){
-        if (!container) return;
+    openPopup(popup){
+        if (!popup) return;
         
-        
-        // container.classList.add(".overlay-active");
+        let button = document.querySelector(".close-button");
+        button.addEventListener("click", () => this.closePopup(popup));
+
+        popup.classList.add("active");
     }
 
     closePopup(popup){
         if(popup == null) return;
         
-        let overlay = document.getElementById('overlay');
         popup.classList.remove("active");
-        overlay.classList.remove("active");
+        popup.classList.remove("popup-overlay");
+        document.body.removeChild(popup);
     }
 
     removeButtons(){
