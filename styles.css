@@ -29,7 +29,7 @@
     border-radius: 10px;
     background-color: #171d23;
     width: 80%;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 .popup.active {
@@ -46,7 +46,7 @@
 }
 
 .popup-header .title {
-    font-size: 3rem;
+    font-size: 1.25rem;
     font-weight: bold;
 }
 
@@ -55,14 +55,22 @@
     border: none;
     outline: none;
     background: none;
-    font-size: 2rem;
+    font-size: 1.25rem;
     font-weight: bold;
     color: white;
 }
 
 .popup-body {
-    padding: 10px 15px;
+    padding: 10px 25px;
     font-size: 1rem;
+}
+
+.popup-body .save-button {
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 20px 30px;
+    border-radius: 4px;
+    text-align: center;
 }
 
 .popup-overlay {

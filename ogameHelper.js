@@ -1776,9 +1776,10 @@ class OgameHelper {
             div.appendChild(document.createTextNode("Account Production"));    
         }
 
-        let btn = document.createElement("button")
-        btn.innerHTML = "Ogame Calculator";
+        let btn = document.createElement("button");
+        btn.innerHTML = "Calculator Settings";
         btn.addEventListener("click", () => this.openSettings());
+        btn.classList.add("menubutton");
         div = document.querySelector("#menuTable");
         div.appendChild(btn);
     }
@@ -1820,14 +1821,18 @@ class OgameHelper {
                     <button settings-close-button class="close-button">&times;</button>
                 </div>
                 <div class="popup-body">
-                    <table>
+                    <table style="width:100%;margin-left:auto;margin-right:auto;">
                     <tr>    
                         <td><label for="Ratio">Ratio:</label></td>
-                        <td><input type="text" id="Ratio" ratio="Ratio" value="${ratioString}"></td>
+                        <td><input type="text" id="Ratio" ratio="Ratio" style="width:100%" value="${ratioString}"></td>
                     </tr>
                     <tr>    
                         <td><label for="Exporounds">Expo rounds per day:</label></td>
-                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" value="${this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots()}"></td>
+                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots()}"></td>
+                    </tr>
+                    <tr style="height:30px"></tr>
+                    <tr>
+                        <td><button class="save-button">Save</button></td>
                     </tr>
                     </table>
                 </div>
@@ -1846,7 +1851,16 @@ class OgameHelper {
         let button = document.querySelector(".close-button");
         button.addEventListener("click", () => this.closePopup(popup));
 
+        button = document.querySelector(".save-button");
+        button.addEventListener("click", () => {this.saveSettings(); this.closePopup(popup);});
+
         popup.classList.add("active");
+    }
+
+    saveSettings(){
+        let newRatio = document.querySelector("#Ratio").getAttribute("value");
+        let newExpoRounds = document.querySelector("#Exporounds").getAttribute("value");
+        //TODO: SAVE SETTINGS
     }
 
     closePopup(popup){
