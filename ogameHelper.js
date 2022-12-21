@@ -856,6 +856,26 @@ class OgameHelper {
 
     run(){
         this.checkPage();
+        this.createSettingsButton();
+    }
+
+    createSettingsButton(){
+        let container = document.createElement("li");
+
+        let btn = document.createElement("a");
+        btn.classList.add("menubutton");
+        btn.setAttribute("target", "_self");
+
+        let label = document.createElement("span");
+        label.classList.add("textlabel");
+        label.innerHTML = "Calculator Settings";
+        btn.appendChild(label);
+
+        btn.addEventListener("click", () => this.openSettings());
+        container.appendChild(btn);
+        
+        let div = document.querySelector("#menuTable");
+        div.appendChild(container);
     }
 
     newPlanet(coords, name){
@@ -1491,7 +1511,7 @@ class OgameHelper {
 
         planets.forEach(p => {
             let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1) - p.crawlers) * 0.00045;
-            let extraCrawlersBonus = maxCrawlerBonus - p.crawlers * 0.0002;
+            let extraCrawlersBonus = maxCrawlerBonus - (p.crawlers > this.calcMaxCrawlers(p) ? this.calcMaxCrawlers(p) : p.crawlers) * 0.0002;
 
             metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
@@ -1773,23 +1793,6 @@ class OgameHelper {
             div.addEventListener("click", () => this.createAccountProduction(coords));
             div.appendChild(document.createTextNode("Account Production"));    
         }
-
-        let container = document.createElement("li");
-
-        let btn = document.createElement("a");
-        btn.classList.add("menubutton");
-        btn.setAttribute("target", "_self");
-
-        let label = document.createElement("span");
-        label.classList.add("textlabel");
-        label.innerHTML = "Calculator Settings";
-        btn.appendChild(label);
-
-        btn.addEventListener("click", () => this.openSettings());
-        container.appendChild(btn);
-        
-        div = document.querySelector("#menuTable");
-        div.appendChild(container);
     }
 
     openSettings(){
