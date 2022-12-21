@@ -803,13 +803,11 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionsPerDay(){
-        let rounds = 10;
-        return rounds * this.getAmountOfExpeditionSlots();
-        //TODO: Get actual amount of expeditions
+        return this.json.player.exporounds * this.getAmountOfExpeditionSlots();
     }
 
     getAmountOfExpeditionSlots(){
-        return Math.floor(Math.sqrt(parseInt(this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0);
+        return Math.floor(Math.sqrt(parseInt(this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
     }
 
     getFactor(planet, productionType){
@@ -1776,12 +1774,22 @@ class OgameHelper {
             div.appendChild(document.createTextNode("Account Production"));    
         }
 
-        let btn = document.createElement("button");
-        btn.innerHTML = "Calculator Settings";
-        btn.addEventListener("click", () => this.openSettings());
+        let container = document.createElement("li");
+
+        let btn = document.createElement("a");
         btn.classList.add("menubutton");
+        btn.setAttribute("target", "_self");
+
+        let label = document.createElement("span");
+        label.classList.add("textlabel");
+        label.innerHTML = "Calculator Settings";
+        btn.appendChild(label);
+
+        btn.addEventListener("click", () => this.openSettings());
+        container.appendChild(btn);
+        
         div = document.querySelector("#menuTable");
-        div.appendChild(btn);
+        div.appendChild(container);
     }
 
     openSettings(){
@@ -1828,10 +1836,15 @@ class OgameHelper {
                     </tr>
                     <tr>    
                         <td><label for="Exporounds">Expo rounds per day:</label></td>
-                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots()}"></td>
+                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.json.player.exporounds ?? 0}"></td>
+                    </tr>
+                    <tr>    
+                        <td><label for="Exposlots">Bonus Expo slots:</label></td>
+                        <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
                     </tr>
                     <tr style="height:30px"></tr>
                     <tr>
+                        <td></td>
                         <td><button class="save-button">Save</button></td>
                     </tr>
                     </table>
@@ -1858,8 +1871,13 @@ class OgameHelper {
     }
 
     saveSettings(){
-        let newRatio = document.querySelector("#Ratio").getAttribute("value");
-        let newExpoRounds = document.querySelector("#Exporounds").getAttribute("value");
+        let newRatio = document.querySelector("#Ratio").value.replaceAll(",", ".");
+
+        this.json.player.ratio = newRatio.split("/");
+        this.json.player.exporounds = document.querySelector("#Exporounds").value.replaceAll(",", ".");
+        this.json.player.exposlots = document.querySelector("#Exposlots").value;
+
+        this.saveData();
         //TODO: SAVE SETTINGS
     }
 
