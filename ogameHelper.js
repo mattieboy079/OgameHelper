@@ -580,6 +580,29 @@ class OgameHelper {
             deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;        
         } 
+
+        //LIFEFORMTECHS T3
+        else if (upgradeType === "Artificial Swarm Intelligence" || upgradeType === "Artificiële Zwerm Intelligentie"){
+            metalCost = 200000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 100000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 100000 * Math.pow(1.5, level) * (level + 1);
+            techUpgrade = true;        
+        } else if (upgradeType === "Ion Crystal Modules" || upgradeType === ""){
+            metalCost = 200000 * Math.pow(1.2, level) * (level + 1);
+            crystalCost = 100000 * Math.pow(1.2, level) * (level + 1);
+            deutCost = 100000 * Math.pow(1.2, level) * (level + 1);
+            techUpgrade = true;        
+        } else if (upgradeType === "Kaelesh Discoverer Enhancement" || upgradeType === ""){
+            metalCost = 300000 * Math.pow(1.7, level) * (level + 1);
+            crystalCost = 180000 * Math.pow(1.7, level) * (level + 1);
+            deutCost = 120000 * Math.pow(1.7, level) * (level + 1);
+            techUpgrade = true;        
+        } else if (upgradeType === "Rock’tal Collector Enhancement" || upgradeType === ""){
+            metalCost = 300000 * Math.pow(1.7, level) * (level + 1);
+            crystalCost = 180000 * Math.pow(1.7, level) * (level + 1);
+            deutCost = 120000 * Math.pow(1.7, level) * (level + 1);
+            techUpgrade = true;        
+       }
         
         
         if(techUpgrade){
@@ -674,8 +697,7 @@ class OgameHelper {
                     l = parseInt(l);
                     for(let i = 1; i * i <= l; i++){
                         if(i * i == l){
-                            //TODO: FIX TEMP FORMULA
-                            metalProd += this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots() * this.calcExpoProfit() / 24;
+                            metalProd += this.json.player.exporounds * this.calcExpoProfit() / 24;
                         }
                     }    
                 });    
@@ -683,8 +705,7 @@ class OgameHelper {
             else{
                 for(let i = 1; i * i <= level; i++){
                     if(i * i == level){
-                        //TODO: FIX TEMP FORMULA
-                        metalProd += this.getAmountOfExpeditionsPerDay() / this.getAmountOfExpeditionSlots() * this.calcExpoProfit() / 24;
+                        metalProd += this.json.player.exporounds * this.calcExpoProfit() / 24;
                     }
                 }  
             }
@@ -791,6 +812,23 @@ class OgameHelper {
             });
         } 
         
+        //LIFEFORMTECHS T3
+        else if (productionType === "Artificial Swarm Intelligence" || productionType === "Artificiële Zwerm Intelligentie"){
+            this.json.player.planets.forEach(p => {
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
+            });           
+        } else if (productionType === "Ion Crystal Modules" || productionType === ""){
+            //TODO
+            return 0;
+        } else if (productionType === "Kaelesh Discoverer Enhancement" || productionType === ""){
+            //TODO
+            return 0;           
+        } else if (productionType === "Rock’tal Collector Enhancement" || productionType === ""){
+            //TODO
+            return 0;           
+        }
         
         
         
@@ -1733,7 +1771,6 @@ class OgameHelper {
                 buildings.shipManufacturingHall = this.getTechnologyLevel("lifeformTech14111");
                 buildings.supraRefractor = this.getTechnologyLevel("lifeformTech14112");
             } 
-            //TODO: UPDATE LIFEFORM BUILDINGS
         } else if (page === LIFEFORM_RESEARCH){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
@@ -1745,7 +1782,6 @@ class OgameHelper {
             }
             console.log(techs);
             planet.lifeforms.techs = techs;
-            //TODO: UPDATE LIFEFORM RESEARCH
         } else if (page === FACILITIES){
             //TODO: UPDATE FACILITIES
         } else if (page === RESEARCH){
@@ -1881,7 +1917,6 @@ class OgameHelper {
         this.json.player.exposlots = document.querySelector("#Exposlots").value;
 
         this.saveData();
-        //TODO: SAVE SETTINGS
     }
 
     closePopup(popup){
