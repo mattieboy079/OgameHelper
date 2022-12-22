@@ -349,6 +349,14 @@ class OgameHelper {
         return metalCost;
     }
 
+    /**
+     * Returns x raised to the n-th power.
+     *
+     * @param {number} planet The corresponding planet.
+     * @param {string} upgradeType The building or technology to upgrade.
+     * @param {number} level The level the building is before upgrading.
+     * @return {number} the cost calculated in MSE.
+     */
     getMSECosts(planet, upgradeType, level){
         level = parseInt(level);
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
