@@ -172,7 +172,7 @@ class OgameHelper {
         let plasmaFactor = resource === "metal" ? 0.01 : (resource === "crystal" ? 0.0066 : 0.0033);
         let plasmaBonus = this.json.player.plasma ? this.json.player.plasma * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
-        let processorBonus = planet.crawlers ? planet.crawlers * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0;
+        let processorBonus = planet.crawlers ? (planet.crawlers > this.calcMaxCrawlers(planet) ? this.calcMaxCrawlers(planet) : planet.crawlers) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0;
         let lifeformBonus = 0;
         if(planet.lifeforms && planet.lifeforms.lifeformClass){
             let lifeformBuilingBonus = 0;
@@ -883,6 +883,13 @@ class OgameHelper {
         }
     }
 
+    /**
+     * 
+     * @param {planet} planet 
+     * @param {metal/crystal/deut} productionType 
+     * @param {number} level 
+     * @returns the hourly production of productionType at planet with the given level
+     */
     getRawProduction(planet, productionType, level){   
         if(productionType === "metal"){
             return 30 * level * Math.pow(1.1, level);
@@ -1068,8 +1075,7 @@ class OgameHelper {
         return e;
     }
 
-    createAmortizationWithPrerequisite(planet, upgradeType, level){
-        //high energy smelting
+    createAmortizationWithPrerequisite(planet, upgradeType, level, amorType){
         let mseProd = this.getMSEProduction(planet, upgradeType, parseInt(level));
         let mseCosts = this.getMSECosts(planet, upgradeType, level);
         let preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
@@ -1090,14 +1096,20 @@ class OgameHelper {
                     name: planet.name, 
                     technology: upgradeType, 
                     level: (parseInt(level) + 1) + "-" + (parseInt(level) + x), 
-                    amortization: amor / 24 };
+                    amortization: amor / 24,
+                    msecost: mseCosts,
+                    type: amorType,
+                };
             } else {
                 return { 
                     coords: planet.coords, 
                     name: planet.name, 
                     technology: upgradeType, 
                     level: (parseInt(level) + x), 
-                    amortization: amor / 24 };
+                    amortization: amor / 24,
+                    msecost: mseCosts,
+                    type: amorType,
+                };
             }                    
         }
         else{
@@ -1106,7 +1118,9 @@ class OgameHelper {
                 name: planet.name, 
                 technology: upgradeType, 
                 level: (parseInt(level) + 1), 
-                amortization: amor / 24 
+                amortization: amor / 24,
+                msecost: mseCosts,
+                type: amorType,
             };
         }
     }
@@ -1133,11 +1147,17 @@ class OgameHelper {
         table.setAttribute('border', '1');
         let tableBody = document.createElement('tbody');
 
+        let absoluteAmortization = this.createAbsoluteAmortizationList();
+        if(this.json.settings.lifeforms){
+            let costLoweringUpgrades = this.getCostLoweringUpgrades();
+            absoluteAmortization = this.addCostLoweringUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
+        }
+
 
 
         if(listType == "recursive"){
-            
-            let totalAmortization = this.createAmortizationListString(this.createAbsoluteAmortizationList(coords), 50);        
+            //TODO: trim list for planet sided list
+            let totalAmortization = this.createAmortizationListString(absoluteAmortization, 50);        
 
             for(let r = 0; r < totalAmortization.length + 1; r++){
                 let tr = document.createElement('tr');
@@ -1185,7 +1205,7 @@ class OgameHelper {
             }
         } else {
           
-            let totalAmortization = this.createAbsoluteAmortizationList(coords);
+            let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
             //Every unit once
             for(let r = 0; r < totalAmortization.length + 1; r++){
                 let tr = document.createElement('tr');
@@ -1238,26 +1258,41 @@ class OgameHelper {
         div.appendChild(table);
     }
 
+    trimAmortizationList(amortizationList, coords){
+        if(!coords) return amortizationList;
+
+        let finalList = [];
+        amortizationList.forEach(item => {
+            if(coords == item.coords || item.coords == "account"){
+                finalList.push(item);
+            }
+        });
+        return finalList
+    }
+
+    /**
+    * @param coords optional: the coords to create the list for, no coords means whole account
+    */
     createAbsoluteAmortizationList(coords){
         let totalAmortization = [];
         this.json.player.planets.forEach((planet) => {
             if(!coords || planet.coords == coords){
-                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal));
-                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal));
-                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut));
+                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal, "productionbuilding"));
+                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, "productionbuilding"));
+                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, "productionbuilding"));
 
 
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting)));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction)));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting), "-"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction), "-"));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge)));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery)));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer)));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge), "rocktalbuilding, productionbuilding"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding, productionbuilding"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding, productionbuilding"));
 //                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", parseInt(planet.lifeforms.buildings.mineralResearchCentre)));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer)));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer), "-"));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -1267,14 +1302,30 @@ class OgameHelper {
                         let extraMSE = this.getMSEProduction(planet, tech.name, parseInt(tech.level));
                         if(extraMSE > 0){
                             let mseCost = this.getMSECosts(planet, tech.name, parseInt(tech.level));
-                            totalAmortization.push({ coords: planet.coords, name: planet.name, technology: tech.name, level: parseInt(tech.level) + 1, amortization: mseCost / extraMSE / 24});
+                            totalAmortization.push({
+                                coords: planet.coords, 
+                                name: planet.name, 
+                                technology: tech.name, 
+                                level: parseInt(tech.level) + 1, 
+                                amortization: mseCost / extraMSE / 24, 
+                                msecost: mseCost,
+                                type: "lifeformtech",
+                            });
                         }
                     });
                 }    
             }
         });
 
-        totalAmortization.push({ coords: "account", name: "account", technology: "plasma", level: (parseInt(this.json.player.plasma) + 1), amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma))});
+        totalAmortization.push({
+            coords: "account",
+            name: "account",
+            technology: "plasma",
+            level: (parseInt(this.json.player.plasma) + 1),
+            amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma)),
+            msecost: this.getMSECosts(undefined, "plasma", parseInt(this.json.player.plasma)),
+            type: "plasma",
+        });
 
         //astro
         let totalMSECostsAstro1 = 0;
@@ -1343,19 +1394,35 @@ class OgameHelper {
         }
 
         if(totalMSECostsAstro / this.getMSEProduction(undefined, "astro", astroLevelString) < totalMSECostsAstro1 / this.getMSEProduction(undefined, "astro", astroLevelString1)){
-            totalAmortization.push({ coords: "account", name: "account", technology: "astrophysics", level: astroLevelString, amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", astroLevelString) / 24});
+            totalAmortization.push({
+                coords: "account",
+                name: "account",
+                technology: "astrophysics",
+                level: astroLevelString,
+                amortization: totalMSECostsAstro / this.getMSEProduction(undefined, "astro", astroLevelString) / 24,
+                msecost: totalMSECostsAstro,
+                type: "astro",
+            });
         } else {
-            totalAmortization.push({ coords: "account", name: "account", technology: "astrophysics", level: astroLevelString1, amortization: totalMSECostsAstro1 / this.getMSEProduction(undefined, "astro", astroLevelString1) / 24});
+            totalAmortization.push({
+                coords: "account",
+                name: "account",
+                technology: "astrophysics",
+                level: astroLevelString1,
+                amortization: totalMSECostsAstro1 / this.getMSEProduction(undefined, "astro", astroLevelString1) / 24,
+                msecost: totalMSECostsAstro1,
+                type: "astro",
+            });
         }
 
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
+        console.log(totalAmortization);
         return totalAmortization;
     }
 
     createAmortizationListString(amortizationList, amount){
         let finalList = [];
         
-
         for(let i = 0; i < amount; i++){
             let lastUpgrade = amortizationList[0];
             finalList.push({
@@ -1363,7 +1430,9 @@ class OgameHelper {
                 name: lastUpgrade.name, 
                 technology: lastUpgrade.technology, 
                 level: lastUpgrade.level, 
-                amortization: lastUpgrade.amortization
+                amortization: lastUpgrade.amortization,
+                msecost: lastUpgrade.msecost,
+                type: lastUpgrade.type,
             });
 
             if(lastUpgrade.level.toString().includes("-")) {
@@ -1388,6 +1457,141 @@ class OgameHelper {
     getPlanetByCoords(coords){
         let index = this.json.player.planets.findIndex(p => p.coords == coords);
         return this.json.player.planets[index];
+    }
+
+    getCostLoweringUpgrades(){
+        let costLoweringUpgrades = [];
+
+        if(this.json.settings.lifeforms){
+            this.json.player.planets.forEach(planet => {
+                if(planet.lifeforms.lifeformClass === "rocktal"){
+                    // costLoweringUpgrades.push({
+                    //     coords: planet.coords,
+                    //     upgrade: "mineral research centre",
+                    //     priority: 1
+                    //     affected: "productionbuilding",
+                    // });
+                    costLoweringUpgrades.push({
+                        coords: planet.coords,
+                        upgrade: "rune technologium",
+                        priority: 3,
+                        affected: "lifeformtech",
+                    });
+                    // costLoweringUpgrades.push({
+                    //     coords: planet.coords,
+                    //     upgrade: "megalith",
+                    //     priority: 4,
+                    //     affected: "rocktalbuilding",
+                    // });
+                }
+    
+                // planet.lifeforms.techs.forEach(tech => {
+                //     if(tech.name === "verbeterde stellarator"){
+                //         costLoweringUpgrades.push({
+                //             coords: planet.coords,
+                //             upgrade: tech.name,
+                //             priority: 2,
+                //             affected: "plasma",
+                //         })
+                //     }
+                // });
+            });
+        }
+
+        costLoweringUpgrades = costLoweringUpgrades.sort((a,b) => a.priority - b.priority);
+        console.log(costLoweringUpgrades);
+        return costLoweringUpgrades;
+    }
+
+    addCostLoweringUpgradesToAmortization(amortizationList, costLoweringUpgrades){
+        let totalHourlyMseProd = this.calcTotalMseProduction();
+
+        costLoweringUpgrades.forEach(upgrade => {
+            console.log(upgrade);
+            let testAmortizationList = this.copyAmortizationArray(amortizationList);
+            console.log(testAmortizationList);
+            let planet = this.getPlanetByCoords(upgrade.coords);
+            let totalMseCost = 0;
+
+            let curLevel;
+            let upgradePercent;
+            let amorType;
+
+            if(upgrade.upgrade == "rune technologium"){
+                curLevel = parseInt(planet.lifeforms.buildings.runeTechnologium);
+                upgradePercent = 0.25;
+                amorType = "rocktalbuilding";
+            } else if (upgrade.upgrade == "Verbeterde Stellarator"){
+                let index = planet.lifeforms.techs.findIndex(t => t.name == "Verbeterde Stellarator");
+                curLevel = parseInt(planet.lifeforms.techs[index].level);
+                upgradePercent = 0.15;
+            }
+
+            let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
+            let mseCost = this.getMSECosts(planet, upgrade.upgrade, curLevel);
+            let mseToSpend = mseCost / savePercent;
+
+            while(mseToSpend > 0){
+                let item = testAmortizationList[0];
+                console.log(item);
+                if(item.type.includes(upgrade.affected) && (item.coords == undefined || item.coords == upgrade.coords)){
+                    console.log("yes");
+                    mseToSpend -= item.msecost;
+                }
+                totalMseCost += item.msecost;
+                
+                console.log(mseToSpend + " / " + totalMseCost);
+                testAmortizationList[0] = this.upgradeAmortizationItem(item);
+                testAmortizationList.sort((a,b) => a.amortization - b.amortization);
+            }
+            
+            let amort = totalMseCost / totalHourlyMseProd / 24;
+            amortizationList.push({
+                coords: upgrade.coords, 
+                name: this.getPlanetByCoords(upgrade.coords).name, 
+                technology: upgrade.upgrade, 
+                level: curLevel + 1, 
+                amortization: amort,
+                msecost: mseCost,
+                type: amorType,
+            });
+            amortizationList.sort((a,b) => a.amortization - b.amortization);
+            console.log(amortizationList);
+        });
+
+        return amortizationList;
+    }
+
+    upgradeAmortizationItem(item){
+        if(item.level.toString().includes("-")) {
+            item.level = parseInt(item.level.split("-")[1]);
+        } else {
+            item.level = parseInt(item.level);
+        }
+
+        item.amortization = this.calculateAmortization(this.getPlanetByCoords(item.coords), item.technology, item.level);
+        item.msecost = this.getMSECosts(this.getPlanetByCoords(item.coords), item.technology, item.level);
+        if(isNaN(item.amortization)){
+            item.amortization = 1000000000;
+        }
+        item.level += 1;
+        return item;
+    }
+
+    copyAmortizationArray(arrayToCopy){
+        let newArray = [];
+        arrayToCopy.forEach(element => {
+            newArray.push({
+                coords: element.coords, 
+                name: element.name, 
+                technology: element.technology, 
+                level: element.level, 
+                amortization: element.amortization,
+                msecost: element.msecost,
+                type: element.type,
+            });
+        }); 
+        return newArray;
     }
 
     updateAmortizationList(amortizationList){
@@ -1437,13 +1641,15 @@ class OgameHelper {
         // }
     }
 
-    createAmortization(planet, technology, level){
+    createAmortization(planet, technology, level, amorType){
         return { 
             coords: planet.coords, 
             name: planet.name, 
             technology: technology, 
             level: (parseInt(level) + 1), 
-            amortization: this.calculateAmortization(planet, technology, level)
+            amortization: this.calculateAmortization(planet, technology, level),
+            msecost: this.getMSECosts(planet, technology, parseInt(level)),
+            type: amorType,
         };
     }
 
@@ -1541,12 +1747,29 @@ class OgameHelper {
             tableBody.appendChild(tr);
             
             tr = document.createElement('tr');
+            console.log(this.calcMinerBonusProfitHour());
+            console.log(this.calcExpoProfit());
             tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_MINER + " when doing less then " + this.getBigNumber(this.calcMinerBonusProfitHour() * 24 * 7 / this.calcExpoProfit()) + " expeditions per week."));
             tableBody.appendChild(tr);    
         }
 
         table.appendChild(tableBody);
         div.appendChild(table);
+    }
+
+    /**
+     * @returns the total production per hour calculated in metal
+     */
+    calcTotalMseProduction(){
+        let metalProd = 0, crystalProd = 0, deutProd = 0;
+        this.json.player.planets.forEach(p => {
+            metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+            deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
+        });
+
+        let ratio = this.json.player.ratio;
+        return metalProd + crystalProd / ratio[1] * ratio[0] + deutProd / ratio[2] * ratio[0];
     }
 
     calcMinerBonusProfitHour(){
@@ -1556,8 +1779,12 @@ class OgameHelper {
         let metalProd = 0, crystalProd = 0, deutProd = 0;
 
         planets.forEach(p => {
-            let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1) - p.crawlers) * 0.00045;
+            console.log(p.coords);
+            console.log(this.calcMaxCrawlers(p));
+            let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1)) * 0.00045;
             let extraCrawlersBonus = maxCrawlerBonus - (p.crawlers > this.calcMaxCrawlers(p) ? this.calcMaxCrawlers(p) : p.crawlers) * 0.0002;
+            console.log(maxCrawlerBonus);
+            console.log(extraCrawlersBonus);
 
             metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
@@ -1568,6 +1795,8 @@ class OgameHelper {
             deutProdMiner += (this.getRawProduction(p, "deut", p.deut) * (1 + 0.25 + extraCrawlersBonus + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
         });
 
+        console.log(metalProdMiner + " - " + crystalProdMiner + " - " + deutProdMiner);
+        console.log(metalProd + " - " + crystalProd + " - " + deutProd);
         return metalProdMiner - metalProd + (crystalProdMiner - crystalProd) * ratio[0] / ratio[1] + (deutProdMiner - deutProd) * ratio[0] / ratio[2];
     }
 
