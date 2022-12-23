@@ -1252,7 +1252,6 @@ class OgameHelper {
                 tableBody.appendChild(tr);
             }
         }
-        //recursive list
 
         table.appendChild(tableBody);
         div.appendChild(table);

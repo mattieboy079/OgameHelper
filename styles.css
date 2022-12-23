@@ -74,7 +74,7 @@
 }
 
 .popup-body .save-button {
-    background-color: #3b434b;
+    background-color: rgb(108, 201, 33);
     cursor: pointer;
     font-size: 1rem;
     padding: 20px 0px;
