@@ -1530,7 +1530,7 @@ class OgameHelper {
             while(mseToSpend > 0){
                 let item = testAmortizationList[0];
                 console.log(item);
-                if(item.type.includes(upgrade.affected) && (item.coords == undefined || item.coords == upgrade.coords)){
+                if(item.type == upgrade.affected && (item.coords == undefined || item.coords == upgrade.coords)){
                     console.log("yes");
                     mseToSpend -= item.msecost;
                 }
