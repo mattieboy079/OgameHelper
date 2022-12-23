@@ -455,7 +455,6 @@ class OgameHelper {
             metalCost = 10000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 8000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.4, level) * (level + 1);
-            resProdBuild = true;
             rockTalBuild = true;
         } else if (upgradeType === "megalith") {
             metalCost = 50000 * Math.pow(1.5, level) * (level + 1);
@@ -466,13 +465,11 @@ class OgameHelper {
             metalCost = 85000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 44000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.4, level) * (level + 1);
-            resProdBuild = true;
             rockTalBuild = true;
         } else if (upgradeType === "deuterium synthesizer") {
             metalCost = 120000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 50000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.4, level) * (level + 1);
-            resProdBuild = true;
             rockTalBuild = true;
         } else if (upgradeType === "mineral research centre") {
             metalCost = 250000 * Math.pow(1.8, level) * (level + 1);
@@ -1286,9 +1283,9 @@ class OgameHelper {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting), "-"));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction), "-"));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge), "rocktalbuilding, productionbuilding"));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding, productionbuilding"));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding, productionbuilding"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge), "rocktalbuilding"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding"));
 //                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "mineral research centre", parseInt(planet.lifeforms.buildings.mineralResearchCentre)));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer), "-"));
@@ -1767,8 +1764,10 @@ class OgameHelper {
             deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
         });
 
+        let hourlyExpo = this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24;
+
         let ratio = this.json.player.ratio;
-        return metalProd + crystalProd / ratio[1] * ratio[0] + deutProd / ratio[2] * ratio[0];
+        return metalProd + crystalProd / ratio[1] * ratio[0] + deutProd / ratio[2] * ratio[0] + hourlyExpo;
     }
 
     calcMinerBonusProfitHour(){
