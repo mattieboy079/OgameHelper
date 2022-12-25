@@ -542,29 +542,35 @@ class OgameHelper {
             metalCost = 300000 * Math.pow(1.7, level) * (level + 1);
             crystalCost = 180000 * Math.pow(1.7, level) * (level + 1);
             deutCost = 120000 * Math.pow(1.7, level) * (level + 1);
-            techUpgrade = true;        
-       }
+            techUpgrade = true;
+        }
         
         
         if(techUpgrade){
             let factor = 1;
-            if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_MENSEN){
-                if(planet.lifeforms.buildings.researchCentre > 1){
-                    factor -= planet.lifeforms.buildings.researchCentre * 0.005;
-                }
-            } else if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
-                if(planet.lifeforms.buildings.runeTechnologium > 1){
-                    factor -= planet.lifeforms.buildings.runeTechnologium * 0.005;
-                } 
-            } else if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_MECHA){
-                if(planet.lifeforms.buildings.roboticsResearchCentre > 1){
-                    factor -= planet.lifeforms.buildings.roboticsResearchCentre * 0.0025;
-                } 
-            } else if(planet.lifeforms.lifeformClass === LIFEFORM_CLASS_KAELESH){
-                if(planet.lifeforms.buildings.vortexChamber > 1){
-                    factor -= planet.lifeforms.buildings.vortexChamber * 0.0025;
-                } 
+            switch(planet.lifeforms.lifeformClass){
+                case LIFEFORM_CLASS_MENSEN:
+                    if (planet.lifeforms.buildings.researchCentre > 1) {
+                        factor -= planet.lifeforms.buildings.researchCentre * 0.005;
+                    }
+                    break;
+                case LIFEFORM_CLASS_ROCKTAL:
+                    if (planet.lifeforms.buildings.runeTechnologium > 1) {
+                        factor -= planet.lifeforms.buildings.runeTechnologium * 0.005;
+                    }
+                    break;
+                case LIFEFORM_CLASS_MECHA:
+                    if (planet.lifeforms.buildings.roboticsResearchCentre > 1) {
+                        factor -= planet.lifeforms.buildings.roboticsResearchCentre * 0.0025;
+                    }
+                    break;
+                case LIFEFORM_CLASS_KAELESH:
+                    if(planet.lifeforms.buildings.vortexChamber > 1){
+                        factor -= planet.lifeforms.buildings.vortexChamber * 0.0025;
+                    } 
+                    break;
             }
+
             metalCost *= factor;
             crystalCost *= factor;
             deutCost *= factor;
@@ -765,30 +771,21 @@ class OgameHelper {
         return Math.floor(Math.sqrt(parseInt(this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
     }
 
-    getFactor(planet, productionType){
-        let pos = parseInt(planet.coords.split(":")[2]);
-        if(productionType === "metal"){
-            if(pos === 8){
-                return 1.35;
-            } else if (pos === 7 || pos === 9){
-                return 1.23;
-            } else if (pos === 6 || pos === 10){
-                return 1.1;
-            } else {
+    getFactor(planet, productionType) {
+        const pos = parseInt(planet.coords.split(":")[2], 10);
+        switch (productionType) {
+            case "metal":
+                if (pos === 8) return 1.35;
+                if (pos === 7 || pos === 9) return 1.23;
+                if (pos === 6 || pos === 10) return 1.1;
                 return 1;
-            }
-        } else if (productionType === "crystal"){
-            if(pos === 1){
-                return 1.4;
-            } else if (pos === 2){
-                return 1.3;
-            } else if (pos === 3){
-                return 1.2;
-            } else {
+            case "crystal":
+                if (pos === 1) return 1.4;
+                if (pos === 2) return 1.3;
+                if (pos === 3) return 1.2;
                 return 1;
-            }
-        } else {
-            return 1;
+            default:
+                return 1;
         }
     }
 
@@ -799,17 +796,16 @@ class OgameHelper {
      * @param {number} level 
      * @returns the hourly production of productionType at planet with the given level
      */
-    getRawProduction(planet, productionType, level){   
-        if(productionType === "metal"){
+    getRawProduction(planet, productionType, level) {
+        if (productionType === "metal") {
             return 30 * level * Math.pow(1.1, level);
-        } else if (productionType === "crystal"){
+        } else if (productionType === "crystal") {
             return 20 * level * Math.pow(1.1, level);
-        } else if (productionType === "deut"){
-            if(planet.maxTemp) return 10 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (planet.maxTemp - 20));
-            else return 10 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (50 - 20));
-        } else {
-            return 0;
+        } else if (productionType === "deut") {
+            const maxTemp = planet.maxTemp || 50;
+            return 10 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (maxTemp - 20));
         }
+        return 0;
     }
 
     getExtraMSEProduction(planet, productionType, level){
@@ -821,147 +817,123 @@ class OgameHelper {
         this.createSettingsButton();
     }
 
-    createSettingsButton(){
-        let container = document.createElement("li");
-
-        let btn = document.createElement("a");
+    createSettingsButton() {
+        const container = document.createElement("li");
+      
+        const btn = document.createElement("a");
         btn.classList.add("menubutton");
         btn.setAttribute("target", "_self");
-
-        let label = document.createElement("span");
+      
+        const label = document.createElement("span");
         label.classList.add("textlabel");
         label.innerHTML = "Calculator Settings";
         btn.appendChild(label);
-
+      
         btn.addEventListener("click", () => this.openSettings());
         container.appendChild(btn);
-        
-        let div = document.querySelector("#menuTable");
+      
+        const div = document.querySelector("#menuTable");
         div.appendChild(container);
     }
 
-    newPlanet(coords, name){
-        if(this.json.settings.lifeforms){
-            return {
-                coords: coords,
-                name: name,
-                metal: 0,
-                crystal: 0,
-                deut: 0,
-                solar: 0,
-                fusion:0,
-                satellite: 0,
-                crawlers: 0,
-                maxTemp: this.getAverageTemp(coords),
-                lifeforms: {}        
-            };
-        } else {
-            return {
-                coords: coords,
-                name: name,
-                metal: 0,
-                crystal: 0,
-                deut: 0,
-                solar: 0,
-                fusion:0,
-                satellite: 0,
-                crawlers: 0,
-                maxTemp: this.getAverageTemp(coords)        
-            };
+    newPlanet(coords, name) {
+        const planet = {
+            coords,
+            name,
+            metal: 0,
+            crystal: 0,
+            deut: 0,
+            solar: 0,
+            fusion: 0,
+            satellite: 0,
+            crawlers: 0,
+            maxTemp: this.getAverageTemp(coords)
+        };
+      
+        if (this.json.settings.lifeforms) {
+          planet.lifeforms = {};
         }
+      
+        return planet;
     }
 
-    remakePlanet(planet){
-        if(this.json.settings.lifeforms){
-            return {
-                coords: planet.coords,
-                metal: planet.metal ? planet.metal : 0,
-                crystal: planet.crystal ? planet.crystal : 0,
-                deut: planet.deut ? planet.deut : 0,
-                solar: planet.solar ? planet.solar : 0,
-                fusion: planet.fusion ? planet.fusion : 0,
-                satellite: planet.satellite ? planet.satellite : 0,
-                crawlers: planet.crawlers ? planet.crawlers : 0,
-                maxTemp: planet.maxTemp ? planet.maxTemp : this.getAverageTemp(planet.coords),
-                lifeforms: planet.lifeforms ? planet.lifeforms : {},
-            };
-        } else {
-            this.log("remake non lifeform planet", "debug");
-            this.log(planet, "debug");
-            return {
-                coords: planet.coords,
-                metal: planet.metal ? planet.metal : 0,
-                crystal: planet.crystal ? planet.crystal : 0,
-                deut: planet.deut ? planet.deut : 0,
-                solar: planet.solar ? planet.solar : 0,
-                fusion: planet.fusion ? planet.fusion : 0,
-                satellite: planet.satellite ? planet.satellite : 0,
-                crawlers: planet.crawlers ? planet.crawlers : 0,
-                maxTemp: planet.maxTemp ? planet.maxTemp : this.getAverageTemp(planet.coords)
-            };
+    remakePlanet(planet) {
+        const newPlanet = {
+            coords: planet.coords,
+            metal: planet.metal || 0,
+            crystal: planet.crystal || 0,
+            deut: planet.deut || 0,
+            solar: planet.solar || 0,
+            fusion: planet.fusion || 0,
+            satellite: planet.satellite || 0,
+            crawlers: planet.crawlers || 0,
+            maxTemp: planet.maxTemp || this.getAverageTemp(planet.coords)
+        };
+      
+        if (this.json.settings.lifeforms) {
+            newPlanet.lifeforms = planet.lifeforms || {};
         }
+      
+        return newPlanet;
     }
 
     getAverageTemp(coords){
-        switch(parseInt(coords.split(":")[2])){
-            case 1: return 240;
-            case 2: return 190;
-            case 3: return 140;
-            case 4: return 90;
-            case 5: return 80;
-            case 6: return 70;
-            case 7: return 60;
-            case 8: return 50;
-            case 9: return 40;
-            case 10: return 30;
-            case 11: return 20;
-            case 12: return 10;
-            case 13: return -30;
-            case 14: return -70;
-            case 15: return -110;
-        }
+        const averageTemperatures = {
+            1: 240,
+            2: 190,
+            3: 140,
+            4: 90,
+            5: 80,
+            6: 70,
+            7: 60,
+            8: 50,
+            9: 40,
+            10: 30,
+            11: 20,
+            12: 10,
+            13: -30,
+            14: -70,
+            15: -110
+        };
+        return averageTemperatures[parseInt(coords.split(":")[2], 10)];
     }
 
     checkPlanets(){
         this.log("checking planets", "debug");
         let changed = false;
-        let planetList = document.querySelectorAll(".smallplanet");
+        const planetList = document.querySelectorAll(".smallplanet");
+        const newPlanetList = [];
+
         planetList.forEach((planet) => {
-            let coords = planet.querySelector(".planet-koords");
+            const coords = planet.querySelector(".planet-koords");
             if(coords){
-                let name = planet.querySelector(".planet-name");
-                name = name.textContent;
-                let trimmedCoords = this.trimCoords(coords);
-                if(!this.json.player.planets.find(p => p.coords == trimmedCoords)){
+                const name = planet.querySelector(".planet-name").textContent;
+                const trimmedCoords = this.trimCoords(coords);
+                const foundPlanet = this.json.player.planets.find(p => p.coords == trimmedCoords);
+
+                if (!foundPlanet) {
                     changed = true;
-                    this.json.player.planets.push(this.newPlanet(trimmedCoords, name));
+                    newPlanetList.push(this.newPlanet(trimmedCoords, name));
                 } else {
-                    let foundIndex = this.json.player.planets.findIndex(p => p.coords == trimmedCoords);
-                    this.json.player.planets[foundIndex].name = name;
-                    if(Object.keys(this.json.player.planets[foundIndex]).length != Object.keys(this.newPlanet(trimmedCoords, name)).length) {
+                    foundPlanet.name = name;
+                    if (Object.keys(foundPlanet).length !== Object.keys(this.newPlanet(trimmedCoords, name)).length) {
                         changed = true;
-                        this.json.player.planets[foundIndex] = this.remakePlanet(this.json.player.planets[foundIndex]);                
+                        newPlanetList.push(this.remakePlanet(foundPlanet));
+                    } else {
+                        newPlanetList.push(foundPlanet);
                     }
                 }
             }
         });
 
-        if(planetList.length < this.json.player.planets.length){
-            let planetCoords = [];
-            planetList.forEach(planet => {
-                planetCoords.push(this.trimCoords(planet.querySelector(".planet-koords")))
-            });
-            let newPlanetList = [];
-            this.json.player.planets.forEach((planet) => {
-                if(planetCoords.find(c => c == planet.coords)){
-                    newPlanetList.push(planet);
-                }
-            });
-            this.json.player.planets = newPlanetList;
+
+
+        if (planetList.length < this.json.player.planets.length) {
             changed = true;
         }
 
         if(changed){
+            this.json.player.planets = newPlanetList;
             this.saveData();
         }
     }
