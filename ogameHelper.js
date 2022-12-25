@@ -158,12 +158,7 @@ class OgameHelper {
     }
 
     trimCoords(coords){
-        if(coords.textContent.startsWith("[")){
-            return coords.textContent.substring(1, coords.textContent.length - 1);
-        } else {
-            return coords.textContent;
-        }
-        
+        return coords.textContent.replace(/^\[|\]$/g, '');
     }
 
     async getServerSettings(universe){
@@ -223,156 +218,70 @@ class OgameHelper {
 
     getPrerequisiteMSECosts(planet, upgradeType){
         let metalCost = 0;
-        if (upgradeType === "plasma"){
-            if(this.json.player.ion < 5){
-                for(let l = this.json.player.ion; l < 5; l++){
-                    metalCost += this.getMSECosts(planet, "ion", l);
-                }
+
+        const upgradeRequirements = {
+            'plasma': {
+                'ion': 5,
+                'laser': 10,
+                'energy': 8,
+            },
+            'astro': {
+                'impuls': 3,
+                'spy': 4,
+                'energy': 1,
+            },
+            'high energy smelting': {
+                'reserach centre': 5,
+                'residential sector': 12,
+                'biosphere farm': 13,
+            }, 
+            'fusion powered production': {
+                'academy of sciences': 1,
+                'residential sector': 40,
+            },
+            'magma forge': {
+                'rune technologium': 5,
+                'meditation enclave': 12,
+                'crystal farm': 13,
+            },
+            'crystal refinery': {
+                'megalith': 1,
+                'rune forge': 1,
+                'mediation enclave': 40,
+            },
+            'deuterium synthesizer': {
+                'megalith': 2,
+                'rune forge': 1,
+                'meditation enclave': 40,
+            },
+            'mineral research centre': {
+                'oriktorium': 1,
+                'crystal refinery': 1,
+                'megalith': 1,
+                'rune forge': 1,
+                'meditation enclave': 40,
+            },
+            'high performance synthesizer': {
+                'microchip assembly line': 2,
+                'update network': 1,
+                'assembly line': 40,
             }
-            if(this.json.player.laser < 10){
-                for(let l = this.json.player.laser; l < 10; l++){
-                    metalCost += this.getMSECosts(planet, "laser", l);
-                }
-            }
-            if(this.json.player.energy < 8){
-                for(let l = this.json.player.energy; l < 8; l++){
-                    metalCost += this.getMSECosts(planet, "energy", l);
-                }
-            }
-        } else if (upgradeType === "astro"){
-            if(this.json.player.impuls < 3){
-                for(let l = this.json.player.impuls; l < 3; l++){
-                    metalCost += this.getMSECosts(planet, "impuls", l);
-                }
-            }
-            if(this.json.player.spy < 4 - this.json.player.technocrat ? 3 : 0){
-                for(let l = this.json.player.spy; l < 4 - this.json.player.technocrat ? 3 : 0; l++){
-                    metalCost += this.getMSECosts(planet, "spy", l);
-                }
-            }
-            if(this.json.player.energy < 1){
-                for(let l = this.json.player.energy; l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "energy", l);
-                }
-            }
-        } else if (upgradeType === "high energy smelting"){
-            if(parseInt(planet.lifeforms.buildings.researchCentre) < 5){
-                for(let l = parseInt(planet.lifeforms.buildings.researchCentre); l < 5; l++){
-                    metalCost += this.getMSECosts(planet, "research centre", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.residentialSector) < 12){
-                for(let l = parseInt(planet.lifeforms.buildings.residentialSector); l < 12; l++){
-                    metalCost += this.getMSECosts(planet, "residential sector", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.biosphereFarm) < 13){
-                for(let l = parseInt(planet.lifeforms.buildings.biosphereFarm); l < 13; l++){
-                    metalCost += this.getMSECosts(planet, "biosphere farm", l);
-                }
-            }
-        } else if (upgradeType === "fusion powered production"){
-            if(parseInt(planet.lifeforms.buildings.academyOfSciences) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.academyOfSciences); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "academy of sciences", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.residentialSector) < 40){
-                for(let l = parseInt(planet.lifeforms.buildings.residentialSector); l < 40; l++){
-                    metalCost += this.getMSECosts(planet, "residential sector", l);
-                }
-            }
-        } else if (upgradeType === "magma forge") {
-            if(parseInt(planet.lifeforms.buildings.runeTechnologium) < 5){
-                for(let l = parseInt(planet.lifeforms.buildings.runeTechnologium); l < 5; l++){
-                    metalCost += this.getMSECosts(planet, "rune technologium", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 12){
-                for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 12; l++){
-                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.crystalFarm) < 13){
-                for(let l = parseInt(planet.lifeforms.buildings.crystalFarm); l < 13; l++){
-                    metalCost += this.getMSECosts(planet, "crystal farm", l);
-                }
-            }
-        } else if (upgradeType === "crystal refinery") {
-            if(parseInt(planet.lifeforms.buildings.megalith) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.megalith); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "megalith", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.runeForge) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.runeForge); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "rune forge", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 40){
-                for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 40; l++){
-                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
-                }
-            }
-        } else if (upgradeType === "deuterium synthesizer") {
-            if(parseInt(planet.lifeforms.buildings.megalith) < 2){
-                for(let l = parseInt(planet.lifeforms.buildings.megalith); l < 2; l++){
-                    metalCost += this.getMSECosts(planet, "megalith", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.runeForge) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.runeForge); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "rune forge", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 40){
-                for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 40; l++){
-                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
-                }
-            }
-        } else if (upgradeType === "mineral research centre") {
-            if(parseInt(planet.lifeforms.buildings.oriktorium) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.oriktorium); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "oriktorium", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.crystalRefinery) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.crystalRefinery); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "crystal refinery", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.megalith) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.megalith); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "megalith", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.runeForge) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.runeForge); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "rune forge", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.meditationEnclave) < 40){
-                for(let l = parseInt(planet.lifeforms.buildings.meditationEnclave); l < 40; l++){
-                    metalCost += this.getMSECosts(planet, "meditation enclave", l);
-                }
-            }
-        } else if (upgradeType === "high performance synthesiser") {
-            if(parseInt(planet.lifeforms.buildings.microchipAssemblyLine) < 2){
-                for(let l = parseInt(planet.lifeforms.buildings.microchipAssemblyLine); l < 2; l++){
-                    metalCost += this.getMSECosts(planet, "microchip assembly line", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.updateNetwork) < 1){
-                for(let l = parseInt(planet.lifeforms.buildings.updateNetwork); l < 1; l++){
-                    metalCost += this.getMSECosts(planet, "update network", l);
-                }
-            }
-            if(parseInt(planet.lifeforms.buildings.assemblyLine) < 40){
-                for(let l = parseInt(planet.lifeforms.buildings.assemblyLine); l < 40; l++){
-                    metalCost += this.getMSECosts(planet, "assembly line", l);
+        }
+
+        if (!upgradeRequirements[upgradeType]) {
+            return 0;
+        }
+    
+        const requiredUpgrades = upgradeRequirements[upgradeType];
+        for (const [building, level] of Object.entries(requiredUpgrades)) {
+            const currentLevel = parseInt(planet.lifeforms.buildings[building]);
+            if (currentLevel < level) {
+                for (let l = currentLevel; l < level; l++) {
+                    metalCost += this.getMSECosts(planet, building, l);
                 }
             }
         }
+        
         return metalCost;
     }
 
@@ -516,7 +425,7 @@ class OgameHelper {
             metalCost = 50000 * Math.pow(1.07, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.07, level) * (level + 1);
             deutCost = 30000 * Math.pow(1.07, level) * (level + 1);
-        } else if (upgradeType === "high performance synthesiser") {
+        } else if (upgradeType === "high performance synthesizer") {
             metalCost = 100000 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 40000 * Math.pow(1.2, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.2, level) * (level + 1);
@@ -742,7 +651,7 @@ class OgameHelper {
             metalProd *= perc / this.json.player.planets.length;
             crystalProd *= perc / this.json.player.planets.length;
             deutProd *= perc / this.json.player.planets.length;
-        } else if (productionType === "high performance synthesiser") {
+        } else if (productionType === "high performance synthesizer") {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
         } 
         
@@ -1290,7 +1199,7 @@ class OgameHelper {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding"));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding"));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesiser", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer), "-"));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesizer", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer), "-"));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -1631,7 +1540,7 @@ class OgameHelper {
 
         //     } else if (lastUpgrade.name == "crystal refinery") {
 
-        //     } else if (lastUpgrade.name == "deuterium synthesizer" || lastUpgrade.name == "high performance synthesiser") {
+        //     } else if (lastUpgrade.name == "deuterium synthesizer" || lastUpgrade.name == "high performance synthesizer") {
 
         //     } else if (lastUpgrade.name == "plasma") {
 
