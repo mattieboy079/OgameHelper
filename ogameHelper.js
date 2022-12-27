@@ -1,4 +1,4 @@
-import { Player } from '/logic/player.js';
+import { Player } from './logic/player.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_WARRIOR = "generaal";

@@ -1,4 +1,7 @@
-class Player {
+import { Planet } from './planet';
+import { PlayerSettings } from './playerSettings';
+
+export class Player {
   admiral: boolean;
   allyClass: string;
   commander: boolean;

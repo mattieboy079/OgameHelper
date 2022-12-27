@@ -1,3 +1,3 @@
-class PlayerSettings{
-    
+export class PlayerSettings{
+
 }

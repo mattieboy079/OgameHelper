@@ -1,3 +1,3 @@
-class Planet{
-    
+export class Planet{
+
 }
