@@ -1,3 +1,5 @@
+import { Player } from '/logic/player.js';
+
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_WARRIOR = "generaal";
 const PLAYER_CLASS_MINER = "verzamelaar";
@@ -74,6 +76,7 @@ console.log(UNIVERSE);
 
 class OgameHelper {
     constructor(){
+        let player = new Player();
         let data = localStorage.getItem("ogh-" + UNIVERSE);
         if(data && data !== "undefined"){   
             this.json = JSON.parse(data);
