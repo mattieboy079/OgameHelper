@@ -76,10 +76,12 @@ console.log(UNIVERSE);
 
 class OgameHelper {
     constructor(){
-        let player = new Player();
         let data = localStorage.getItem("ogh-" + UNIVERSE);
         if(data && data !== "undefined"){   
             this.json = JSON.parse(data);
+            console.log(this.json);
+            let player = new Player(this.json.player);
+            console.log(player);
             //this.json.player = undefined;
             this.getServerSettings(UNIVERSE);
             if(!this.json.player){
