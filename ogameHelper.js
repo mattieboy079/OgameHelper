@@ -28,7 +28,7 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-const logging = "prod"; //prod, dev, debug, test
+const logging = "dev"; //prod, dev, debug, test
 
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
