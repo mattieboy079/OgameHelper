@@ -1,3 +1,7 @@
+import { LifeformBuilding } from './lifeformbuildings.js';
+import { LifeformTech } from './lifeformtechs.js';
+import { MetalMine, CrystalMine, DeutMine } from './mines.js';
+
 export class Planet{
     coords: string;
     name: string;
@@ -6,7 +10,7 @@ export class Planet{
     satellite: number;
     metal: MetalMine;
     crystal: CrystalMine;
-    deut: DeuteriumMine;
+    deut: DeutMine;
     fusion: number;
     solar: number;
     lifeforms: PlanetLifeforms;
@@ -17,13 +21,32 @@ export class Planet{
         this.maxTemp = parseInt(data.maxTemp);
         this.crawlers = parseInt(data.crawlers);
         this.satellite = parseInt(data.satellite);
-        this.metal = new MetalMine();
-        this.crystal = new CrystalMine();
-        this.deut = new DeuteriumMine();
+        this.metal = new MetalMine(parseInt(data.metal));
+        this.crystal = new CrystalMine(data.crystal);
+        this.deut = new DeutMine(data.deut);
         this.fusion = parseInt(data.fusion);
         this.solar = parseInt(data.solar);
-        this.lifeforms = new PlanetLifeforms();
+        if(data.lifeforms) this.lifeforms = new PlanetLifeforms(data.lifeforms);
     }
 }
 
-class MetalMine{} class CrystalMine{} class DeuteriumMine{} class PlanetLifeforms{}
+class PlanetLifeforms{
+    class: string;
+    buildings: LifeformBuilding[];
+    techs: LifeformTech[];
+
+    constructor(data: any){
+        this.class = data.lifeformClass;
+        switch(this.class){
+            case "mensen":
+                break;
+            case "rocktal":
+                this.buildings.push()
+                break;
+            case "mechas":
+                break;
+            case "kaelesh":
+                break;
+        }
+    }
+}

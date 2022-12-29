@@ -19,7 +19,7 @@ var Player = /** @class */ (function () {
     }
     Player.prototype.fillPlanets = function (data) {
         var _this = this;
-        _this.planets = [];
+        this.planets = [];
         data.forEach(function (planet) {
             _this.planets.push(new Planet(planet));
         });
