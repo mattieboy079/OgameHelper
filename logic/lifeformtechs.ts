@@ -112,7 +112,6 @@ export class HighPerformanceTerraformer extends LifeformTech{
 
 export class EnhancedProductionTechnologies extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 80000;
@@ -274,7 +273,6 @@ export class MagmaRefinement extends LifeformTech{
 
 export class AcousticScanning extends LifeformTech{
     resIncBonus: number;
-    
     constructor(level: number){
         super(level);
         this.baseMetalCost = 7500;
@@ -298,7 +296,6 @@ export class AcousticScanning extends LifeformTech{
 
 export class HighEnergyPumpSystems extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 15000;
@@ -334,7 +331,6 @@ export class CargoHoldExpansion extends LifeformTech{
 
 export class MagmaPoweredProduction extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 25000;
@@ -374,7 +370,6 @@ export class GeothermalPowerPlants extends LifeformTech{
 
 export class DepthSounding extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 70000;
@@ -422,7 +417,6 @@ export class ImprovedStellarator extends LifeformTech{
 
 export class HardenedDiamondDrillHeads extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 85000;
@@ -446,7 +440,6 @@ export class HardenedDiamondDrillHeads extends LifeformTech{
 
 export class SeismicMiningTechnology extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 120000;
@@ -470,7 +463,6 @@ export class SeismicMiningTechnology extends LifeformTech{
 
 export class MagmaPoweredPumpSystems extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 100000;
@@ -839,7 +831,6 @@ export class HeatRecovery extends LifeformTech{
 
 export class SulphideProcess extends LifeformTech{
     resIncBonus: number;
-
     constructor(level: number){
         super(level);
         this.baseMetalCost = 7500;
