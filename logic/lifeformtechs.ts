@@ -455,7 +455,7 @@ export class SeismicMiningTechnology extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 7500;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0008;
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -567,6 +567,7 @@ export class RocktalCollectorEnhancement extends LifeformTech{
 
 //#region mechas
 export class CatalyserTechnology extends LifeformTech{
+    resIncBonus: number;
     constructor(level: number){
         super(level);
         this.baseMetalCost = 10000;
@@ -575,6 +576,16 @@ export class CatalyserTechnology extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 1000;
+        this.resIncBonus = 0.0008;
+    }
+    
+    override getProduction(level: number, planets: Planet[]): number[] {
+        let prod: number[] = [0,0,0];
+        planets.forEach(planet => {
+            prod[2] += planet.deut.getProduction(planet.deut.level, planets)[2];
+        });
+        prod[2] * this.resIncBonus * level;
+        return prod;
     }
 }
 
@@ -627,6 +638,7 @@ export class GeneralOverhaulLF extends LifeformTech{
 }
 
 export class AutomatedTransportLines extends LifeformTech{
+    resIncBonus: number;
     constructor(level: number){
         super(level);
         this.baseMetalCost = 50000;
@@ -635,6 +647,20 @@ export class AutomatedTransportLines extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5000;
+        this.resIncBonus = 0.0006;
+    }
+    
+    override getProduction(level: number, planets: Planet[]): number[] {
+        let prod: number[] = [0,0,0];
+        planets.forEach(planet => {
+            prod[0] += planet.metal.getProduction(planet.metal.level, planets)[0];
+            prod[1] += planet.crystal.getProduction(planet.crystal.level, planets)[1];
+            prod[2] += planet.deut.getProduction(planet.deut.level, planets)[2];
+        });
+        prod[0] * this.resIncBonus * level;
+        prod[1] * this.resIncBonus * level;
+        prod[2] * this.resIncBonus * level;
+        return prod;
     }
 }
 
@@ -711,6 +737,7 @@ export class GeneralOverhaulBS extends LifeformTech{
 }
 
 export class ArtificialSwarmIntelligence extends LifeformTech{
+    resIncBonus: number;
     constructor(level: number){
         super(level);
         this.baseMetalCost = 200000;
@@ -719,6 +746,20 @@ export class ArtificialSwarmIntelligence extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8500;
+        this.resIncBonus = 0.0006;
+    }
+    
+    override getProduction(level: number, planets: Planet[]): number[] {
+        let prod: number[] = [0,0,0];
+        planets.forEach(planet => {
+            prod[0] += planet.metal.getProduction(planet.metal.level, planets)[0];
+            prod[1] += planet.crystal.getProduction(planet.crystal.level, planets)[1];
+            prod[2] += planet.deut.getProduction(planet.deut.level, planets)[2];
+        });
+        prod[0] * this.resIncBonus * level;
+        prod[1] * this.resIncBonus * level;
+        prod[2] * this.resIncBonus * level;
+        return prod;
     }
 }
 
@@ -857,8 +898,6 @@ export class EnhancedSensorTechnology extends LifeformTech{
 }
 
 export class NeuromodalCompressor extends LifeformTech{
-    resIncBonus: number;
-    
     constructor(level: number){
         super(level);
         this.baseMetalCost = 50000;
@@ -867,20 +906,6 @@ export class NeuromodalCompressor extends LifeformTech{
         this.resIncFactor = 1.3;
         this.timeIncFactor = 1.4;
         this.baseTimeCost = 5000;
-        this.resIncBonus = 0.0006;
-    }
-
-    override getProduction(level: number, planets: Planet[]): number[] {
-        let prod: number[] = [0,0,0];
-        planets.forEach(planet => {
-            prod[0] += planet.metal.getProduction(planet.metal.level, planets)[0];
-            prod[1] += planet.crystal.getProduction(planet.crystal.level, planets)[1];
-            prod[2] += planet.deut.getProduction(planet.deut.level, planets)[2];
-        });
-        prod[0] * this.resIncBonus * level;
-        prod[1] * this.resIncBonus * level;
-        prod[2] * this.resIncBonus * level;
-        return prod;
     }
 }
 
@@ -945,6 +970,7 @@ export class SixthSense extends LifeformTech{
 }
 
 export class Psychoharmoniser extends LifeformTech{
+    resIncBonus: number;
     constructor(level: number){
         super(level);
         this.baseMetalCost = 100000;
@@ -953,6 +979,20 @@ export class Psychoharmoniser extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8000;
+        this.resIncBonus = 0.0006;
+    }
+    
+    override getProduction(level: number, planets: Planet[]): number[] {
+        let prod: number[] = [0,0,0];
+        planets.forEach(planet => {
+            prod[0] += planet.metal.getProduction(planet.metal.level, planets)[0];
+            prod[1] += planet.crystal.getProduction(planet.crystal.level, planets)[1];
+            prod[2] += planet.deut.getProduction(planet.deut.level, planets)[2];
+        });
+        prod[0] * this.resIncBonus * level;
+        prod[1] * this.resIncBonus * level;
+        prod[2] * this.resIncBonus * level;
+        return prod;
     }
 }
 
