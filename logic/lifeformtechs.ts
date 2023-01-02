@@ -1,3 +1,4 @@
+import { Planet } from "./planet";
 import { Upgradable } from "./upgradable";
 
 export abstract class LifeformTech extends Upgradable{
@@ -23,6 +24,7 @@ export class IntergalacticEnvoys extends LifeformTech{
 }
 
 export class HighPerformanceExtractors extends LifeformTech{
+    resIncBonus: number;
     constructor(level: number){
         super(level);
         this.baseMetalCost = 7000;
@@ -31,6 +33,20 @@ export class HighPerformanceExtractors extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
+        this.resIncBonus = 0.0006;
+    }
+    
+    override getProduction(level: number, planets: Planet[]): number[] {
+        let prod: number[] = [0,0,0];
+        planets.forEach(planet => {
+            prod[0] += planet.metal.getProduction(planet.metal.level, planets)[0];
+            prod[1] += planet.crystal.getProduction(planet.crystal.level, planets)[1];
+            prod[2] += planet.deut.getProduction(planet.deut.level, planets)[2];
+        });
+        prod[0] * this.resIncBonus * level;
+        prod[1] * this.resIncBonus * level;
+        prod[2] * this.resIncBonus * level;
+        return prod;
     }
 }
 
