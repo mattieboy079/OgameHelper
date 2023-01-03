@@ -13,7 +13,7 @@ export abstract class LifeformTech extends Upgradable{
 //#region human
 export class IntergalacticEnvoys extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Intergalactische Gezanten");
         this.baseMetalCost = 5000;
         this.baseCrystalCost = 2500;
         this.baseDeutCost = 500;
@@ -26,7 +26,7 @@ export class IntergalacticEnvoys extends LifeformTech{
 export class HighPerformanceExtractors extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Hoogwaardige Extractoren");
         this.baseMetalCost = 7000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 5000;
@@ -52,7 +52,7 @@ export class HighPerformanceExtractors extends LifeformTech{
 
 export class FusionDrives extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Fuse Aandrijvingen");
         this.baseMetalCost = 15000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 5000;
@@ -64,7 +64,7 @@ export class FusionDrives extends LifeformTech{
 
 export class StealthFieldGenerator extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Stealth Veldgenerator");
         this.baseMetalCost = 20000;
         this.baseCrystalCost = 15000;
         this.baseDeutCost = 7500;
@@ -76,7 +76,7 @@ export class StealthFieldGenerator extends LifeformTech{
 
 export class OrbitalDen extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Ruimtegrot");
         this.baseMetalCost = 25000;
         this.baseCrystalCost = 20000;
         this.baseDeutCost = 10000;
@@ -88,7 +88,7 @@ export class OrbitalDen extends LifeformTech{
 
 export class ResearchAI extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Onderzoek AI");
         this.baseMetalCost = 35000;
         this.baseCrystalCost = 25000;
         this.baseDeutCost = 15000;
@@ -100,7 +100,7 @@ export class ResearchAI extends LifeformTech{
 
 export class HighPerformanceTerraformer extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Hoogwaardige Terraformer");
         this.baseMetalCost = 70000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 20000;
@@ -113,7 +113,7 @@ export class HighPerformanceTerraformer extends LifeformTech{
 export class EnhancedProductionTechnologies extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Verbeterde Productie Technologiën");
         this.baseMetalCost = 80000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -139,7 +139,7 @@ export class EnhancedProductionTechnologies extends LifeformTech{
 
 export class LightFighterMKII extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Lichtgevechtsschip Mk II");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -151,7 +151,7 @@ export class LightFighterMKII extends LifeformTech{
 
 export class CruiserMKII extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Kruiser Mk II");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -163,7 +163,7 @@ export class CruiserMKII extends LifeformTech{
 
 export class ImprovedLabTechnology extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Verbeterde Lab Technologie");
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 30000;
         this.baseDeutCost = 25000;
@@ -175,7 +175,7 @@ export class ImprovedLabTechnology extends LifeformTech{
 
 export class PlasmaTerraformer extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Plasma Terravormer");
         this.baseMetalCost = 100000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 30000;
@@ -187,7 +187,7 @@ export class PlasmaTerraformer extends LifeformTech{
 
 export class LowTemperatureDrives extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Lage Temperatuursaandrijving");
         this.baseMetalCost = 200000;
         this.baseCrystalCost = 100000;
         this.baseDeutCost = 100000;
@@ -199,7 +199,7 @@ export class LowTemperatureDrives extends LifeformTech{
 
 export class BomberMKII extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Bommenwerper Mk II");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -211,7 +211,7 @@ export class BomberMKII extends LifeformTech{
 
 export class DestroyerMKII extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Vernietiger Mk II");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -223,7 +223,7 @@ export class DestroyerMKII extends LifeformTech{
 
 export class BattlecruiserMKII extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Interceptor Mk II");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -235,7 +235,7 @@ export class BattlecruiserMKII extends LifeformTech{
 
 export class RobotAssistants extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Robot Assistenten");
         this.baseMetalCost = 300000;
         this.baseCrystalCost = 180000;
         this.baseDeutCost = 120000;
@@ -247,7 +247,7 @@ export class RobotAssistants extends LifeformTech{
 
 export class Supercomputer extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Supercomputer");
         this.baseMetalCost = 500000;
         this.baseCrystalCost = 300000;
         this.baseDeutCost = 200000;
@@ -261,7 +261,7 @@ export class Supercomputer extends LifeformTech{
 //#region rocktal
 export class MagmaRefinement extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Vulkanische Batterijen");
         this.baseMetalCost = 10000;
         this.baseCrystalCost = 6000;
         this.baseDeutCost = 1000;
@@ -274,7 +274,7 @@ export class MagmaRefinement extends LifeformTech{
 export class AcousticScanning extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Akoestisch Scannen");
         this.baseMetalCost = 7500;
         this.baseCrystalCost = 12500;
         this.baseDeutCost = 5000;
@@ -297,7 +297,7 @@ export class AcousticScanning extends LifeformTech{
 export class HighEnergyPumpSystems extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Hoge Energie Pomp Systemen");
         this.baseMetalCost = 15000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 5000;
@@ -319,7 +319,7 @@ export class HighEnergyPumpSystems extends LifeformTech{
 
 export class CargoHoldExpansion extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Opslagruimte Uitbreiding");
         this.baseMetalCost = 20000;
         this.baseCrystalCost = 15000;
         this.baseDeutCost = 7500;
@@ -332,7 +332,7 @@ export class CargoHoldExpansion extends LifeformTech{
 export class MagmaPoweredProduction extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Magma-Aangedreven Productie");
         this.baseMetalCost = 25000;
         this.baseCrystalCost = 20000;
         this.baseDeutCost = 10000;
@@ -358,7 +358,7 @@ export class MagmaPoweredProduction extends LifeformTech{
 
 export class GeothermalPowerPlants extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Geothermische Energiecentrales");
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -371,7 +371,7 @@ export class GeothermalPowerPlants extends LifeformTech{
 export class DepthSounding extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Dieptepeiling");
         this.baseMetalCost = 70000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 20000;
@@ -393,7 +393,7 @@ export class DepthSounding extends LifeformTech{
 
 export class IonCrystalEnhancement extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Ionenkristal Verbetering (Zwaar Gevechtsschip)");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -405,7 +405,7 @@ export class IonCrystalEnhancement extends LifeformTech{
 
 export class ImprovedStellarator extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Verbeterde Stellarator");
         this.baseMetalCost = 75000;
         this.baseCrystalCost = 55000;
         this.baseDeutCost = 25000;
@@ -418,7 +418,7 @@ export class ImprovedStellarator extends LifeformTech{
 export class HardenedDiamondDrillHeads extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Verharde Diamanten Boorkoppen");
         this.baseMetalCost = 85000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 35000;
@@ -441,7 +441,7 @@ export class HardenedDiamondDrillHeads extends LifeformTech{
 export class SeismicMiningTechnology extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Seismische Mijntechnologie");
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 30000;
         this.baseDeutCost = 25000;
@@ -464,7 +464,7 @@ export class SeismicMiningTechnology extends LifeformTech{
 export class MagmaPoweredPumpSystems extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Magma-Aangedreven Pompsystemen");
         this.baseMetalCost = 100000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 30000;
@@ -486,7 +486,7 @@ export class MagmaPoweredPumpSystems extends LifeformTech{
 
 export class IonCrystalModules extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Ionenkristal Modules");
         this.baseMetalCost = 200000;
         this.baseCrystalCost = 100000;
         this.baseDeutCost = 100000;
@@ -498,7 +498,7 @@ export class IonCrystalModules extends LifeformTech{
 
 export class OptimisedSiloConstructionMethod extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Geoptimaliseerde Silo Bouwmethode");
         this.baseMetalCost = 220000;
         this.baseCrystalCost = 110000;
         this.baseDeutCost = 110000;
@@ -510,7 +510,7 @@ export class OptimisedSiloConstructionMethod extends LifeformTech{
 
 export class DiamondEnergyTransmitter extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Diamanten Energie Zender");
         this.baseMetalCost = 240000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 120000;
@@ -522,7 +522,7 @@ export class DiamondEnergyTransmitter extends LifeformTech{
 
 export class ObsidianShieldReinforcement extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Obsidiaan Schildversteviging");
         this.baseMetalCost = 250000;
         this.baseCrystalCost = 250000;
         this.baseDeutCost = 250000;
@@ -534,7 +534,7 @@ export class ObsidianShieldReinforcement extends LifeformTech{
 
 export class RuneShields extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Rune Schilden");
         this.baseMetalCost = 500000;
         this.baseCrystalCost = 300000;
         this.baseDeutCost = 200000;
@@ -546,7 +546,7 @@ export class RuneShields extends LifeformTech{
 
 export class RocktalCollectorEnhancement extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Rock'tal Verzamelaar Verbetering");
         this.baseMetalCost = 300000;
         this.baseCrystalCost = 180000;
         this.baseDeutCost = 120000;
@@ -561,7 +561,7 @@ export class RocktalCollectorEnhancement extends LifeformTech{
 export class CatalyserTechnology extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Katalysatortechnologie");
         this.baseMetalCost = 10000;
         this.baseCrystalCost = 6000;
         this.baseDeutCost = 1000;
@@ -583,7 +583,7 @@ export class CatalyserTechnology extends LifeformTech{
 
 export class PlasmaDrive extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Plasma Aandrijving");
         this.baseMetalCost = 7500;
         this.baseCrystalCost = 12500;
         this.baseDeutCost = 5000;
@@ -595,7 +595,7 @@ export class PlasmaDrive extends LifeformTech{
 
 export class EfficiencyModule extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Efficiëntie module");
         this.baseMetalCost = 15000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 5000;
@@ -607,7 +607,7 @@ export class EfficiencyModule extends LifeformTech{
 
 export class DepotAI extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Hangar AI");
         this.baseMetalCost = 20000;
         this.baseCrystalCost = 15000;
         this.baseDeutCost = 7500;
@@ -619,7 +619,7 @@ export class DepotAI extends LifeformTech{
 
 export class GeneralOverhaulLF extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Algemene Revisie (Licht Gevechtsschip)");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -632,7 +632,7 @@ export class GeneralOverhaulLF extends LifeformTech{
 export class AutomatedTransportLines extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Geautomatiseerde Transportlijnen");
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -658,7 +658,7 @@ export class AutomatedTransportLines extends LifeformTech{
 
 export class ImprovedDroneAI extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Verbeterde Drone AI");
         this.baseMetalCost = 70000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 20000;
@@ -670,7 +670,7 @@ export class ImprovedDroneAI extends LifeformTech{
 
 export class ExpirimentalRecyclingTechnology extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Experimentele Recyclage Technologie");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -682,7 +682,7 @@ export class ExpirimentalRecyclingTechnology extends LifeformTech{
 
 export class GeneralOverhaulXX extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Algemene Revisie (Kruiser)");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -694,7 +694,7 @@ export class GeneralOverhaulXX extends LifeformTech{
 
 export class SlingshotAutopilot extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Slingshot Autopilot");
         this.baseMetalCost = 85000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 35000;
@@ -706,7 +706,7 @@ export class SlingshotAutopilot extends LifeformTech{
 
 export class HighTemperatureSuperconductors extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Hoge Temperatuur Supergeleiders");
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 30000;
         this.baseDeutCost = 25000;
@@ -718,7 +718,7 @@ export class HighTemperatureSuperconductors extends LifeformTech{
 
 export class GeneralOverhaulBS extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Algemene Revisie (Slagschip)");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -731,7 +731,7 @@ export class GeneralOverhaulBS extends LifeformTech{
 export class ArtificialSwarmIntelligence extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Artificiële Zwerm Intelligentie");
         this.baseMetalCost = 200000;
         this.baseCrystalCost = 100000;
         this.baseDeutCost = 100000;
@@ -757,7 +757,7 @@ export class ArtificialSwarmIntelligence extends LifeformTech{
 
 export class GeneralOverhaulBC extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Algemene Revisie (Interceptor)");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -769,7 +769,7 @@ export class GeneralOverhaulBC extends LifeformTech{
 
 export class GeneralOverhaulBW extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Algemene Revisie (Bommenwerper)");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -781,7 +781,7 @@ export class GeneralOverhaulBW extends LifeformTech{
 
 export class GeneralOverhaulVN extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Algemene Revisie (Vernietiger)");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -793,7 +793,7 @@ export class GeneralOverhaulVN extends LifeformTech{
 
 export class ExpirimentalWeaponsTechnology extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Experimentele Wapenstechnologie");
         this.baseMetalCost = 500000;
         this.baseCrystalCost = 300000;
         this.baseDeutCost = 200000;
@@ -805,7 +805,7 @@ export class ExpirimentalWeaponsTechnology extends LifeformTech{
 
 export class MechanGeneralEnhancement extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Mechan Generaal Verbetering");
         this.baseMetalCost = 300000;
         this.baseCrystalCost = 180000;
         this.baseDeutCost = 120000;
@@ -819,7 +819,7 @@ export class MechanGeneralEnhancement extends LifeformTech{
 //#region kaelesh
 export class HeatRecovery extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Warmteherstel");
         this.baseMetalCost = 10000;
         this.baseCrystalCost = 6000;
         this.baseDeutCost = 1000;
@@ -832,7 +832,7 @@ export class HeatRecovery extends LifeformTech{
 export class SulphideProcess extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Sulfideproces");
         this.baseMetalCost = 7500;
         this.baseCrystalCost = 12500;
         this.baseDeutCost = 5000;
@@ -854,7 +854,7 @@ export class SulphideProcess extends LifeformTech{
 
 export class PsionicNetwork extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Psionisch Netwerk");
         this.baseMetalCost = 15000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 5000;
@@ -866,7 +866,7 @@ export class PsionicNetwork extends LifeformTech{
 
 export class TelekineticTractorBeam extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Telekinetische Tractorstraal");
         this.baseMetalCost = 20000;
         this.baseCrystalCost = 15000;
         this.baseDeutCost = 7500;
@@ -878,7 +878,7 @@ export class TelekineticTractorBeam extends LifeformTech{
 
 export class EnhancedSensorTechnology extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Verbeterde Sensortechnologie");
         this.baseMetalCost = 25000;
         this.baseCrystalCost = 20000;
         this.baseDeutCost = 10000;
@@ -890,7 +890,7 @@ export class EnhancedSensorTechnology extends LifeformTech{
 
 export class NeuromodalCompressor extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Neuromodale Compressor");
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -902,7 +902,7 @@ export class NeuromodalCompressor extends LifeformTech{
 
 export class NeuroInterface extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Neuro-Interface");
         this.baseMetalCost = 70000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 20000;
@@ -914,7 +914,7 @@ export class NeuroInterface extends LifeformTech{
 
 export class InterplanetaryAnalysisNetwork extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Interplanetair Analysenetwerk");
         this.baseMetalCost = 80000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -926,7 +926,7 @@ export class InterplanetaryAnalysisNetwork extends LifeformTech{
 
 export class OverclockingHF extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Overklokken (Zwaar Gevechtsschip)");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -938,7 +938,7 @@ export class OverclockingHF extends LifeformTech{
 
 export class TelekineticDrive extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Telekinetiche Aandrijving");
         this.baseMetalCost = 85000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 35000;
@@ -950,7 +950,7 @@ export class TelekineticDrive extends LifeformTech{
 
 export class SixthSense extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Zesde Zintuig");
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 30000;
         this.baseDeutCost = 25000;
@@ -963,7 +963,7 @@ export class SixthSense extends LifeformTech{
 export class Psychoharmoniser extends LifeformTech{
     resIncBonus: number;
     constructor(level: number){
-        super(level);
+        super(level, "Psychoharmonisator");
         this.baseMetalCost = 100000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 30000;
@@ -989,7 +989,7 @@ export class Psychoharmoniser extends LifeformTech{
 
 export class EfficientSwarmIntelligence extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Efficiënte Zwerm Intelligentie");
         this.baseMetalCost = 200000;
         this.baseCrystalCost = 100000;
         this.baseDeutCost = 100000;
@@ -1001,7 +1001,7 @@ export class EfficientSwarmIntelligence extends LifeformTech{
 
 export class OverclockingLC extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Overklokken (Groot Vrachtschip)");
         this.baseMetalCost = 160000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 50000;
@@ -1013,7 +1013,7 @@ export class OverclockingLC extends LifeformTech{
 
 export class GravitationSensors extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Zwaartekrachtsensoren");
         this.baseMetalCost = 240000;
         this.baseCrystalCost = 120000;
         this.baseDeutCost = 120000;
@@ -1025,7 +1025,7 @@ export class GravitationSensors extends LifeformTech{
 
 export class OverclockingBS extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Overklokken (Slagschip)");
         this.baseMetalCost = 320000;
         this.baseCrystalCost = 240000;
         this.baseDeutCost = 100000;
@@ -1037,7 +1037,7 @@ export class OverclockingBS extends LifeformTech{
 
 export class PsionicShieldMatrix extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Psionische Schildmatrix");
         this.baseMetalCost = 500000;
         this.baseCrystalCost = 300000;
         this.baseDeutCost = 200000;
@@ -1049,7 +1049,7 @@ export class PsionicShieldMatrix extends LifeformTech{
 
 export class KaeleshDiscovererEnhancement extends LifeformTech{
     constructor(level: number){
-        super(level);
+        super(level, "Kaelesh Ontdekker Verbetering");
         this.baseMetalCost = 300000;
         this.baseCrystalCost = 180000;
         this.baseDeutCost = 120000;

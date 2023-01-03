@@ -1,6 +1,7 @@
 import { Planet } from "./planet";
 
 export abstract class Upgradable {
+    name: string;
     baseMetalCost: number;
     baseCrystalCost: number;
     baseDeutCost: number;
@@ -9,8 +10,9 @@ export abstract class Upgradable {
     timeIncFactor: number;
     level: number;
 
-    constructor(level: number){
+    constructor(level: number, name: string){
         this.level = level;
+        this.name = name;
     }
 
     /**

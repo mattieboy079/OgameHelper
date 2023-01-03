@@ -11,7 +11,7 @@ export abstract class LifeformBuilding extends Upgradable{
 
 export class MeditationEnclave extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Meditatie Enclave");
         this.baseMetalCost = 9;
         this.baseCrystalCost = 3;
         this.baseDeutCost = 0;
@@ -23,7 +23,7 @@ export class MeditationEnclave extends LifeformBuilding{
 
 export class CrystalFarm extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Kristal Boerderij");
         this.baseMetalCost = 7;
         this.baseCrystalCost = 2;
         this.baseDeutCost = 0;
@@ -35,7 +35,7 @@ export class CrystalFarm extends LifeformBuilding{
 
 export class RuneTechnologium extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Rune Technologium");
         this.baseMetalCost = 40000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 15000;
@@ -47,7 +47,7 @@ export class RuneTechnologium extends LifeformBuilding{
 
 export class RuneForge extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Rune Smederij");
         this.baseMetalCost = 5000;
         this.baseCrystalCost = 3800;
         this.baseDeutCost = 1000;
@@ -59,7 +59,7 @@ export class RuneForge extends LifeformBuilding{
 
 export class Oriktorium extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Oriktorium");
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 50000;
@@ -71,7 +71,7 @@ export class Oriktorium extends LifeformBuilding{
 
 export class MagmaForge extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Magma Smederij");
         this.baseMetalCost = 10000;
         this.baseCrystalCost = 8000;
         this.baseDeutCost = 1000;
@@ -83,7 +83,7 @@ export class MagmaForge extends LifeformBuilding{
 
 export class DisruptionChamber extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Verstoringskamer");
         this.baseMetalCost = 20000;
         this.baseCrystalCost = 15000;
         this.baseDeutCost = 10000;
@@ -95,7 +95,7 @@ export class DisruptionChamber extends LifeformBuilding{
 
 export class Megalith extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Megaliet");
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 35000;
         this.baseDeutCost = 15000;
@@ -107,7 +107,7 @@ export class Megalith extends LifeformBuilding{
 
 export class CrystalRefinery extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Kristalraffinaderij");
         this.baseMetalCost = 85000;
         this.baseCrystalCost = 44000;
         this.baseDeutCost = 25000;
@@ -119,7 +119,7 @@ export class CrystalRefinery extends LifeformBuilding{
 
 export class DeuteriumSynthesizer extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Deuterium Synthesizer");
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -131,7 +131,7 @@ export class DeuteriumSynthesizer extends LifeformBuilding{
 
 export class MineralResearchCentre extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Mineralen Onderzoekscentrum");
         this.baseMetalCost = 250000;
         this.baseCrystalCost = 150000;
         this.baseDeutCost = 100000;
@@ -143,7 +143,7 @@ export class MineralResearchCentre extends LifeformBuilding{
 
 export class AdvancedRecyclingPlant extends LifeformBuilding{
     constructor(level: number){
-        super(level);
+        super(level, "Geavanceerde Recyclagefabriek");
         this.baseMetalCost = 250000;
         this.baseCrystalCost = 125000;
         this.baseDeutCost = 125000;

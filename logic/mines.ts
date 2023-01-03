@@ -11,7 +11,7 @@ abstract class Mine extends Upgradable {
 
 export class MetalMine extends Mine {
     constructor(level: number){
-        super(level);
+        super(level, "Metaalmijn");
         this.baseMetalCost = 60;
         this.baseCrystalCost = 15;
         this.baseDeutCost = 0;
@@ -22,7 +22,7 @@ export class MetalMine extends Mine {
 
 export class CrystalMine extends Mine {
     constructor(level: number){
-        super(level);
+        super(level, "Kristalmijn");
         this.baseMetalCost = 48;
         this.baseCrystalCost = 24;
         this.baseDeutCost = 0;
@@ -33,7 +33,7 @@ export class CrystalMine extends Mine {
 
 export class DeutMine extends Mine {
     constructor(level: number){
-        super(level);
+        super(level, "Deuteriumfabriek");
         this.baseMetalCost = 225;
         this.baseCrystalCost = 75;
         this.baseDeutCost = 0;
