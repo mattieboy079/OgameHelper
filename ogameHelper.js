@@ -1031,11 +1031,43 @@ class OgameHelper {
         };
     }
 
+    checkPlanetBlocks(){
+        const player = this.json.player;
+        let blocked = [];
+        const research = [];
+        research.push(this.json.player.plasma);
+        research.push(this.json.player.astro);
+        research.push(this.json.player.energy);
+        research.push(this.json.player.ion);
+        research.push(this.json.player.laser);
+        research.push(this.json.player.impuls);
+        research.push(this.json.player.spy);
+
+        research.forEach(r => {
+            if(r.level.timeFinished) blocked.push({coords: "account", type: "research", timeFinished: r.level.timeFinished})
+        });
+
+        player.planets.forEach(planet => {
+            const builds = [];
+            builds.push(planet.metal);
+            builds.push(planet.crystal);
+            builds.push(planet.deut);
+            builds.push(planet.solar);
+            builds.push(planet.fusion);
+
+            builds.forEach(b => {
+                if(b.level.timeFinished) blocked.push({coords: planet.coords, type: "building", timeFinished: b.level.timeFinished})
+            });
+        });
+
+        return blocked;
+    }
+
     createAmortizationTable(coords = undefined, listType){
         let expoProfit = this.calcExpoProfit();
         this.log("expo: " + this.getBigNumber(expoProfit), "debug");
 
-        
+        const blocked = this.checkPlanetBlocks();
 
         //create table
         this.removeButtons();
@@ -2030,7 +2062,11 @@ class OgameHelper {
 
     getTechnologyLevel(technologysearch){
         let level = document.querySelector(".technology." + technologysearch + " .level").getAttribute("data-value");
-        if(document.querySelector(".technology." + technologysearch).getAttribute("data-status") == "active") level++;
+        console.log(document.querySelector(".technology." + technologysearch));
+        if(document.querySelector(".technology." + technologysearch).getAttribute("data-status") == "active") 
+        {
+            level = {level: level, timeFinished: document.querySelector(".technology." + technologysearch).getAttribute("data-end")};
+        }
         return level;
     }
 
