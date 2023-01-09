@@ -57,6 +57,7 @@ function getUniverse(universe){
 }
 
 const UNIVERSE = window.location.host.split(".")[0];
+const CULTURE = UNIVERSE.split("-")[1];
 
 
 
@@ -1246,7 +1247,7 @@ class OgameHelper {
         let totalMSEProdAstroNewExpo = 0;
         
         const newPlanetProduction = this.getMSEProduction(undefined, "astro", undefined);
-        const newExpoSlotProduction = this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24;
+        const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
 
         totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
         if(this.json.player.astro % 2 == 1){
