@@ -238,40 +238,40 @@ class OgameHelper {
                 'energy': 1,
             },
             'high energy smelting': {
-                'reserach centre': 5,
-                'residential sector': 12,
-                'biosphere farm': 13,
+                'reserachCentre': 5,
+                'residentialSector': 12,
+                'biosphereFarm': 13,
             }, 
             'fusion powered production': {
-                'academy of sciences': 1,
-                'residential sector': 40,
+                'academyOfSciences': 1,
+                'residentialSector': 40,
             },
             'magma forge': {
-                'rune technologium': 5,
-                'meditation enclave': 12,
-                'crystal farm': 13,
+                'runeTechnologium': 5,
+                'meditationEnclave': 12,
+                'crystalFarm': 13,
             },
             'crystal refinery': {
                 'megalith': 1,
-                'rune forge': 1,
-                'mediation enclave': 40,
+                'runeForge': 1,
+                'meditationEnclave': 40,
             },
             'deuterium synthesizer': {
                 'megalith': 2,
-                'rune forge': 1,
-                'meditation enclave': 40,
+                'runeForge': 1,
+                'meditationEnclave': 40,
             },
             'mineral research centre': {
                 'oriktorium': 1,
-                'crystal refinery': 1,
+                'crystalRefinery': 1,
                 'megalith': 1,
-                'rune forge': 1,
-                'meditation enclave': 40,
+                'runeForge': 1,
+                'meditationEnclave': 40,
             },
             'high performance synthesizer': {
-                'microchip assembly line': 2,
-                'update network': 1,
-                'assembly line': 40,
+                'microchipAssemblyLine': 2,
+                'updateNetwork': 1,
+                'assemblyLine': 40,
             }
         }
 
@@ -281,7 +281,9 @@ class OgameHelper {
     
         const requiredUpgrades = upgradeRequirements[upgradeType];
         for (const [building, level] of Object.entries(requiredUpgrades)) {
-            const currentLevel = parseInt(planet.lifeforms.buildings[building]);
+            console.log(building);
+            console.log(planet.lifeforms.buildings);
+            const currentLevel = parseInt(planet.lifeforms.buildings[building].level ? planet.lifeforms.buildings[building].level : planet.lifeforms.buildings[building]);
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalCost += this.getMSECosts(planet, building, l);
@@ -301,7 +303,7 @@ class OgameHelper {
      * @return {number} the cost calculated in MSE.
      */
     getMSECosts(planet, upgradeType, level){
-        level = parseInt(level);
+        level = parseInt(level.level ? level.level : level);
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalCost = 0;
         let crystalCost = 0;
@@ -604,8 +606,10 @@ class OgameHelper {
      */
     getMSEProduction(planet, productionType, level){
         if(productionType != "astro"){
-            level = parseInt(level);
+            level = parseInt(level.level ? level.level : level);
         }
+
+        
 
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalProd = 0;
@@ -817,6 +821,7 @@ class OgameHelper {
     }
 
     getExtraMSEProduction(planet, productionType, level){
+        if(level.level) level = level.level;
         return this.getMSEProduction(planet, productionType, level + 1) - this.getMSEProduction(planet, productionType, level); 
     }
 
@@ -965,6 +970,7 @@ class OgameHelper {
     }
 
     createAmortizationWithPrerequisite(planet, upgradeType, level, amorType, amorColor) {
+        if(level.level) level = level.level;
         const startingLevel = parseInt(level, 10);
         let mseProd = getMSEProduction(planet, upgradeType, startingLevel);
         const preMseCosts = getPrerequisiteMSECosts(planet, upgradeType);
@@ -997,7 +1003,7 @@ class OgameHelper {
     }
 
     createAmortizationWithPrerequisite(planet, upgradeType, level, amorType){
-        level = parseInt(level);
+        level = parseInt(level.level ? level.level : level);
         
         let mseProd = this.getMSEProduction(planet, upgradeType, level);
         const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
@@ -1502,6 +1508,8 @@ class OgameHelper {
                 amorType = "rocktalbuilding";
             }
 
+            if(curLevel.level) curLevel = curLevel.level;
+
             let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
             let mseCost = this.getMSECosts(planet, upgrade.upgrade, curLevel);
             let mseToSpend = mseCost / savePercent;
@@ -1571,6 +1579,7 @@ class OgameHelper {
     }
 
     calculateAmortization(planet, technology, level){
+        if(level.level) level = level.level;
         if(technology == "astro"){
             //TODO: plasma and astro
         } else if (technology == "metal" || technology == "crystal" || technology == "deut"){
@@ -1784,8 +1793,8 @@ class OgameHelper {
     }
 
     getLifeformLevelBonus(planet){
-        const level = 18;
-        return 18 * 0.001;
+        const level = 18; //fix
+        return level * 0.001;
     }
 
     calcExpoShipProd(){
