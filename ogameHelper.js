@@ -204,21 +204,23 @@ class OgameHelper {
         let processorBonus = planet.crawlers ? (planet.crawlers > this.calcMaxCrawlers(planet) ? this.calcMaxCrawlers(planet) : planet.crawlers) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0;
         let lifeformBonus = 0;
         if(planet.lifeforms && planet.lifeforms.lifeformClass){
-            let lifeformBuilingBonus = 0;
+            let lifeformBuildingBonus = 0;
             let lifeformTechBonus = 0;
             const buildings = planet.lifeforms.buildings;
+            console.log(buildings);
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                if(resource == "metal") lifeformBuilingBonus = 0.015 * buildings.highEnergySmelting.level ? buildings.highEnergySmelting.level : buildings.highEnergySmelting;
-                else if(resource == "crystal") lifeformBuilingBonus = 0.015 * buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction;
-                else if(resource == "deut") lifeformBuilingBonus = 0.01 * buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction;
+                if(resource == "metal") lifeformBuildingBonus = 0.015 * parseInt(buildings.highEnergySmelting.level ? buildings.highEnergySmelting.level : buildings.highEnergySmelting);
+                else if(resource == "crystal") lifeformBuildingBonus = 0.015 * parseInt(buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction);
+                else if(resource == "deut") lifeformBuildingBonus = 0.01 * parseInt(buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction);
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                if(resource == "metal") lifeformBuilingBonus = 0.02 * buildings.magmaForge.level ? buildings.magmaForge.level : buildings.magmaForge;
-                else if(resource == "crystal") lifeformBuilingBonus = 0.02 * buildings.crystalRefinery.level ? buildings.crystalRefinery.level : buildings.crystalRefinery;
-                else if(resource == "deut") lifeformBuilingBonus = 0.02 * buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer;
+                if(resource == "metal") lifeformBuildingBonus = 0.02 * parseInt(buildings.magmaForge.level ? buildings.magmaForge.level : buildings.magmaForge);
+                else if(resource == "crystal") lifeformBuildingBonus = 0.02 * parseInt(buildings.crystalRefinery.level ? buildings.crystalRefinery.level : buildings.crystalRefinery);
+                else if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer);
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                if(resource == "deut") lifeformBuilingBonus = 0.02 * buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer;
+                if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer);
             }
-            lifeformBonus = lifeformBuilingBonus + lifeformTechBonus;
+            console.log(lifeformBuildingBonus)
+            lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
         }
         //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
         return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus + lifeformBonus;
