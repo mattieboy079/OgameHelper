@@ -30,7 +30,7 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-const logging = "dev"; //prod, dev, debug, test
+const logging = "debug"; //prod, dev, debug, test
 
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
@@ -206,16 +206,17 @@ class OgameHelper {
         if(planet.lifeforms && planet.lifeforms.lifeformClass){
             let lifeformBuilingBonus = 0;
             let lifeformTechBonus = 0;
+            const buildings = planet.lifeforms.buildings;
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                if(resource == "metal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.highEnergySmelting;
-                else if(resource == "crystal") lifeformBuilingBonus = 0.015 * planet.lifeforms.buildings.fusionPoweredProduction;
-                else if(resource == "deut") lifeformBuilingBonus = 0.01 * planet.lifeforms.buildings.fusionPoweredProduction;
+                if(resource == "metal") lifeformBuilingBonus = 0.015 * buildings.highEnergySmelting.level ? buildings.highEnergySmelting.level : buildings.highEnergySmelting;
+                else if(resource == "crystal") lifeformBuilingBonus = 0.015 * buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction;
+                else if(resource == "deut") lifeformBuilingBonus = 0.01 * buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction;
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                if(resource == "metal") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.magmaForge;
-                else if(resource == "crystal") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.crystalRefinery;
-                else if(resource == "deut") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.deuteriumSynthesizer;
+                if(resource == "metal") lifeformBuilingBonus = 0.02 * buildings.magmaForge.level ? buildings.magmaForge.level : buildings.magmaForge;
+                else if(resource == "crystal") lifeformBuilingBonus = 0.02 * buildings.crystalRefinery.level ? buildings.crystalRefinery.level : buildings.crystalRefinery;
+                else if(resource == "deut") lifeformBuilingBonus = 0.02 * buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer;
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                if(resource == "deut") lifeformBuilingBonus = 0.02 * planet.lifeforms.buildings.deuteriumSynthesizer;
+                if(resource == "deut") lifeformBuilingBonus = 0.02 * buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer;
             }
             lifeformBonus = lifeformBuilingBonus + lifeformTechBonus;
         }
@@ -622,9 +623,9 @@ class OgameHelper {
             deutProd = (this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed;
         } else if (productionType === "plasma"){
             this.json.player.planets.forEach(p => {
-                metalProd += this.getRawProduction(p, "metal", p.metal) * this.json.settings.economySpeed * this.getFactor(p, "metal");
-                crystalProd += this.getRawProduction(p, "crystal", p.crystal) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
-                deutProd += this.getRawProduction(p, "deut", p.deut) * this.json.settings.economySpeed;
+                metalProd += this.getRawProduction(p, "metal", p.metal.level ? p.metal.level : p.metal) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+                crystalProd += this.getRawProduction(p, "crystal", p.crystal.level ? p.crystal.level : p.crystal) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+                deutProd += this.getRawProduction(p, "deut", p.deut.level ? p.deut.level : p.deut) * this.json.settings.economySpeed;
             });
             metalProd *= 0.01;
             crystalProd *= 0.0066;
