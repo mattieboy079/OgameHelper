@@ -588,8 +588,8 @@ class OgameHelper {
 
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
-            if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith);
-            if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre);
+            if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith.level ? planet.lifeforms.buildings.megalith.level : planet.lifeforms.buildings.megalith);
+            if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre.level ? planet.lifeforms.buildings.mineralResearchCentre.level : planet.lifeforms.buildings.mineralResearchCentre);
             metalCost *= factor;
             crystalCost *= factor;
             deutCost *= factor;
