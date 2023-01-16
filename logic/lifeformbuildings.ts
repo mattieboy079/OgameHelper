@@ -36,6 +36,10 @@ export class CrystalFarm extends LifeformBuilding{
 export class RuneTechnologium extends LifeformBuilding{
     constructor(level: number){
         super(level, "Rune Technologium");
+        this.prerequisites = {
+            'Meditatie Enclave': 21,
+            'Kristal Boerderij': 22,
+        };
         this.baseMetalCost = 40000;
         this.baseCrystalCost = 10000;
         this.baseDeutCost = 15000;
@@ -48,6 +52,9 @@ export class RuneTechnologium extends LifeformBuilding{
 export class RuneForge extends LifeformBuilding{
     constructor(level: number){
         super(level, "Rune Smederij");
+        this.prerequisites = {
+            'Meditatie Enclave': 41,
+        };
         this.baseMetalCost = 5000;
         this.baseCrystalCost = 3800;
         this.baseDeutCost = 1000;
@@ -60,6 +67,9 @@ export class RuneForge extends LifeformBuilding{
 export class Oriktorium extends LifeformBuilding{
     constructor(level: number){
         super(level, "Oriktorium");
+        this.prerequisites = {
+            'Kristalraffinaderij': 5,
+        };
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 40000;
         this.baseDeutCost = 50000;
@@ -72,6 +82,9 @@ export class Oriktorium extends LifeformBuilding{
 export class MagmaForge extends LifeformBuilding{
     constructor(level: number){
         super(level, "Magma Smederij");
+        this.prerequisites = {
+            'Rune Technologium': 5,
+        };
         this.baseMetalCost = 10000;
         this.baseCrystalCost = 8000;
         this.baseDeutCost = 1000;
@@ -84,6 +97,9 @@ export class MagmaForge extends LifeformBuilding{
 export class DisruptionChamber extends LifeformBuilding{
     constructor(level: number){
         super(level, "Verstoringskamer");
+        this.prerequisites = {
+            'Magma Smederij': 3,
+        };
         this.baseMetalCost = 20000;
         this.baseCrystalCost = 15000;
         this.baseDeutCost = 10000;
@@ -96,6 +112,9 @@ export class DisruptionChamber extends LifeformBuilding{
 export class Megalith extends LifeformBuilding{
     constructor(level: number){
         super(level, "Megaliet");
+        this.prerequisites = {
+            'Rune Smederij': 1,
+        };
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 35000;
         this.baseDeutCost = 15000;
@@ -108,6 +127,9 @@ export class Megalith extends LifeformBuilding{
 export class CrystalRefinery extends LifeformBuilding{
     constructor(level: number){
         super(level, "Kristalraffinaderij");
+        this.prerequisites = {
+            'Megaliet': 1,
+        };
         this.baseMetalCost = 85000;
         this.baseCrystalCost = 44000;
         this.baseDeutCost = 25000;
@@ -120,6 +142,9 @@ export class CrystalRefinery extends LifeformBuilding{
 export class DeuteriumSynthesizer extends LifeformBuilding{
     constructor(level: number){
         super(level, "Deuterium Synthesizer");
+        this.prerequisites = {
+            'Megaliet': 2,
+        };
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 50000;
         this.baseDeutCost = 20000;
@@ -132,6 +157,10 @@ export class DeuteriumSynthesizer extends LifeformBuilding{
 export class MineralResearchCentre extends LifeformBuilding{
     constructor(level: number){
         super(level, "Mineralen Onderzoekscentrum");
+        this.prerequisites = {
+            'Kristalraffinaderij': 6,
+            'Oriktorium': 1,
+        };
         this.baseMetalCost = 250000;
         this.baseCrystalCost = 150000;
         this.baseDeutCost = 100000;
@@ -144,6 +173,12 @@ export class MineralResearchCentre extends LifeformBuilding{
 export class AdvancedRecyclingPlant extends LifeformBuilding{
     constructor(level: number){
         super(level, "Geavanceerde Recyclagefabriek");
+        this.prerequisites = {
+            'Megaliet': 5,
+            'Oriktorium': 5,
+            'Mineralen Onderzoekscentrum': 5,
+            'Verstoringskamer': 4,
+        };
         this.baseMetalCost = 250000;
         this.baseCrystalCost = 125000;
         this.baseDeutCost = 125000;
