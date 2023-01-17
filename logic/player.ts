@@ -1,18 +1,21 @@
 import { Planet } from './planet.js';
+import { Astrophysics, PlasmaTechnology } from './researches.js';
 
 export class Player {
-  admiral: boolean;
   allyClass: string;
+  playerClass: string;
   commander: boolean;
+  admiral: boolean;
   engineer: boolean;
   geologist: boolean;
-  legerleiding: boolean;
-  planets: Planet[];
-  playerClass: string;
   technocrat: boolean;
+  legerleiding: boolean;
   ratio: number[];
   exporounds: number;
   exposlots: number;
+  planets: Planet[];
+  astro: Astrophysics;
+  plasma: PlasmaTechnology;
 
   constructor(data: any) {
     this.allyClass = data.allyClass ?? "-";
@@ -27,6 +30,8 @@ export class Player {
     this.exporounds = parseFloat(data.exporounds ?? 0);
     this.exposlots = parseInt(data.exposlots ?? 0);
     this.fillPlanets(data.planets);
+    this.astro = new Astrophysics(data.astro ?? 0);
+    this.plasma = new PlasmaTechnology(data.plasma ?? 0);
   }
 
   fillPlanets(data: any) {
