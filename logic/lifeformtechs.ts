@@ -25,7 +25,7 @@ export class IntergalacticEnvoys extends LifeformTech{
 
 export class HighPerformanceExtractors extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Hoogwaardige Extractoren");
         this.baseMetalCost = 7000;
         this.baseCrystalCost = 10000;
@@ -33,7 +33,7 @@ export class HighPerformanceExtractors extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -112,7 +112,7 @@ export class HighPerformanceTerraformer extends LifeformTech{
 
 export class EnhancedProductionTechnologies extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Verbeterde Productie Technologiën");
         this.baseMetalCost = 80000;
         this.baseCrystalCost = 50000;
@@ -120,7 +120,7 @@ export class EnhancedProductionTechnologies extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 6000;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -273,7 +273,7 @@ export class MagmaRefinement extends LifeformTech{
 
 export class AcousticScanning extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Akoestisch Scannen");
         this.baseMetalCost = 7500;
         this.baseCrystalCost = 12500;
@@ -281,7 +281,7 @@ export class AcousticScanning extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
 
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -296,7 +296,7 @@ export class AcousticScanning extends LifeformTech{
 
 export class HighEnergyPumpSystems extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Hoge Energie Pomp Systemen");
         this.baseMetalCost = 15000;
         this.baseCrystalCost = 10000;
@@ -304,7 +304,7 @@ export class HighEnergyPumpSystems extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2500;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -331,7 +331,7 @@ export class CargoHoldExpansion extends LifeformTech{
 
 export class MagmaPoweredProduction extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Magma-Aangedreven Productie");
         this.baseMetalCost = 25000;
         this.baseCrystalCost = 20000;
@@ -339,7 +339,7 @@ export class MagmaPoweredProduction extends LifeformTech{
         this.resIncFactor = 1.3;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 3500;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -370,7 +370,7 @@ export class GeothermalPowerPlants extends LifeformTech{
 
 export class DepthSounding extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Dieptepeiling");
         this.baseMetalCost = 70000;
         this.baseCrystalCost = 40000;
@@ -378,7 +378,7 @@ export class DepthSounding extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5500;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -417,7 +417,7 @@ export class ImprovedStellarator extends LifeformTech{
 
 export class HardenedDiamondDrillHeads extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Verharde Diamanten Boorkoppen");
         this.baseMetalCost = 85000;
         this.baseCrystalCost = 40000;
@@ -425,7 +425,7 @@ export class HardenedDiamondDrillHeads extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 7000;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -440,7 +440,7 @@ export class HardenedDiamondDrillHeads extends LifeformTech{
 
 export class SeismicMiningTechnology extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Seismische Mijntechnologie");
         this.baseMetalCost = 120000;
         this.baseCrystalCost = 30000;
@@ -448,7 +448,7 @@ export class SeismicMiningTechnology extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 7500;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -463,7 +463,7 @@ export class SeismicMiningTechnology extends LifeformTech{
 
 export class MagmaPoweredPumpSystems extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Magma-Aangedreven Pompsystemen");
         this.baseMetalCost = 100000;
         this.baseCrystalCost = 40000;
@@ -471,7 +471,7 @@ export class MagmaPoweredPumpSystems extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8000;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -560,7 +560,7 @@ export class RocktalCollectorEnhancement extends LifeformTech{
 //#region mechas
 export class CatalyserTechnology extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Katalysatortechnologie");
         this.baseMetalCost = 10000;
         this.baseCrystalCost = 6000;
@@ -568,7 +568,7 @@ export class CatalyserTechnology extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 1000;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -631,7 +631,7 @@ export class GeneralOverhaulLF extends LifeformTech{
 
 export class AutomatedTransportLines extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Geautomatiseerde Transportlijnen");
         this.baseMetalCost = 50000;
         this.baseCrystalCost = 50000;
@@ -639,7 +639,7 @@ export class AutomatedTransportLines extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5000;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -730,7 +730,7 @@ export class GeneralOverhaulBS extends LifeformTech{
 
 export class ArtificialSwarmIntelligence extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Artificiële Zwerm Intelligentie");
         this.baseMetalCost = 200000;
         this.baseCrystalCost = 100000;
@@ -738,7 +738,7 @@ export class ArtificialSwarmIntelligence extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8500;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -831,7 +831,7 @@ export class HeatRecovery extends LifeformTech{
 
 export class SulphideProcess extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Sulfideproces");
         this.baseMetalCost = 7500;
         this.baseCrystalCost = 12500;
@@ -839,7 +839,7 @@ export class SulphideProcess extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
-        this.resIncBonus = 0.0008;
+        this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
     }
 
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -962,7 +962,7 @@ export class SixthSense extends LifeformTech{
 
 export class Psychoharmoniser extends LifeformTech{
     resIncBonus: number;
-    constructor(level: number){
+    constructor(level: number, lifeformLevel: number){
         super(level, "Psychoharmonisator");
         this.baseMetalCost = 100000;
         this.baseCrystalCost = 40000;
@@ -970,7 +970,7 @@ export class Psychoharmoniser extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8000;
-        this.resIncBonus = 0.0006;
+        this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
