@@ -229,6 +229,8 @@ class OgameHelper {
     getPrerequisiteMSECosts(planet, upgradeType){
         let metalCost = 0;
 
+        this.log("getPrerequisites of: " + upgradeType, "debug");
+
         const upgradeRequirements = {
             'plasma': {
                 'ion': 5,
@@ -240,8 +242,9 @@ class OgameHelper {
                 'spy': 4,
                 'energy': 1,
             },
+            //human            
             'high energy smelting': {
-                'reserachCentre': 5,
+                'researchCentre': 5,
                 'residentialSector': 12,
                 'biosphereFarm': 13,
             }, 
@@ -249,6 +252,7 @@ class OgameHelper {
                 'academyOfSciences': 1,
                 'residentialSector': 40,
             },
+            //rocktal
             'magma forge': {
                 'runeTechnologium': 5,
                 'meditationEnclave': 12,
@@ -271,11 +275,12 @@ class OgameHelper {
                 'runeForge': 1,
                 'meditationEnclave': 40,
             },
+            //mecha
             'high performance synthesizer': {
                 'microchipAssemblyLine': 2,
                 'updateNetwork': 1,
                 'assemblyLine': 40,
-            }
+            },
         }
 
         if (!upgradeRequirements[upgradeType]) {
