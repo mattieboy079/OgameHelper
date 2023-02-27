@@ -81,9 +81,9 @@ class OgameHelper {
         if(data && data !== "undefined"){   
             this.json = JSON.parse(data);
             console.log(this.json);
-            let player = new Player(this.json.player);
-            console.log(player);
-            //this.json.player = undefined;
+            let player = this.json.player;
+            let newPlayer = new Player(this.json.player);
+            console.log(newPlayer);
             this.getServerSettings(UNIVERSE);
             if(!this.json.player){
                 this.getPlayerInfo();
@@ -199,7 +199,8 @@ class OgameHelper {
         let verzamelaarBonus = this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.25 : 0;
         let handelaarBonus = this.json.player.allyClass === ALLY_CLASS_MINER ? 0.05 : 0;
         let plasmaFactor = resource === "metal" ? 0.01 : (resource === "crystal" ? 0.0066 : 0.0033);
-        let plasmaBonus = this.json.player.plasma ? this.json.player.plasma * plasmaFactor : 0;
+        let plasmaLevel = this.json.player.plasma.level ?? this.json.player.plasma; 
+        let plasmaBonus = plasmaLevel ? plasmaLevel * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
         let processorBonus = planet.crawlers ? (planet.crawlers > this.calcMaxCrawlers(planet) ? this.calcMaxCrawlers(planet) : planet.crawlers) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0;
         let lifeformBonus = 0;
@@ -1307,9 +1308,9 @@ class OgameHelper {
             coords: "account",
             name: "account",
             technology: "plasma",
-            level: (parseInt(this.json.player.plasma) + 1),
-            amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma)),
-            msecost: this.getMSECosts(undefined, "plasma", parseInt(this.json.player.plasma)),
+            level: (parseInt(this.json.player.plasma.level ?? this.json.player.plasma) + 1),
+            amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma.level ?? this.json.player.plasma)),
+            msecost: this.getMSECosts(undefined, "plasma", parseInt(this.json.player.plasma.level ?? this.json.player.plasma)),
             type: "plasma",
             color: amorColor
         });
@@ -1642,11 +1643,11 @@ class OgameHelper {
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Plasmatechnology: " + this.json.player.plasma));
+        tr.appendChild(document.createTextNode("Plasmatechnology: " + this.json.player.plasma.level ?? this.json.player.plasma));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Astrophysics: " + this.json.player.astro));
+        tr.appendChild(document.createTextNode("Astrophysics: " + this.json.player.astro.level ?? this.json.player.astro));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
