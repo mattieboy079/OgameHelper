@@ -8,6 +8,11 @@ export abstract class LifeformTech extends Upgradable{
         const deutCost: number = Math.floor(this.baseDeutCost * Math.pow(this.resIncFactor, level) * (level + 1));
         return [metalCost, crystalCost, deutCost];
     }
+
+    getUpgradeTime(level: number, planets: Planet[], ecoSpeed: number): number {
+        const techLabFactor = 0.64;
+        return Math.floor((level + 1) * this.baseTimeCost * Math.pow(this.timeIncFactor, level + 1) / ecoSpeed * techLabFactor);
+    }
 }
 
 //#region human
@@ -34,6 +39,8 @@ export class HighPerformanceExtractors extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
         this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus", "crystalBonus", "deutBonus"];
+        this.refreshTypes = ["metal", "crystal", "deut", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -96,6 +103,8 @@ export class ResearchAI extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5000;
     }
+
+    //Todo: increase tech speed?
 }
 
 export class HighPerformanceTerraformer extends LifeformTech{
@@ -121,6 +130,8 @@ export class EnhancedProductionTechnologies extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 6000;
         this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus", "crystalBonus", "deutBonus"];
+        this.refreshTypes = ["metal", "crystal", "deut", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -171,6 +182,8 @@ export class ImprovedLabTechnology extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 7500;
     }
+
+    //Todo: increase speed?
 }
 
 export class PlasmaTerraformer extends LifeformTech{
@@ -243,6 +256,8 @@ export class RobotAssistants extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 11000;
     }
+
+    //Todo: increase speed?
 }
 
 export class Supercomputer extends LifeformTech{
@@ -255,6 +270,8 @@ export class Supercomputer extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 13000;
     }
+
+    //Todo: increase speed?
 }
 //#endregion
 
@@ -282,6 +299,9 @@ export class AcousticScanning extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "crystalBonus"];
+        this.refreshTypes = ["crystal", "techCost", "techSpeed"];
+
     }
 
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -305,6 +325,9 @@ export class HighEnergyPumpSystems extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2500;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "deutBonus"];
+        this.refreshTypes = ["deut", "techCost", "techSpeed"];
+
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -340,6 +363,9 @@ export class MagmaPoweredProduction extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 3500;
         this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "deutBonus"];
+        this.refreshTypes = ["deut", "techCost", "techSpeed"];
+
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -379,6 +405,9 @@ export class DepthSounding extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5500;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus"];
+        this.refreshTypes = ["metal", "techCost", "techSpeed"];
+
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -412,6 +441,8 @@ export class ImprovedStellarator extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 6500;
+        this.types = ["planet.tech", "plasmaCost"];
+        this.refreshTypes = ["plasma", "techCost"];
     }
 }
 
@@ -426,6 +457,9 @@ export class HardenedDiamondDrillHeads extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 7000;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus"];
+        this.refreshTypes = ["metal", "techCost", "techSpeed"];
+
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -449,6 +483,8 @@ export class SeismicMiningTechnology extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 7500;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "crystalBonus"];
+        this.refreshTypes = ["crystal", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -472,6 +508,8 @@ export class MagmaPoweredPumpSystems extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8000;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "deutBonus"];
+        this.refreshTypes = ["deut", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -493,6 +531,8 @@ export class IonCrystalModules extends LifeformTech{
         this.resIncFactor = 1.2;
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8500;
+        this.types = ["planet.tech", "metalBonus", "crystalBonus", "deutBonus", "crawlerBonus"];
+        this.refreshTypes = ["metal", "crystal", "deut", "crawler", "techCost", "techSpeed"];
     }
 }
 
@@ -569,6 +609,9 @@ export class CatalyserTechnology extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 1000;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "deutBonus"];
+        this.refreshTypes = ["deut", "techCost", "techSpeed"];
+
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -640,6 +683,8 @@ export class AutomatedTransportLines extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5000;
         this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus", "crystalBonus", "deutBonus"];
+        this.refreshTypes = ["metal", "crystal", "deut", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -739,6 +784,8 @@ export class ArtificialSwarmIntelligence extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8500;
         this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus", "crystalBonus", "deutBonus"];
+        this.refreshTypes = ["metal", "crystal", "deut", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -840,6 +887,8 @@ export class SulphideProcess extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 2000;
         this.resIncBonus = 0.0008 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "deutBonus"];
+        this.refreshTypes = ["deut", "techCost", "techSpeed"];
     }
 
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -873,6 +922,8 @@ export class TelekineticTractorBeam extends LifeformTech{
         this.resIncFactor = 1.3;
         this.timeIncFactor = 1.4;
         this.baseTimeCost = 3500;
+        this.types = ["planet.tech", "expoBonus"];
+        this.refreshTypes = ["expo", "techCost", "techSpeed"];
     }
 }
 
@@ -885,6 +936,9 @@ export class EnhancedSensorTechnology extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.4;
         this.baseTimeCost = 4500;
+        this.types = ["planet.tech", "expoBonus"];
+        this.refreshTypes = ["expo", "techCost", "techSpeed"];
+
     }
 }
 
@@ -910,6 +964,8 @@ export class NeuroInterface extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 5500;
     }
+
+    //Todo: increase speed?
 }
 
 export class InterplanetaryAnalysisNetwork extends LifeformTech{
@@ -957,6 +1013,8 @@ export class SixthSense extends LifeformTech{
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.4;
         this.baseTimeCost = 7500;
+        this.types = ["planet.tech", "expoBonus"];
+        this.refreshTypes = ["expo", "techCost", "techSpeed"];
     }
 }
 
@@ -971,6 +1029,8 @@ export class Psychoharmoniser extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8000;
         this.resIncBonus = 0.0006 * (1 + 0.001 * lifeformLevel);
+        this.types = ["planet.tech", "metalBonus", "crystalBonus", "deutBonus"];
+        this.refreshTypes = ["metal", "crystal", "deut", "techCost", "techSpeed"];
     }
     
     override getProduction(level: number, planets: Planet[]): number[] {
@@ -997,6 +1057,8 @@ export class EfficientSwarmIntelligence extends LifeformTech{
         this.timeIncFactor = 1.3;
         this.baseTimeCost = 8500;
     }
+
+    //Todo: increase speed?
 }
 
 export class OverclockingLC extends LifeformTech{

@@ -40,4 +40,6 @@ export class Player {
       this.planets.push(new Planet(planet))
     });
   }
+  
+  
 }

@@ -2,6 +2,7 @@ import { Planet } from "./planet";
 
 export abstract class Upgradable {
     name: string;
+    coords: string;
     baseMetalCost: number;
     baseCrystalCost: number;
     baseDeutCost: number;
@@ -10,6 +11,8 @@ export abstract class Upgradable {
     timeIncFactor: number;
     level: number;
     prerequisites: Record<string,number>;
+    types: string[];
+    refreshTypes: string[];
 
     constructor(level: number, name: string){
         this.level = level;
@@ -22,6 +25,12 @@ export abstract class Upgradable {
      */
     abstract getCosts(level: number): number[];
     
+    /**
+     * get the time to upgrade this technology
+     * @param level the level to upgrade from 
+     * @param planets current planets of the player
+     */
+    abstract getUpgradeTime(level: number, planets: Planet[], ecoSpeed: number) : number;
 
     /**
      * get the costs of his technology calculated to metal
@@ -36,7 +45,7 @@ export abstract class Upgradable {
 
     /**
      * get the production per hour of this technology
-     * @param level level of tech
+     * @param level level of tech to calculate production for
      * @param planets current planets of player
      * @returns total production per hour of this tech on the given level with the current planets
      */
@@ -46,7 +55,7 @@ export abstract class Upgradable {
     
     /**
      * get the production per hour calculated in metal of this technology
-     * @param level level of tech
+     * @param level level of tech to calculate production for
      * @param planets current planets of player
      * @returns total production per hour of this tech on the given level with the current planets
      */
@@ -62,7 +71,7 @@ export abstract class Upgradable {
      * @param planets the planets to take in calculation
      * @returns the amortization in hours
      */
-    getAmortization(level: number, ratio: number[], planets: Planet[]): number{
-        return this.getMseProduction(level, ratio, planets) / this.getMseCosts(level, ratio);
+    getAmortization(level: number, ratio: number[], planets: Planet[], ecoSpeed: number): number{
+        return (this.getMseProduction(level, ratio, planets) / this.getMseCosts(level, ratio)) + this.getUpgradeTime(level, planets, ecoSpeed);
     }
 }

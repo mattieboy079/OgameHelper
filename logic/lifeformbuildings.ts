@@ -1,3 +1,4 @@
+import { Planet } from "./planet";
 import { Upgradable } from "./upgradable";
 
 export abstract class LifeformBuilding extends Upgradable{
@@ -6,6 +7,13 @@ export abstract class LifeformBuilding extends Upgradable{
         const crystalCost: number = Math.floor(this.baseCrystalCost * Math.pow(this.resIncFactor, level) * (level + 1));
         const deutCost: number = Math.floor(this.baseDeutCost * Math.pow(this.resIncFactor, level) * (level + 1));
         return [metalCost, crystalCost, deutCost];
+    }
+
+    getUpgradeTime(level: number, planets: Planet[], ecoSpeed: number): number {
+        const robot = 0;
+        const nano = 0;
+        const other = 1;
+        return Math.floor((level + 1) * this.baseTimeCost * Math.pow(this.timeIncFactor, level + 1) / ecoSpeed / (1 + robot) / Math.pow(2, nano) * other);
     }
 }
 
@@ -46,6 +54,8 @@ export class RuneTechnologium extends LifeformBuilding{
         this.baseTimeCost = 16000;
         this.resIncFactor = 1.3;
         this.timeIncFactor = 1.25;
+        this.types = ["techCost", "techSpeed"];
+        this.refreshTypes = ["planet.tech", "buildCost", "buildSpeed"];
     }
 }
 
@@ -91,6 +101,8 @@ export class MagmaForge extends LifeformBuilding{
         this.baseTimeCost = 2000;
         this.resIncFactor = 1.4;
         this.timeIncFactor = 1.3;
+        this.types = ["planet.metalBonus"];
+        this.refreshTypes = ["planet.metal", "buildCost", "buildSpeed"];
     }
 }
 
@@ -121,6 +133,8 @@ export class Megalith extends LifeformBuilding{
         this.baseTimeCost = 40000;
         this.resIncFactor = 1.5;
         this.timeIncFactor = 1.4;
+        this.types = ["planet.buildCost", "planet.buildSpeed"];
+        this.refreshTypes = ["planet.buildCost", "planet.buildSpeed"];
     }
 }
 
@@ -136,6 +150,8 @@ export class CrystalRefinery extends LifeformBuilding{
         this.baseTimeCost = 40000;
         this.resIncFactor = 1.4;
         this.timeIncFactor = 1.2;
+        this.types = ["planet.crystalBonus"];
+        this.refreshTypes = ["planet.crystal", "buildCost", "buildSpeed"];
     }
 }
 
@@ -151,6 +167,8 @@ export class DeuteriumSynthesizer extends LifeformBuilding{
         this.baseTimeCost = 52000;
         this.resIncFactor = 1.4;
         this.timeIncFactor = 1.2;
+        this.types = ["planet.deutBonus"];
+        this.refreshTypes = ["planet.deut", "buildCost", "buildSpeed"];
     }
 }
 
@@ -167,6 +185,9 @@ export class MineralResearchCentre extends LifeformBuilding{
         this.baseTimeCost = 90000;
         this.resIncFactor = 1.8;
         this.timeIncFactor = 1.3;
+        this.types = ["planet.buildCost", "planet.buildSpeed"];
+        this.refreshTypes = ["planet.metal", "planet.crystal", "planet.deut", "planet.buildCost", "planet.buildSpeed"];
+
     }
 }
 
