@@ -256,25 +256,25 @@ class OgameHelper {
             //rocktal
             'magma forge': {
                 'runeTechnologium': 5,
-                'meditationEnclave': 12,
-                'crystalFarm': 13,
+                'meditationEnclave': 21,
+                'crystalFarm': 22,
             },
             'crystal refinery': {
                 'megalith': 1,
                 'runeForge': 1,
-                'meditationEnclave': 40,
+                'meditationEnclave': 41,
             },
             'deuterium synthesizer': {
                 'megalith': 2,
                 'runeForge': 1,
-                'meditationEnclave': 40,
+                'meditationEnclave': 41,
             },
             'mineral research centre': {
                 'oriktorium': 1,
-                'crystalRefinery': 1,
+                'crystalRefinery': 6,
                 'megalith': 1,
                 'runeForge': 1,
-                'meditationEnclave': 40,
+                'meditationEnclave': 41,
             },
             //mecha
             'high performance synthesizer': {
