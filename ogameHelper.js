@@ -1110,8 +1110,9 @@ class OgameHelper {
 
         let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
         if(this.json.settings.lifeforms){
-            let costLoweringUpgrades = this.getCostLoweringUpgrades();
-            //absoluteAmortization = this.addCostLoweringUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
+            let costLoweringUpgrades = this.getIndirectProductionUpgrades();
+            console.log(costLoweringUpgrades);
+            //absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
         }
 
 
@@ -1253,9 +1254,6 @@ class OgameHelper {
     * @param coords optional: the coords to create the list for, no coords means whole account
     */
     createAbsoluteAmortizationList(blocked, coords){
-        this.log("ik ben hier", "test");
-        this.log(blocked, "test");
-        this.log(coords, "test");
         let totalAmortization = [];
         let amorColor;
         this.json.player.planets.forEach((planet) => {
@@ -1441,7 +1439,7 @@ class OgameHelper {
         return this.json.player.planets.find(p => p.coords == coords);
     }
 
-    getCostLoweringUpgrades(){
+    getIndirectProductionUpgrades(){
         let costLoweringUpgrades = [];
 
         if(this.json.settings.lifeforms){
@@ -1466,7 +1464,7 @@ class OgameHelper {
                         affected: "rocktalbuilding",
                     });
                 }
-    
+                
                 planet.lifeforms.techs.forEach(tech => {
                     if(tech.name === "Verbeterde Stellarator"){
                         costLoweringUpgrades.push({
@@ -1480,13 +1478,22 @@ class OgameHelper {
             });
         }
 
+        this.json.player.planets.forEach(planet => {
+            costLoweringUpgrades.push({
+                coords: planet.coords,
+                upgrade: "nano",
+                priority: 5,
+                affected: "productionbuilding",
+            })
+        });
+
         costLoweringUpgrades = costLoweringUpgrades.sort((a,b) => a.priority - b.priority);
-        this.log(costLoweringUpgrades, "test");
         return costLoweringUpgrades;
     }
 
-    addCostLoweringUpgradesToAmortization(amortizationList, costLoweringUpgrades){
+    addIndirectProductionUpgradesToAmortization(amortizationList, costLoweringUpgrades){
         let totalHourlyMseProd = this.calcTotalMseProduction();
+        console.log(totalHourlyMseProd);
 
         costLoweringUpgrades.forEach(upgrade => {
             this.log(upgrade, "test");
@@ -1825,7 +1832,7 @@ class OgameHelper {
             let bonus = 0;
             this.json.player.planets.forEach(p => {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
-                if(p.lifeforms.techs.length > 0){
+                if(p.lifeforms?.techs.length > 0){
                     p.lifeforms.techs.forEach(t => {
                         if(t.name == "Telekinetische Tractorstraal"){
                             bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
