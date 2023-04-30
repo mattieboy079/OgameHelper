@@ -1,4 +1,4 @@
-import { Player } from './logic/player.js';
+//import { Player } from './logic/player.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_WARRIOR = "generaal";
@@ -82,7 +82,7 @@ class OgameHelper {
             this.json = JSON.parse(data);
             console.log(this.json);
             let player = this.json.player;
-            let newPlayer = new Player(this.json.player);
+            //let newPlayer = new Player(this.json.player);
             console.log(newPlayer);
             this.getServerSettings(UNIVERSE);
             if(!this.json.player){
