@@ -1,3 +1,4 @@
+import { Amortization } from './amortization.js';
 import { Planet } from './planet.js';
 import { Astrophysics, PlasmaTechnology } from './researches.js';
 
@@ -41,5 +42,13 @@ export class Player {
     });
   }
   
-  
+  getAmortization(): Amortization[] {
+    let amors: Amortization[] = new Array<Amortization>;
+
+    this.planets.forEach(planet => {
+      planet.getAmortization(this.planets, this.ratio).forEach(amor => amors.push(amor));
+    });
+
+    return amors;
+  }
 }

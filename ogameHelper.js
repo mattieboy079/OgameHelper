@@ -30,7 +30,9 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-const logging = "debug"; //prod, dev, debug, test
+let CurrentPlayer;
+
+const logging = "info"; //info, debug, trace, test
 
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
@@ -82,8 +84,8 @@ class OgameHelper {
             this.json = JSON.parse(data);
             console.log(this.json);
             let player = this.json.player;
-            let newPlayer = new Player(this.json.player);
-            console.log(newPlayer);
+            CurrentPlayer = new Player(this.json.player);
+            console.log(CurrentPlayer);
             this.getServerSettings(UNIVERSE);
             if(!this.json.player){
                 this.getPlayerInfo();
@@ -101,13 +103,13 @@ class OgameHelper {
     /**
      * 
      * @param {string} log 
-     * @param {string} loglevel standard: dev
+     * @param {string} loglevel standard: debug
      */
-    log(message, loglevel = "dev") {
+    log(message, loglevel = "info") {
         const levels = {
-            prod: 1,
-            dev: 2,
-            debug: 3,
+            info: 1,
+            debug: 2,
+            trace: 3,
             test: 4
         };
       
@@ -170,7 +172,7 @@ class OgameHelper {
 
     async getServerSettings(universe){
         let url = getServerSettingsURL(universe);
-        this.log(url, "debug");
+        this.log(url, "trace");
         fetch(url)
         .then((rep) => rep.text())
         .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
@@ -208,6 +210,7 @@ class OgameHelper {
             let lifeformBuildingBonus = 0;
             let lifeformTechBonus = 0;
             const buildings = planet.lifeforms.buildings;
+            this.log(buildings, "trace")
             console.log(buildings);
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                 if(resource == "metal") lifeformBuildingBonus = 0.015 * parseInt(buildings.highEnergySmelting.level ? buildings.highEnergySmelting.level : buildings.highEnergySmelting);
@@ -220,7 +223,6 @@ class OgameHelper {
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
                 if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer);
             }
-            console.log(lifeformBuildingBonus)
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
         }
         //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
@@ -230,7 +232,7 @@ class OgameHelper {
     getPrerequisiteMSECosts(planet, upgradeType){
         let metalCost = 0;
 
-        this.log("getPrerequisites of: " + upgradeType, "debug");
+        this.log("getPrerequisites of: " + upgradeType, "trace");
 
         const upgradeRequirements = {
             'plasma': {
@@ -920,7 +922,7 @@ class OgameHelper {
     }
 
     checkPlanets(){
-        this.log("checking planets", "debug");
+        this.log("checking planets", "trace");
         let changed = false;
         const planetList = document.querySelectorAll(".smallplanet");
         const newPlanetList = [];
@@ -1028,7 +1030,7 @@ class OgameHelper {
                 amor = mseCosts / mseProd;
                 x++;
             }
-            this.log(`${planet.coords} -- ${upgradeType} -- ${(x - 1)} extra levels`, "debug");
+            this.log(`${planet.coords} -- ${upgradeType} -- ${(x - 1)} extra levels`, "trace");
 
             if(x > 1) newLevel = (level + 1) + "-" + (level + x);
             else newLevel = (level + x);                   
@@ -1088,7 +1090,7 @@ class OgameHelper {
 
     createAmortizationTable(coords = undefined, listType){
         let expoProfit = this.calcExpoProfit();
-        this.log("expo: " + this.getBigNumber(expoProfit), "debug");
+        this.log("expo: " + this.getBigNumber(expoProfit), "trace");
 
         const blocked = this.checkPlanetBlocks();
 
@@ -1172,7 +1174,7 @@ class OgameHelper {
                 tableBody.appendChild(tr);
             }
         } else {
-          
+            console.log(absoluteAmortization);
             let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
             //Every unit once
             for(let r = 0; r < totalAmortization.length + 1; r++){
@@ -1257,6 +1259,7 @@ class OgameHelper {
     createAbsoluteAmortizationList(blocked, coords){
         let totalAmortization = [];
         let amorColor;
+
         this.json.player.planets.forEach((planet) => {
             if(!coords || planet.coords == coords){
                 amorColor = this.getAmortizationColor(planet.coords, "building", blocked);
@@ -1318,7 +1321,7 @@ class OgameHelper {
         totalAmortization.push(this.createAstroAmortizationObject());
 
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
-        this.log(totalAmortization, "debug");
+        this.log(totalAmortization, "trace");
         return totalAmortization;
     }
 
@@ -1618,7 +1621,7 @@ class OgameHelper {
         planets.sort((a,b) => parseInt(a.coords.split(":")[2]) - parseInt(b.coords.split(":")[2]));
         planets.sort((a,b) => parseInt(a.coords.split(":")[1]) - parseInt(b.coords.split(":")[1]));
         planets.sort((a,b) => parseInt(a.coords.split(":")[0]) - parseInt(b.coords.split(":")[0]));
-        this.log(planets, "debug");
+        this.log(planets, "trace");
 
         let metalProd = 0, crystalProd = 0, deutProd = 0;
 
@@ -1685,9 +1688,9 @@ class OgameHelper {
             tableBody.appendChild(tr);
             
             tr = document.createElement('tr');
-            this.log("expoprofit: " + this.getBigNumber(this.calcExpoProfit()), "dev");
-            this.log("miner per hour: " + this.getBigNumber(this.calcMinerBonusProfitHour()), "dev");
-            this.log("expoprofit per hour: " + this.getBigNumber(this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24), "dev");
+            this.log("expoprofit: " + this.getBigNumber(this.calcExpoProfit()), "debug");
+            this.log("miner per hour: " + this.getBigNumber(this.calcMinerBonusProfitHour()), "debug");
+            this.log("expoprofit per hour: " + this.getBigNumber(this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24), "debug");
             
             tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_MINER + " when doing less then " + this.getBigNumber(this.calcMinerBonusProfitHour() * 24 * 7 / this.calcExpoProfit()) + " expeditions per week."));
             tableBody.appendChild(tr);    
@@ -1721,12 +1724,12 @@ class OgameHelper {
         let metalProd = 0, crystalProd = 0, deutProd = 0;
 
         planets.forEach(p => {
-            this.log(p.coords, "debug");
-            this.log(this.calcMaxCrawlers(p), "debug");
+            this.log(p.coords, "trace");
+            this.log(this.calcMaxCrawlers(p), "trace");
             let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1)) * 0.00045;
             let extraCrawlersBonus = maxCrawlerBonus - (p.crawlers > this.calcMaxCrawlers(p) ? this.calcMaxCrawlers(p) : p.crawlers) * 0.0002;
-            this.log(maxCrawlerBonus, "debug");
-            this.log(extraCrawlersBonus, "debug");
+            this.log(maxCrawlerBonus, "trace");
+            this.log(extraCrawlersBonus, "trace");
 
             metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
@@ -1737,8 +1740,8 @@ class OgameHelper {
             deutProdMiner += (this.getRawProduction(p, "deut", p.deut) * (1 + 0.25 + extraCrawlersBonus + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
         });
 
-        this.log("minerprod: " + this.getBigNumber(metalProdMiner) + " - " + this.getBigNumber(crystalProdMiner) + " - " + this.getBigNumber(deutProdMiner), "dev");
-        this.log("prod:" + this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd), "dev");
+        this.log("minerprod: " + this.getBigNumber(metalProdMiner) + " - " + this.getBigNumber(crystalProdMiner) + " - " + this.getBigNumber(deutProdMiner), "debug");
+        this.log("prod:" + this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd), "debug");
         return metalProdMiner - metalProd + (crystalProdMiner - crystalProd) * ratio[0] / ratio[1] + (deutProdMiner - deutProd) * ratio[0] / ratio[2];
     }
 
@@ -1805,7 +1808,7 @@ class OgameHelper {
     }
 
     getLifeformLevelBonus(planet){
-        const level = 22; //fix
+        const level = 28; //fix
         return level * 0.001;
     }
 
@@ -1868,7 +1871,7 @@ class OgameHelper {
         if(page === OVERVIEW){
             this.checkPlanets();
             if(!currentIsMoon){
-                this.log(textContent, "debug");
+                this.log(textContent, "trace");
                 this.log(currentCoords);
                 let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
                 this.log("planetindex: " + index);
@@ -1917,8 +1920,8 @@ class OgameHelper {
         } else if (page === LIFEFORM){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
-            this.log("lifeform techs", "debug");
-            this.log(document.querySelectorAll(".technology"), "debug");
+            this.log("lifeform techs", "trace");
+            this.log(document.querySelectorAll(".technology"), "trace");
             let buildings = planet.lifeforms.buildings;
             if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                 buildings.residentialSector = this.getTechnologyLevel("lifeformTech11101");
@@ -1976,17 +1979,17 @@ class OgameHelper {
         } else if (page === LIFEFORM_RESEARCH){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
-            this.log("lifeform techs", "debug");
-            this.log(document.querySelectorAll(".technology"), "debug");
+            this.log("lifeform techs", "trace");
+            this.log(document.querySelectorAll(".technology"), "trace");
             let techs = [];
             for(let s = 1; s <= 18; s++){
                 let tech = this.getTechnologyFromSlot(s);
                 if(tech) techs.push(tech);
             }
-            this.log(techs, "debug");
+            this.log(techs, "trace");
             planet.lifeforms.techs = techs;
         } else if (page === LIFEFORM_SETTINGS){
-            this.log(document.querySelector(".currentLevel"), "debug");
+            this.log(document.querySelector(".currentLevel"), "trace");
         } else if (page === FACILITIES){
             //TODO: UPDATE FACILITIES
         } else if (page === RESEARCH){
@@ -2001,16 +2004,16 @@ class OgameHelper {
             //TODO: UPDATE RESEARCH
         } else if (page === ALLIANCE) {
             if (document.querySelector(".value.alliance_class.small.explorer")) {
-                this.log("ally ontdekker", "debug");
+                this.log("ally ontdekker", "trace");
                 this.json.player.allyClass = ALLY_CLASS_EXPLORER;
             } else if (document.querySelector(".value.alliance_class.small.warrior")) {
-                this.log("ally generaal", "debug");
+                this.log("ally generaal", "trace");
                 this.json.player.allyClass = ALLY_CLASS_WARRIOR;
             } else if (document.querySelector(".value.alliance_class.small.trader")) {
-                this.log("ally trader", "debug");
+                this.log("ally trader", "trace");
                 this.json.player.allyClass = ALLY_CLASS_MINER;
             } else {
-                this.log("ally geen", "debug");
+                this.log("ally geen", "trace");
                 this.json.player.allyClass = ALLY_CLASS_NONE;
             }
             this.saveData();

@@ -1,9 +1,9 @@
 "use strict";
-export const __esModule = true;
 import { Planet } from "./planet.js";
+import { Astrophysics, PlasmaTechnology } from "./researches.js";
 var Player = /** @class */ (function () {
     function Player(data) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         this.allyClass = (_a = data.allyClass) !== null && _a !== void 0 ? _a : "-";
         this.playerClass = (_b = data.playerClass) !== null && _b !== void 0 ? _b : "-";
         this.commander = (_c = data.commander) !== null && _c !== void 0 ? _c : false;
@@ -16,6 +16,8 @@ var Player = /** @class */ (function () {
         this.exporounds = parseFloat((_h = data.exporounds) !== null && _h !== void 0 ? _h : 0);
         this.exposlots = parseInt((_j = data.exposlots) !== null && _j !== void 0 ? _j : 0);
         this.fillPlanets(data.planets);
+        this.astro = new Astrophysics((_k = data.astro) !== null && _k !== void 0 ? _k : 0);
+        this.plasma = new PlasmaTechnology((_l = data.plasma) !== null && _l !== void 0 ? _l : 0);
     }
     Player.prototype.fillPlanets = function (data) {
         var _this = this;
@@ -23,6 +25,14 @@ var Player = /** @class */ (function () {
         data.forEach(function (planet) {
             _this.planets.push(new Planet(planet));
         });
+    };
+    Player.prototype.getAmortization = function () {
+        var _this = this;
+        var amors = new Array;
+        this.planets.forEach(function (planet) {
+            planet.getAmortization(_this.planets, _this.ratio).forEach(function (amor) { return amors.push(amor); });
+        });
+        return amors;
     };
     return Player;
 }());

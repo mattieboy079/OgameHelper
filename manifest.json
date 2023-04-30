@@ -15,7 +15,7 @@
     ],
 
     "web_accessible_resources": [{
-        "resources": ["ogameHelper.js", "resources/*", "logic/*"],
+        "resources": ["ogameHelper.js", "functions.js", "resources/*", "logic/*"],
         "matches": ["<all_urls>"]
     }],
 

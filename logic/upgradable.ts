@@ -14,16 +14,17 @@ export abstract class Upgradable {
     types: string[];
     refreshTypes: string[];
 
-    constructor(level: number, name: string){
+    constructor(level: number, name: string, coords: string){
         this.level = level;
         this.name = name;
+        this.coords = coords;
     }
 
     /**
      * get the costs of this technology
      * @param level the level to upgrade from
      */
-    abstract getCosts(level: number): number[];
+    abstract getCosts(level: number, planets: Planet[]): number[];
     
     /**
      * get the time to upgrade this technology
@@ -38,8 +39,8 @@ export abstract class Upgradable {
      * @param ratio the ratio to calculate with
      * @returns the costs of this technology in metal
      */
-    getMseCosts(level: number, ratio: number[]): number{
-        const costs = this.getCosts(level);
+    getMseCosts(level: number, planets: Planet[], ratio: number[]): number{
+        const costs = this.getCosts(level, planets);
         return costs[0] + costs[1] / ratio[1] * ratio[0] + costs[2] / ratio[2] * ratio[0];
     }
 
@@ -71,7 +72,7 @@ export abstract class Upgradable {
      * @param planets the planets to take in calculation
      * @returns the amortization in hours
      */
-    getAmortization(level: number, ratio: number[], planets: Planet[], ecoSpeed: number): number{
-        return (this.getMseProduction(level, ratio, planets) / this.getMseCosts(level, ratio)) + this.getUpgradeTime(level, planets, ecoSpeed);
+    calculateAmortization(level: number, ratio: number[], planets: Planet[], ecoSpeed: number): number{
+        return (this.getMseProduction(level, ratio, planets) / this.getMseCosts(level, planets, ratio)) + this.getUpgradeTime(level, planets, ecoSpeed);
     }
 }
