@@ -72,9 +72,6 @@ function getLanguage(){
     });
 }
 
-
-console.log(UNIVERSE);
-
 class OgameHelper {
     constructor(){
         let data = localStorage.getItem("ogh-" + UNIVERSE);
@@ -83,7 +80,6 @@ class OgameHelper {
             console.log(this.json);
             let player = this.json.player;
             //let newPlayer = new Player(this.json.player);
-            console.log(newPlayer);
             this.getServerSettings(UNIVERSE);
             if(!this.json.player){
                 this.getPlayerInfo();
@@ -244,32 +240,32 @@ class OgameHelper {
                 'energy': 1,
             },
             //human            
-            'high energy smelting': {
+            'highEnergySmelting': {
                 'researchCentre': 5,
                 'residentialSector': 12,
                 'biosphereFarm': 13,
             }, 
-            'fusion powered production': {
+            'fusionPoweredProduction': {
                 'academyOfSciences': 1,
                 'residentialSector': 40,
             },
             //rocktal
-            'magma forge': {
+            'magmaForge': {
                 'runeTechnologium': 5,
                 'meditationEnclave': 21,
                 'crystalFarm': 22,
             },
-            'crystal refinery': {
+            'crystalRefinery': {
                 'megalith': 1,
                 'runeForge': 1,
                 'meditationEnclave': 41,
             },
-            'deuterium synthesizer': {
+            'deuteriumSynthesizer': {
                 'megalith': 2,
                 'runeForge': 1,
                 'meditationEnclave': 41,
             },
-            'mineral research centre': {
+            'mineralResearchCentre': {
                 'oriktorium': 1,
                 'crystalRefinery': 6,
                 'megalith': 1,
@@ -277,7 +273,7 @@ class OgameHelper {
                 'meditationEnclave': 41,
             },
             //mecha
-            'high performance synthesizer': {
+            'highPerformanceSynthesizer': {
                 'microchipAssemblyLine': 2,
                 'updateNetwork': 1,
                 'assemblyLine': 40,
@@ -289,6 +285,7 @@ class OgameHelper {
         }
     
         const requiredUpgrades = upgradeRequirements[upgradeType];
+    
         for (const [building, level] of Object.entries(requiredUpgrades)) {
             const currentLevel = parseInt(planet.lifeforms.buildings[building].level ? planet.lifeforms.buildings[building].level : planet.lifeforms.buildings[building]);
             if (currentLevel < level) {
@@ -356,44 +353,44 @@ class OgameHelper {
             deutCost = 4000 * Math.pow(1.75, level);
         } 
         // HUMANS
-        else if (upgradeType === "residential sector") {
+        else if (upgradeType === "residentialSector") {
             metalCost = 7 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.2, level) * (level + 1);
-        } else if (upgradeType === "biosphere farm") {
+        } else if (upgradeType === "biosphereFarm") {
             metalCost = 5 * Math.pow(1.23, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.23, level) * (level + 1);
-        } else if (upgradeType === "research centre") {
+        } else if (upgradeType === "researchCentre") {
             metalCost = 20000 * Math.pow(1.3, level) * (level + 1);
             crystalCost = 25000 * Math.pow(1.3, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.3, level) * (level + 1);
-        } else if (upgradeType === "academy of sciences") {
+        } else if (upgradeType === "academyOfSciences") {
             metalCost = 5000 * Math.pow(1.7, level) * (level + 1);
             crystalCost = 3200 * Math.pow(1.7, level) * (level + 1);
             deutCost = 1500 * Math.pow(1.7, level) * (level + 1);
-        } else if (upgradeType === "high energy smelting") {
+        } else if (upgradeType === "highEnergySmelting") {
             metalCost = 9000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 6000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 3000 * Math.pow(1.5, level) * (level + 1);
-        } else if (upgradeType === "fusion powered production") {
+        } else if (upgradeType === "fusionPoweredProduction") {
             metalCost = 50000 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 25000 * Math.pow(1.2, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.2, level) * (level + 1);
         } 
         //ROCK'TAL
-        else if (upgradeType === "meditation enclave") {
+        else if (upgradeType === "meditationEnclave") {
             metalCost = 9 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 3 * Math.pow(1.2, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "crystal farm") {
+        } else if (upgradeType === "crystalFarm") {
             metalCost = 7 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.2, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "rune technologium") {
+        } else if (upgradeType === "runeTechnologium") {
             metalCost = 40000 * Math.pow(1.3, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.3, level) * (level + 1);
             deutCost = 15000 * Math.pow(1.3, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "rune forge") {
+        } else if (upgradeType === "runeForge") {
             metalCost = 5000 * Math.pow(1.7, level) * (level + 1);
             crystalCost = 3800 * Math.pow(1.7, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.7, level) * (level + 1);
@@ -403,7 +400,7 @@ class OgameHelper {
             crystalCost = 40000 * Math.pow(1.65, level) * (level + 1);
             deutCost = 50000 * Math.pow(1.65, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "magma forge") {
+        } else if (upgradeType === "magmaForge") {
             metalCost = 10000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 8000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.4, level) * (level + 1);
@@ -413,35 +410,35 @@ class OgameHelper {
             crystalCost = 35000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 15000 * Math.pow(1.5, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "crystal refinery") {
+        } else if (upgradeType === "crystalRefinery") {
             metalCost = 85000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 44000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.4, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "deuterium synthesizer") {
+        } else if (upgradeType === "deuteriumSynthesizer") {
             metalCost = 120000 * Math.pow(1.4, level) * (level + 1);
             crystalCost = 50000 * Math.pow(1.4, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.4, level) * (level + 1);
             rockTalBuild = true;
-        } else if (upgradeType === "mineral research centre") {
+        } else if (upgradeType === "mineralResearchCentre") {
             metalCost = 250000 * Math.pow(1.8, level) * (level + 1);
             crystalCost = 150000 * Math.pow(1.8, level) * (level + 1);
             deutCost = 100000 * Math.pow(1.8, level) * (level + 1);
             rockTalBuild = true;
         } 
         //MECHAS
-        else if (upgradeType === "assembly line") {
+        else if (upgradeType === "assemblyLine") {
             metalCost = 6 * Math.pow(1.21, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.21, level) * (level + 1);
-        } else if (upgradeType === "update network") {
+        } else if (upgradeType === "updateNetwork") {
             metalCost = 5000 * Math.pow(1.8, level) * (level + 1);
             crystalCost = 3800 * Math.pow(1.8, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.8, level) * (level + 1);
-        } else if (upgradeType === "microchip assembly line") {
+        } else if (upgradeType === "microchipAssemblyLine") {
             metalCost = 50000 * Math.pow(1.07, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.07, level) * (level + 1);
             deutCost = 30000 * Math.pow(1.07, level) * (level + 1);
-        } else if (upgradeType === "high performance synthesizer") {
+        } else if (upgradeType === "highPerformanceSynthesizer") {
             metalCost = 100000 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 40000 * Math.pow(1.2, level) * (level + 1);
             deutCost = 20000 * Math.pow(1.2, level) * (level + 1);
@@ -654,18 +651,18 @@ class OgameHelper {
             metalProd += (30 + this.getRawProduction(p, "metal", highestMetal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             crystalProd += (15 + this.getRawProduction(p, "crystal", highestCrystal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
             deutProd += (this.getRawProduction(p, "deut", highestDeut) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed;
-        } else if (productionType === "high energy smelting") {
+        } else if (productionType === "highEnergySmelting") {
             metalProd = 0.015 * this.getRawProduction(planet, "metal", planet.metal) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
-        } else if (productionType === "fusion powered production") {
+        } else if (productionType === "fusionPoweredProduction") {
             crystalProd = 0.015 * this.getRawProduction(planet, "crystal", planet.crystal) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
             deutProd = 0.01 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
-        } else if (productionType === "magma forge") {
+        } else if (productionType === "magmaForge") {
             metalProd = 0.02 * this.getRawProduction(planet, "metal", planet.metal) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
-        } else if (productionType === "crystal refinery") {
+        } else if (productionType === "crystalRefinery") {
             crystalProd = 0.02 * this.getRawProduction(planet, "crystal", planet.crystal) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
-        } else if (productionType === "deuterium synthesizer") {
+        } else if (productionType === "deuteriumSynthesizer") {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
-        } else if (productionType === "mineral research centre") {
+        } else if (productionType === "mineralResearchCentre") {
             let perc = 0.005 / (1 - 0.005 * parseInt(level))
             this.json.player.planets.forEach(p => {
                 metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
@@ -676,7 +673,7 @@ class OgameHelper {
             metalProd *= perc / this.json.player.planets.length;
             crystalProd *= perc / this.json.player.planets.length;
             deutProd *= perc / this.json.player.planets.length;
-        } else if (productionType === "high performance synthesizer") {
+        } else if (productionType === "highPerformanceSynthesizer") {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
         } 
         
@@ -978,11 +975,6 @@ class OgameHelper {
     }
 
     createAmortizationWithPrerequisite(planet, upgradeType, level, amorType, amorColor) {
-        console.log(planet);
-        console.log(upgradeType);
-        console.log(level);
-        console.log(amorType);
-        console.log(amorColor);
         if(level.level) level = level.level;
         const startingLevel = parseInt(level);
         let mseProd = this.getMSEProduction(planet, upgradeType, startingLevel);
@@ -1116,7 +1108,6 @@ class OgameHelper {
         let tableBody = document.createElement('tbody');
 
 
-        console.log("Hallo");
         let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
         if(this.json.settings.lifeforms){
             let costLoweringUpgrades = this.getCostLoweringUpgrades();
@@ -1278,14 +1269,14 @@ class OgameHelper {
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                     amorColor = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high energy smelting", parseInt(planet.lifeforms.buildings.highEnergySmelting.level ? planet.lifeforms.buildings.highEnergySmelting.level : planet.lifeforms.buildings.highEnergySmelting), "-", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusion powered production", parseInt(planet.lifeforms.buildings.fusionPoweredProduction.level ? planet.lifeforms.buildings.fusionPoweredProduction.level : planet.lifeforms.buildings.fusionPoweredProduction), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", parseInt(planet.lifeforms.buildings.highEnergySmelting.level ? planet.lifeforms.buildings.highEnergySmelting.level : planet.lifeforms.buildings.highEnergySmelting), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", parseInt(planet.lifeforms.buildings.fusionPoweredProduction.level ? planet.lifeforms.buildings.fusionPoweredProduction.level : planet.lifeforms.buildings.fusionPoweredProduction), "-", amorColor));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magma forge", parseInt(planet.lifeforms.buildings.magmaForge.level ? planet.lifeforms.buildings.magmaForge.level : planet.lifeforms.buildings.magmaForge), "rocktalbuilding", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystal refinery", parseInt(planet.lifeforms.buildings.crystalRefinery.level ? planet.lifeforms.buildings.crystalRefinery.level : planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuterium synthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer.level ? planet.lifeforms.buildings.deuteriumSynthesizer.level : planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", parseInt(planet.lifeforms.buildings.magmaForge.level ? planet.lifeforms.buildings.magmaForge.level : planet.lifeforms.buildings.magmaForge), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", parseInt(planet.lifeforms.buildings.crystalRefinery.level ? planet.lifeforms.buildings.crystalRefinery.level : planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer.level ? planet.lifeforms.buildings.deuteriumSynthesizer.level : planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding", amorColor));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "high performance synthesizer", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer.level ? planet.lifeforms.buildings.highPerformanceSynthesizer.level : planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer.level ? planet.lifeforms.buildings.highPerformanceSynthesizer.level : planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColor));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -1458,13 +1449,13 @@ class OgameHelper {
                 if(planet.lifeforms.lifeformClass === "rocktal"){
                     costLoweringUpgrades.push({
                         coords: planet.coords,
-                        upgrade: "mineral research centre",
+                        upgrade: "mineralResearchCentre",
                         priority: 1,
                         affected: "productionbuilding",
                     });
                     costLoweringUpgrades.push({
                         coords: planet.coords,
-                        upgrade: "rune technologium",
+                        upgrade: "runeTechnologium",
                         priority: 3,
                         affected: "lifeformtech",
                     });
@@ -1508,15 +1499,15 @@ class OgameHelper {
             let upgradePercent;
             let amorType;
 
-            if(upgrade.upgrade == "rune technologium"){
+            if(upgrade.upgrade == "runeTechnologium"){
                 curLevel = parseInt(planet.lifeforms.buildings.runeTechnologium);
                 upgradePercent = 0.25;
                 amorType = "rocktalbuilding";
             } else if (upgrade.upgrade == "Verbeterde Stellarator"){
-                let index = planet.lifeforms.techs.findIndex(t => t.name == "Verbeterde Stellarator");
+                let index = planet.lifeformsFechs.findIndex(t => t.name == "Verbeterde Stellarator");
                 curLevel = parseInt(planet.lifeforms.techs[index].level);
                 upgradePercent = 0.15;
-            } else if (upgrade.upgrade == "mineral research centre"){
+            } else if (upgrade.upgrade == "mineralResearchCentre"){
                 curLevel = parseInt(planet.lifeforms.buildings.mineralResearchCentre);
                 upgradePercent = 0.5;
                 amorType = "rocktalbuilding";
@@ -2141,7 +2132,6 @@ class OgameHelper {
 
     getTechnologyLevel(technologysearch){
         let level = document.querySelector(".technology." + technologysearch + " .level").getAttribute("data-value");
-        console.log(document.querySelector(".technology." + technologysearch));
         if(document.querySelector(".technology." + technologysearch).getAttribute("data-status") == "active") 
         {
             level = {level: parseInt(level) + 1, timeFinished: document.querySelector(".technology." + technologysearch).getAttribute("data-end")};
