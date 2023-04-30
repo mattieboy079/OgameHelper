@@ -30,7 +30,7 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-const logging = "debug"; //prod, dev, debug, test
+const logging = "test"; //prod, dev, debug, test
 
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
@@ -208,7 +208,7 @@ class OgameHelper {
             let lifeformBuildingBonus = 0;
             let lifeformTechBonus = 0;
             const buildings = planet.lifeforms.buildings;
-            console.log(buildings);
+            this.log(buildings, "debug");
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                 if(resource == "metal") lifeformBuildingBonus = 0.015 * parseInt(buildings.highEnergySmelting.level ? buildings.highEnergySmelting.level : buildings.highEnergySmelting);
                 else if(resource == "crystal") lifeformBuildingBonus = 0.015 * parseInt(buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction);
@@ -220,7 +220,7 @@ class OgameHelper {
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
                 if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer);
             }
-            console.log(lifeformBuildingBonus)
+            this.log(lifeformBuildingBonus, "debug");
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
         }
         //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
@@ -978,18 +978,23 @@ class OgameHelper {
     }
 
     createAmortizationWithPrerequisite(planet, upgradeType, level, amorType, amorColor) {
+        console.log(planet);
+        console.log(upgradeType);
+        console.log(level);
+        console.log(amorType);
+        console.log(amorColor);
         if(level.level) level = level.level;
-        const startingLevel = parseInt(level, 10);
-        let mseProd = getMSEProduction(planet, upgradeType, startingLevel);
-        const preMseCosts = getPrerequisiteMSECosts(planet, upgradeType);
-        let mseCosts = getMSECosts(planet, upgradeType, startingLevel) + preMseCosts;
+        const startingLevel = parseInt(level);
+        let mseProd = this.getMSEProduction(planet, upgradeType, startingLevel);
+        const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
+        let mseCosts = this.getMSECosts(planet, upgradeType, startingLevel) + preMseCosts;
       
         let amortization = mseCosts / mseProd;
         let newLevel = startingLevel + 1;
         let x = 1;
-        while (getMSECosts(planet, upgradeType, startingLevel + x) / getMSEProduction(planet, upgradeType, startingLevel + x) < amortization) {
-            mseCosts += getMSECosts(planet, upgradeType, startingLevel + x);
-            mseProd += getMSEProduction(planet, upgradeType, startingLevel + x);
+        while (this.getMSECosts(planet, upgradeType, startingLevel + x) / this.getMSEProduction(planet, upgradeType, startingLevel + x) < amortization) {
+            mseCosts += this.getMSECosts(planet, upgradeType, startingLevel + x);
+            mseProd += this.getMSEProduction(planet, upgradeType, startingLevel + x);
             amortization = mseCosts / mseProd;
             x++;
         }
@@ -1010,43 +1015,43 @@ class OgameHelper {
         };
     }
 
-    createAmortizationWithPrerequisite(planet, upgradeType, level, amorType){
-        level = parseInt(level.level ? level.level : level);
+    // createAmortizationWithPrerequisite(planet, upgradeType, level, amorType){
+    //     level = parseInt(level.level ? level.level : level);
         
-        let mseProd = this.getMSEProduction(planet, upgradeType, level);
-        const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
-        let mseCosts = this.getMSECosts(planet, upgradeType, level) + preMseCosts;
+    //     let mseProd = this.getMSEProduction(planet, upgradeType, level);
+    //     const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
+    //     let mseCosts = this.getMSECosts(planet, upgradeType, level) + preMseCosts;
 
-        let amor = mseCosts / mseProd;
-        let newLevel;
+    //     let amor = mseCosts / mseProd;
+    //     let newLevel;
 
-        if(preMseCosts > 0) {
-            let x = 1;
-            while(this.getMSECosts(planet, upgradeType, level + x) / this.getMSEProduction(planet, upgradeType, level + x) < amor){
-                mseCosts += this.getMSECosts(planet, upgradeType, level + x);
-                mseProd += this.getMSEProduction(planet, upgradeType, level + x);
-                amor = mseCosts / mseProd;
-                x++;
-            }
-            this.log(`${planet.coords} -- ${upgradeType} -- ${(x - 1)} extra levels`, "debug");
+    //     if(preMseCosts > 0) {
+    //         let x = 1;
+    //         while(this.getMSECosts(planet, upgradeType, level + x) / this.getMSEProduction(planet, upgradeType, level + x) < amor){
+    //             mseCosts += this.getMSECosts(planet, upgradeType, level + x);
+    //             mseProd += this.getMSEProduction(planet, upgradeType, level + x);
+    //             amor = mseCosts / mseProd;
+    //             x++;
+    //         }
+    //         this.log(`${planet.coords} -- ${upgradeType} -- ${(x - 1)} extra levels`, "debug");
 
-            if(x > 1) newLevel = (level + 1) + "-" + (level + x);
-            else newLevel = (level + x);                   
-        }
-        else{
-            newLevel = (level + 1);
-        }
+    //         if(x > 1) newLevel = (level + 1) + "-" + (level + x);
+    //         else newLevel = (level + x);                   
+    //     }
+    //     else{
+    //         newLevel = (level + 1);
+    //     }
 
-        return { 
-            coords: planet.coords, 
-            name: planet.name, 
-            technology: upgradeType, 
-            level: newLevel, 
-            amortization: amor / 24,
-            msecost: mseCosts,
-            type: amorType,
-        };
-    }
+    //     return { 
+    //         coords: planet.coords, 
+    //         name: planet.name, 
+    //         technology: upgradeType, 
+    //         level: newLevel, 
+    //         amortization: amor / 24,
+    //         msecost: mseCosts,
+    //         type: amorType,
+    //     };
+    // }
 
     checkPlanetBlocks(){
         const player = this.json.player;
@@ -1092,7 +1097,7 @@ class OgameHelper {
 
         const blocked = this.checkPlanetBlocks();
 
-        console.log(blocked);
+        this.log(blocked, "debug");
 
         //create table
         this.removeButtons();
@@ -1110,6 +1115,8 @@ class OgameHelper {
         table.setAttribute('border', '1');
         let tableBody = document.createElement('tbody');
 
+
+        console.log("Hallo");
         let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
         if(this.json.settings.lifeforms){
             let costLoweringUpgrades = this.getCostLoweringUpgrades();
@@ -1255,6 +1262,9 @@ class OgameHelper {
     * @param coords optional: the coords to create the list for, no coords means whole account
     */
     createAbsoluteAmortizationList(blocked, coords){
+        this.log("ik ben hier", "test");
+        this.log(blocked, "test");
+        this.log(coords, "test");
         let totalAmortization = [];
         let amorColor;
         this.json.player.planets.forEach((planet) => {
@@ -1824,11 +1834,13 @@ class OgameHelper {
             let bonus = 0;
             this.json.player.planets.forEach(p => {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
-                p.lifeforms.techs.forEach(t => {
-                    if(t.name == "Telekinetische Tractorstraal"){
-                        bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
-                    }
-                });
+                if(p.lifeforms.techs.length > 0){
+                    p.lifeforms.techs.forEach(t => {
+                        if(t.name == "Telekinetische Tractorstraal"){
+                            bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
+                        }
+                    });    
+                }
             });
             return bonus;
         } else {
