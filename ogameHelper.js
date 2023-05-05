@@ -784,7 +784,7 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionSlots(){
-        return Math.floor(Math.sqrt(parseInt(this.json.player.astro.level ? this.json.player.astro.level : this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
+        return Math.floor(Math.sqrt(parseInt(this.json.player.astro.level ?? this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
     }
 
     getFactor(planet, productionType) {
@@ -1074,9 +1074,11 @@ class OgameHelper {
             });
 
             if(planet.lifeforms){
-                planet.lifeforms.techs.forEach(t => {
-                    if(t.level.timeFinished) blocked.push({coords: planet.coords, type: "lifeformtech", timeFinished: t.level.timeFinished})
-                })
+                if(planet.lifeforms?.techs?.length > 0){
+                    planet.lifeforms.techs.forEach(t => {
+                        if(t.level.timeFinished) blocked.push({coords: planet.coords, type: "lifeformtech", timeFinished: t.level.timeFinished})
+                    })    
+                }
             }
         });
 
@@ -1280,24 +1282,26 @@ class OgameHelper {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
     
-                    amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);                
-                    planet.lifeforms.techs.forEach(tech => {
-                        const level = parseInt(tech.level.level ? tech.level.level : tech.level);
-                        let extraMSE = this.getMSEProduction(planet, tech.name, level);
-                        if(extraMSE > 0){
-                            let mseCost = this.getMSECosts(planet, tech.name, level);
-                            totalAmortization.push({
-                                coords: planet.coords, 
-                                name: planet.name, 
-                                technology: tech.name, 
-                                level: level + 1, 
-                                amortization: mseCost / extraMSE / 24, 
-                                msecost: mseCost,
-                                type: "lifeformtech",
-                                color: amorColor,
-                            });
-                        }
-                    });
+                    amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);    
+                    if(planet.lifeforms?.techs?.length > 0){
+                        planet.lifeforms.techs.forEach(tech => {
+                            const level = parseInt(tech.level.level ? tech.level.level : tech.level);
+                            let extraMSE = this.getMSEProduction(planet, tech.name, level);
+                            if(extraMSE > 0){
+                                let mseCost = this.getMSECosts(planet, tech.name, level);
+                                totalAmortization.push({
+                                    coords: planet.coords, 
+                                    name: planet.name, 
+                                    technology: tech.name, 
+                                    level: level + 1, 
+                                    amortization: mseCost / extraMSE / 24, 
+                                    msecost: mseCost,
+                                    type: "lifeformtech",
+                                    color: amorColor,
+                                });
+                            }
+                        });    
+                    }            
                 }    
             }
         });
@@ -1331,9 +1335,11 @@ class OgameHelper {
         const newPlanetProduction = this.getMSEProduction(undefined, "astro", undefined);
         const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
 
-        totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro));
-        if(this.json.player.astro % 2 == 1){
-            totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(this.json.player.astro) + 1);
+        const astro = (this.json.player.astro.level ?? this.json.player.astro);
+
+        totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(astro));
+        if(astro % 2 == 1){
+            totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(astro) + 1);
         } 
 
         let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
@@ -1354,19 +1360,19 @@ class OgameHelper {
         totalMSECostsAstroNewPlanet += newPlanetMSECost;
         totalMSEProdAstroNewPlanet += newPlanetProduction;
 
-        let astroLevelStringNewPlanet = (parseInt(this.json.player.astro) + 1)
+        let astroLevelStringNewPlanet = (parseInt(astro) + 1)
         
-        if(this.json.player.astro % 2 == 1){
-            astroLevelStringNewPlanet += " & " + (parseInt(this.json.player.astro) + 2);
+        if(astro % 2 == 1){
+            astroLevelStringNewPlanet += " & " + (parseInt(astro) + 2);
         }
 
         //next astro level for expo
-        let l = Math.floor(Math.sqrt(parseInt(this.json.player.astro))) + 1;
+        let l = Math.floor(Math.sqrt(parseInt(astro))) + 1;
 
         let nextAstro = l*l;
         let newPlanets = 0;
         
-        for(let a = parseInt(this.json.player.astro) + 1; a <= nextAstro; a++){
+        for(let a = parseInt(astro) + 1; a <= nextAstro; a++){
             if(a % 2 == 1){
                 newPlanets++;
             }
@@ -1377,8 +1383,8 @@ class OgameHelper {
         totalMSEProdAstroNewExpo += newPlanets * newPlanetProduction;
         totalMSEProdAstroNewExpo += newExpoSlotProduction;
 
-        let astroLevelStringNewExpo = (parseInt(this.json.player.astro) + 1);
-        if(parseInt(this.json.player.astro) + 1 < nextAstro){
+        let astroLevelStringNewExpo = (parseInt(astro) + 1);
+        if(parseInt(astro) + 1 < nextAstro){
             astroLevelStringNewExpo += " - " + nextAstro;
         }
 
@@ -1465,16 +1471,18 @@ class OgameHelper {
                     });
                 }
                 
-                planet.lifeforms.techs.forEach(tech => {
-                    if(tech.name === "Verbeterde Stellarator"){
-                        costLoweringUpgrades.push({
-                            coords: planet.coords,
-                            upgrade: tech.name,
-                            priority: 2,
-                            affected: "plasma",
-                        })
-                    }
-                });
+                if(planet.lifeforms?.techs?.length > 0){
+                    planet.lifeforms.techs.forEach(tech => {
+                        if(tech.name === "Verbeterde Stellarator"){
+                            costLoweringUpgrades.push({
+                                coords: planet.coords,
+                                upgrade: tech.name,
+                                priority: 2,
+                                affected: "plasma",
+                            })
+                        }
+                    });    
+                }
             });
         }
 
@@ -1651,11 +1659,11 @@ class OgameHelper {
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Plasmatechnology: " + this.json.player.plasma.level ?? this.json.player.plasma));
+        tr.appendChild(document.createTextNode("Plasmatechnology: " + (this.json.player.plasma.level ?? this.json.player.plasma)));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Astrophysics: " + this.json.player.astro.level ?? this.json.player.astro));
+        tr.appendChild(document.createTextNode("Astrophysics: " + (this.json.player.astro.level ?? this.json.player.astro)));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
@@ -1759,7 +1767,12 @@ class OgameHelper {
         let blackHoleMSE, fuelCostMSE;
         blackHoleMSE = 0;
         fuelCostMSE = 0;
-        return this.calcExpoShipProd() + this.calcExpoResProd() - blackHoleMSE / 300 - fuelCostMSE; 
+        let ship = this.calcExpoShipProd();
+        let res = this.calcExpoResProd()
+        
+        console.log("ship: " + this.getBigNumber(ship));
+        console.log("res: " + this.getBigNumber(res));
+        return ship + res - blackHoleMSE / 300 - fuelCostMSE; 
     }
 
     GetAverageFind(){
@@ -1819,7 +1832,15 @@ class OgameHelper {
 
     calcBaseExpoShipProd(){
         let ratio = this.json.player.ratio;
-        let shipMSE = this.GetAverageFind() * (0.54 + .46 * ratio[0] / ratio[1] + 0.093 * ratio[0] / ratio[2]);
+        let metalCrystal = 1;
+        let deut = 1;
+        if(this.json.player.expofleetValue)
+        {
+            metalCrystal = this.json.player.expofleetValue.metalCrystal / 100;
+            deut = this.json.player.expofleetValue.deut / 100;  
+        }
+
+        let shipMSE = this.GetAverageFind() * (0.54 * metalCrystal + .46 * ratio[0] / ratio[1] * metalCrystal + 0.093 * ratio[0] / ratio[2] * deut);
         return 0.22 * shipMSE
     }
 
@@ -1832,7 +1853,7 @@ class OgameHelper {
             let bonus = 0;
             this.json.player.planets.forEach(p => {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
-                if(p.lifeforms?.techs.length > 0){
+                if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms.techs.forEach(t => {
                         if(t.name == "Telekinetische Tractorstraal"){
                             bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
@@ -2072,6 +2093,14 @@ class OgameHelper {
                         <td><label for="Exposlots">Bonus Expo slots:</label></td>
                         <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
                     </tr>
+                    <tr>    
+                        <td><label for="ExpoFleetValueMetalCrystal">Expo fleet value metal and crystal (percentage):</label></td>
+                        <td><input type="text" id="ExpoFleetValueMetalCrystal" ExpoFleetValueMetalCrystal="ExpoFleetValueMetalCrystal" style="width:100%" value="${this.json.player.expofleetValue?.metalCrystal ?? 100}"></td>
+                    </tr>
+                    <tr>    
+                        <td><label for="ExpoFleetValueDeut">Expo fleet value deut (percentage):</label></td>
+                        <td><input type="text" id="ExpoFleetValueDeut" ExpoFleetValueDeut="ExpoFleetValueDeut" style="width:100%" value="${this.json.player.expofleetValue?.deut ?? 100}"></td>
+                    </tr>
                     <tr style="height:30px"></tr>
                     <tr>
                         <td></td>
@@ -2108,6 +2137,11 @@ class OgameHelper {
 
         this.json.player.exporounds = parseFloat(document.querySelector("#Exporounds").value.replaceAll(",", "."));
         this.json.player.exposlots = parseInt(document.querySelector("#Exposlots").value);
+        if(!this.json.player.expofleetValue){
+            this.json.player.expofleetValue = {};
+        }
+        this.json.player.expofleetValue.metalCrystal = parseInt(document.querySelector("#ExpoFleetValueMetalCrystal").value);
+        this.json.player.expofleetValue.deut = parseInt(document.querySelector("#ExpoFleetValueDeut").value);
 
         this.saveData();
     }
