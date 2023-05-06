@@ -83,7 +83,6 @@ class OgameHelper {
         if(data && data !== "undefined"){   
             this.json = JSON.parse(data);
             console.log(this.json);
-            let player = this.json.player;
             CurrentPlayer = new Player(this.json.player);
             console.log(CurrentPlayer);
             this.getServerSettings(UNIVERSE);
@@ -792,24 +791,6 @@ class OgameHelper {
         return Math.floor(Math.sqrt(parseInt(this.json.player.astro.level ? this.json.player.astro.level : this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
     }
 
-    getFactor(planet, productionType) {
-        const pos = parseInt(planet.coords.split(":")[2], 10);
-        switch (productionType) {
-            case "metal":
-                if (pos === 8) return 1.35;
-                if (pos === 7 || pos === 9) return 1.23;
-                if (pos === 6 || pos === 10) return 1.1;
-                return 1;
-            case "crystal":
-                if (pos === 1) return 1.4;
-                if (pos === 2) return 1.3;
-                if (pos === 3) return 1.2;
-                return 1;
-            default:
-                return 1;
-        }
-    }
-
     /**
      * 
      * @param {planet} planet 
@@ -820,7 +801,7 @@ class OgameHelper {
     getRawProduction(planet, productionType, level) {
         if(level.level) level = level.level;
         if (productionType === "metal") {
-            return 30 * level * Math.pow(1.1, level);
+            return CurrentPlayer.getplanet(planet.coords).metal.getRawProduction
         } else if (productionType === "crystal") {
             return 20 * level * Math.pow(1.1, level);
         } else if (productionType === "deut") {
@@ -1112,13 +1093,11 @@ class OgameHelper {
         table.setAttribute('border', '1');
         let tableBody = document.createElement('tbody');
 
-        let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
-        if(this.json.settings.lifeforms){
-            let costLoweringUpgrades = this.getCostLoweringUpgrades();
-            //absoluteAmortization = this.addCostLoweringUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
-        }
+        //let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
+        let absoluteAmortization = CurrentPlayer.getAmortization();
 
-
+        //let costLoweringUpgrades = this.getCostLoweringUpgrades();
+        //absoluteAmortization = this.addCostLoweringUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
 
         if(listType == "recursive"){
             //TODO: trim list for planet sided list
@@ -1189,10 +1168,10 @@ class OgameHelper {
                     level = "Level";
                     amortization = "Return of Investment";
                 } else {
-                    coords = totalAmortization[r - 1].coords;
-                    name = totalAmortization[r - 1].name;
-                    technology = totalAmortization[r - 1].technology;
-                    level = totalAmortization[r - 1].level;
+                    coords = totalAmortization[r - 1].Upgrade.coords;
+                    name = totalAmortization[r - 1].LocationName;
+                    technology = totalAmortization[r - 1].Upgrade.name;
+                    level = totalAmortization[r - 1].Upgrade.level;
                     color = totalAmortization[r - 1].color;
                     
                     amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";

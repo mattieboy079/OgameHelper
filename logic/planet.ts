@@ -3,6 +3,7 @@ import { LifeformBuilding } from './lifeformbuildings.js';
 import { MeditationEnclave } from './lifeformbuildingsrocktal.js';
 import { AutomatedTransportLines, LifeformTech } from './lifeformtechs.js';
 import { MetalMine, CrystalMine, DeutMine } from './mines.js';
+import { Player } from './player.js';
 
 export class Planet{
     coords: string;
@@ -31,13 +32,23 @@ export class Planet{
         if(data.lifeforms) this.lifeforms = new PlanetLifeforms(data.lifeforms, data.coords);
     }
 
-    getAmortization(planets: Planet[], ratio: number[]) : Amortization[]{
+    getAmortization(player: Player, ratio: number[]) : Amortization[]{
         let amors = new Array<Amortization>;
-        amors.push(this.metal.getAmortization(planets, ratio));
-        amors.push(this.crystal.getAmortization(planets, ratio));
-        amors.push(this.deut.getAmortization(planets, ratio)); 
+        amors.push(this.metal.getAmortization(player, ratio));
+        amors.push(this.crystal.getAmortization(player, ratio));
+        amors.push(this.deut.getAmortization(player, ratio)); 
         //amors.push(this.lifeforms.getAmortization());
         return amors;
+    }
+
+    getCrawlerBonus(): number {
+        //TODO
+        return 0;
+    }
+
+    getLifeformBuildingBonus(resource: string): number {
+        //TODO
+        return 0;
     }
 }
 

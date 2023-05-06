@@ -42,13 +42,26 @@ export class Player {
     });
   }
   
-  getAmortization(): Amortization[] {
+  getAmortizationList(): Amortization[] {
     let amors: Amortization[] = new Array<Amortization>;
 
     this.planets.forEach(planet => {
-      planet.getAmortization(this.planets, this.ratio).forEach(amor => amors.push(amor));
+      planet.getAmortization(this, this.ratio).forEach(amor => amors.push(amor));
     });
 
     return amors;
+  }
+
+  getPlanet(coords: string): Planet | undefined{
+    return this.planets.find(p => p.coords === coords)
+  }
+
+  getPlayerProductionBonus(): number {
+    return this.legerleiding ? 0.12 : this.geologist ? 0.02 : 0;
+  }
+
+  getLifeformTechnologyBonus(type: string): number {
+    //TODO: 
+    return 0;
   }
 }

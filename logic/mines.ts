@@ -1,5 +1,6 @@
 import { Amortization } from './amortization.js';
 import { Planet } from './planet.js';
+import { Player } from './player.js';
 import { Upgradable } from './upgradable.js';
 
 abstract class Mine extends Upgradable {
@@ -19,14 +20,18 @@ abstract class Mine extends Upgradable {
         return time;
     }
 
-    getAmortization(planets: Planet[], ratio: number[]): Amortization {
-        let mseCost = this.getMseCosts(this.level, planets, ratio);
-        let mseProd = this.getMseProduction(this.level + 1, ratio, planets);
-        let thisPlanet = planets.filter(p => p.coords == this.coords);
+    getAmortization(player: Player, ratio: number[]): Amortization {
+        let mseCost = this.getMseCosts(this.level, player.planets, ratio);
+        let mseProd = this.getMseProduction(player, this.level + 1, ratio);
+        let thisPlanet = player.planets.filter(p => p.coords == this.coords);
         let planetName = thisPlanet.length == 1 ? thisPlanet[0].name : "undefined";
         console.log(mseProd + "/" + mseCost);
         return new Amortization(planetName, this, mseProd / mseCost, mseCost);
     }
+
+    abstract getRawProduction(economySpeed: number, level: number): number;
+
+    abstract getBonus(player: Player): number;
 }
 
 export class MetalMine extends Mine {
@@ -41,20 +46,35 @@ export class MetalMine extends Mine {
         this.refreshTypes = ["metalBonus", "buildSpeed", "buildCost"]
     }
     
-    getProduction(level: number, planets: Planet[]): number[] {
-        return (30 + this.getRawProduction(p, "metal", metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal")
+    getProduction(player: Player, economySpeed: number, level: number = this.level): number[] {
+        let metalProduction = 30 * this.getMetalFactor() + this.getRawProduction(economySpeed, level) * (1 + this.getBonus(player)) 
+        return [metalProduction, 0, 0];
     }
 
-    getRawProduction(): number[] {
-
+    getRawProduction(economySpeed: number, level: number = this.level): number {
+        return 30 * level * Math.pow(1.1, level) * this.getMetalFactor() * economySpeed;
     }
 
-    getMetalBonus(): number[] {
-        
+    getBonus(player: Player): number {
+        let planet = player.getPlanet(this.coords);
+        if(!planet) return 0;
+        return planet.getCrawlerBonus() + planet.getLifeformBuildingBonus("metal") + player.getPlayerProductionBonus() + player.getLifeformTechnologyBonus("metal");
+    }
+
+    getMetalFactor(): number {
+        let pos = this.coords.split(':')[2];
+        if(pos == "8") return 1.35;
+        if(pos == "7" || pos == "9") return 1.23;
+        if(pos == "6" || pos == "10") return 1.1S;
+        return 1;
     }
 }
 
 export class CrystalMine extends Mine {
+    getBonus(player: Player): number {
+        throw new Error('Method not implemented.');
+        //todo
+    }
     constructor(level: number, coords: string){
         super(level, "Kristalmijn", coords);
         this.baseMetalCost = 48;
@@ -65,9 +85,29 @@ export class CrystalMine extends Mine {
         this.types = ["crystal"];
         this.refreshTypes = ["crystalBonus", "buildSpeed", "buildCost"]
     }
+
+    getCrystalFactor(): number {
+        let pos = this.coords.split(':')[2];
+        if (pos === "1") return 1.4;
+        if (pos === "2") return 1.3;
+        if (pos === "3") return 1.2;
+        return 1;
+    }
+
+    getRawProduction(economySpeed: number, level: number): number {
+        return 20 * level * Math.pow(1.1, level) * this.getCrystalFactor() * economySpeed;
+    }
 }
 
 export class DeutMine extends Mine {
+    getRawProduction(economySpeed: number, level: number): number {
+        throw new Error('Method not implemented.');
+        //Todo
+    }
+    getBonus(player: Player): number {
+        throw new Error('Method not implemented.');
+        //Todo
+    }
     constructor(level: number, coords: string){
         super(level, "Deuteriumfabriek", coords);
         this.baseMetalCost = 225;

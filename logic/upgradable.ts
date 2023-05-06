@@ -1,4 +1,5 @@
 import { Planet } from "./planet";
+import { Player } from "./player";
 
 export abstract class Upgradable {
     name: string;
@@ -50,7 +51,7 @@ export abstract class Upgradable {
      * @param planets current planets of player
      * @returns total production per hour of this tech on the given level with the current planets
      */
-    getProduction(level: number, planets: Planet[]): number[]{
+    getProduction(player: Player, level: number): number[]{
         return [0,0,0];
     }
     
@@ -60,8 +61,8 @@ export abstract class Upgradable {
      * @param planets current planets of player
      * @returns total production per hour of this tech on the given level with the current planets
      */
-    getMseProduction(level: number, ratio: number[], planets: Planet[]): number{
-        const prod = this.getProduction(level, planets);
+    getMseProduction(player: Player, level: number, ratio: number[]): number{
+        const prod = this.getProduction(player, level);
         return prod[0] + prod[1] / ratio[1] * ratio[0] + prod[2] / ratio[2] * ratio[0];
     }
 
@@ -72,7 +73,7 @@ export abstract class Upgradable {
      * @param planets the planets to take in calculation
      * @returns the amortization in hours
      */
-    calculateAmortization(level: number, ratio: number[], planets: Planet[], ecoSpeed: number): number{
-        return (this.getMseProduction(level, ratio, planets) / this.getMseCosts(level, planets, ratio)) + this.getUpgradeTime(level, planets, ecoSpeed);
+    calculateAmortization(level: number, ratio: number[], player: Player, ecoSpeed: number): number{
+        return (this.getMseProduction(player, level, ratio) / this.getMseCosts(level, player.planets, ratio)) + this.getUpgradeTime(level, player.planets, ecoSpeed);
     }
 }
