@@ -1514,20 +1514,23 @@ class OgameHelper {
             let upgradePercent;
             let amorType;
 
+            let buildings = planet.lifeforms.buildings;
+
             if(upgrade.upgrade == "runeTechnologium"){
-                curLevel = parseInt(planet.lifeforms.buildings.runeTechnologium);
+                curLevel = parseInt(buildings.runeTechnologium.level ?? buildings.runeTechnologium);
                 upgradePercent = 0.25;
                 amorType = "rocktalbuilding";
             } else if (upgrade.upgrade == "Verbeterde Stellarator"){
                 let index = planet.lifeformsFechs.findIndex(t => t.name == "Verbeterde Stellarator");
                 curLevel = parseInt(planet.lifeforms.techs[index].level);
                 upgradePercent = 0.15;
+                amortype = "lifeformtech";
             } else if (upgrade.upgrade == "mineralResearchCentre"){
-                curLevel = parseInt(planet.lifeforms.buildings.mineralResearchCentre);
+                curLevel = parseInt(buildings.mineralResearchCentre.level ?? buildings.mineralResearchCentre);
                 upgradePercent = 0.5;
                 amorType = "rocktalbuilding";
             } else if (upgrade.upgrade == "megalith"){
-                curLevel = parseInt(planet.lifeforms.buildings.megalith);
+                curLevel = parseInt(buildings.megalith.level ?? buildings.megalith);
                 upgradePercent = 1;
                 amorType = "rocktalbuilding";
             }
