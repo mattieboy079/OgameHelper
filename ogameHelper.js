@@ -1816,11 +1816,13 @@ class OgameHelper {
             let bonus = 0;
             this.json.player.planets.forEach(p => {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
-                p.lifeforms.techs.forEach(t => {
-                    if(t.name == "Verbeterde Sensortechnologie" || t.name == "Zesde Zintuig"){
-                        bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
-                    }
-                });
+                if(p.lifeforms?.techs?.length > 0){
+                    p.lifeforms?.techs?.forEach(t => {
+                        if(t.name == "Verbeterde Sensortechnologie" || t.name == "Zesde Zintuig"){
+                            bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
+                        }
+                    });
+                }
             });
             return bonus;
         } else {
