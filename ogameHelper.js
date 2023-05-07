@@ -1097,7 +1097,7 @@ class OgameHelper {
         this.removeButtons();
 
         let div = document.querySelector('.amortizationtable');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
         div.addEventListener("click", () => {
             let div = document.querySelector('.amortizationtable');
             div.remove();
@@ -1114,7 +1114,7 @@ class OgameHelper {
         if(this.json.settings.lifeforms){
             let costLoweringUpgrades = this.getIndirectProductionUpgrades();
             console.log(costLoweringUpgrades);
-            //absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
+            absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
         }
 
 
@@ -1486,14 +1486,14 @@ class OgameHelper {
             });
         }
 
-        this.json.player.planets.forEach(planet => {
-            costLoweringUpgrades.push({
-                coords: planet.coords,
-                upgrade: "nano",
-                priority: 5,
-                affected: "productionbuilding",
-            })
-        });
+        // this.json.player.planets.forEach(planet => {
+        //     costLoweringUpgrades.push({
+        //         coords: planet.coords,
+        //         upgrade: "nano",
+        //         priority: 5,
+        //         affected: "productionbuilding",
+        //     })
+        // });
 
         costLoweringUpgrades = costLoweringUpgrades.sort((a,b) => a.priority - b.priority);
         return costLoweringUpgrades;
@@ -1502,11 +1502,12 @@ class OgameHelper {
     addIndirectProductionUpgradesToAmortization(amortizationList, costLoweringUpgrades){
         let totalHourlyMseProd = this.calcTotalMseProduction();
         console.log(totalHourlyMseProd);
+        let maxMseProd = parseFloat(amortizationList[amortizationList.length - 1].amortization) * totalHourlyMseProd * 24;
 
         costLoweringUpgrades.forEach(upgrade => {
-            this.log(upgrade, "test");
+            console.log(upgrade);
             let testAmortizationList = this.copyAmortizationArray(amortizationList);
-            this.log(testAmortizationList, "test");
+            console.log(testAmortizationList);
             let planet = this.getPlanetByCoords(upgrade.coords);
             let totalMseCost = 0;
 
@@ -1521,10 +1522,11 @@ class OgameHelper {
                 upgradePercent = 0.25;
                 amorType = "rocktalbuilding";
             } else if (upgrade.upgrade == "Verbeterde Stellarator"){
-                let index = planet.lifeformsFechs.findIndex(t => t.name == "Verbeterde Stellarator");
+                console.log(planet.lifeforms.techs)
+                let index = planet.lifeforms.techs.findIndex(t => t.name == "Verbeterde Stellarator");
                 curLevel = parseInt(planet.lifeforms.techs[index].level);
                 upgradePercent = 0.15;
-                amortype = "lifeformtech";
+                amorType = "lifeformtech";
             } else if (upgrade.upgrade == "mineralResearchCentre"){
                 curLevel = parseInt(buildings.mineralResearchCentre.level ?? buildings.mineralResearchCentre);
                 upgradePercent = 0.5;
@@ -1541,15 +1543,18 @@ class OgameHelper {
             let mseCost = this.getMSECosts(planet, upgrade.upgrade, curLevel);
             let mseToSpend = mseCost / savePercent;
 
-            while(mseToSpend > 0){
+            let maxMseSpend = maxMseProd;
+            console.log(maxMseSpend);
+            while(mseToSpend > 0 && maxMseSpend > 0){
                 let item = testAmortizationList[0];
-                this.log(item, "test");
+                console.log(item);
                 if(item.type == upgrade.affected && (item.coords == "account" || item.coords == upgrade.coords)){
-                    this.log("yes", "test");
+                    console.log("yes");
                     mseToSpend -= item.msecost;
                 }
+                maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
-                this.log(this.getBigNumber(mseToSpend) + " / " + this.getBigNumber(totalMseCost), "test");
+                console.log(this.getBigNumber(mseToSpend) + " / " + this.getBigNumber(maxMseSpend) + " / " + this.getBigNumber(totalMseCost));
                 testAmortizationList[0] = this.upgradeAmortizationItem(item);
                 testAmortizationList.sort((a,b) => a.amortization - b.amortization);
             }
@@ -1619,7 +1624,7 @@ class OgameHelper {
     createAccountProduction(){
         this.removeButtons();
 
-        const pageContent = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent"));
+        const pageContent = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent"));
         const accountProductionDiv = this.createDOM("div", { class: "accountproduction"});
         accountProductionDiv.addEventListener("click", () => {
             let div = document.querySelector('.accountproduction');
@@ -2009,6 +2014,7 @@ class OgameHelper {
                 buildings.shipManufacturingHall = this.getTechnologyLevel("lifeformTech14111");
                 buildings.supraRefractor = this.getTechnologyLevel("lifeformTech14112");
             } 
+            this.createButtons(currentCoords);
         } else if (page === LIFEFORM_RESEARCH){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
@@ -2021,6 +2027,7 @@ class OgameHelper {
             }
             this.log(techs, "debug");
             planet.lifeforms.techs = techs;
+            this.createButtons(currentCoords);
         } else if (page === LIFEFORM_SETTINGS){
             this.log(document.querySelector(".currentLevel"), "debug");
         } else if (page === FACILITIES){
@@ -2055,12 +2062,12 @@ class OgameHelper {
 
     createButtons(coords = undefined){
         let div = document.querySelector('.amortizationtableAbsolute');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
         div.addEventListener("click", () => this.createAmortizationTable(coords, "absolute"));
         div.appendChild(document.createTextNode("Absolute Amortization Table"));
 
         div = document.querySelector('.amortizationtableRecursive');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
         div.addEventListener("click", () => this.createAmortizationTable(coords, "recursive"));
         div.appendChild(document.createTextNode("Recursive Amortization Table"));
 
