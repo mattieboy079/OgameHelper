@@ -1457,12 +1457,14 @@ class OgameHelper {
                         priority: 1,
                         affected: "productionbuilding",
                     });
-                    costLoweringUpgrades.push({
-                        coords: planet.coords,
-                        upgrade: "runeTechnologium",
-                        priority: 3,
-                        affected: "lifeformtech",
-                    });
+                    if(planet.lifeforms.techs?.length > 0){
+                        costLoweringUpgrades.push({
+                            coords: planet.coords,
+                            upgrade: "runeTechnologium",
+                            priority: 3,
+                            affected: "lifeformtech",
+                        });
+                    }
                     costLoweringUpgrades.push({
                         coords: planet.coords,
                         upgrade: "megalith",
@@ -1536,8 +1538,6 @@ class OgameHelper {
                 upgradePercent = 1;
                 amorType = "rocktalbuilding";
             }
-
-            if(curLevel.level) curLevel = curLevel.level;
 
             let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
             let mseCost = this.getMSECosts(planet, upgrade.upgrade, curLevel);
