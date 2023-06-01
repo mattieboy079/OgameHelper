@@ -344,6 +344,15 @@ class OgameHelper {
             crystalCost = 1000 * Math.pow(2, level);
             deutCost = 200 * Math.pow(2, level);
         } else if (upgradeType === "plasma"){
+            let factor = 1;
+            if(this.json.settings.lifeforms){
+                let verbeterdeStellaratorKorting = 0;
+                this.json.player.planets.forEach(planet => {
+                    let tech = planet.lifeforms.techs.find(t => t.name == "Verbeterde Stellarator");
+                    if(tech) verbeterdeStellaratorKorting += parseInt(tech.level) * .0015 * this.getLifeformLevelBonus(planet);
+                });
+                factor -= Math.min(verbeterdeStellaratorKorting, 0.5);
+            }
             metalCost = 2000 * Math.pow(2, level);
             crystalCost = 4000 * Math.pow(2, level);
             deutCost = 1000 * Math.pow(2, level);
