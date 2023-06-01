@@ -1165,7 +1165,8 @@ class OgameHelper {
         if(this.json.settings.lifeforms){
             let costLoweringUpgrades = this.getIndirectProductionUpgrades();
             console.log(costLoweringUpgrades);
-            absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
+            if(this.json.player.includeIndirectProductionBuildings == "true")
+                absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
         }
 
 
@@ -1894,16 +1895,14 @@ class OgameHelper {
 
     calcBaseExpoShipProd(){
         let ratio = this.json.player.ratio;
-        let metalCrystal = 1;
-        let deut = 1;
+        let expofleetValue = 1;
         if(this.json.player.expofleetValue)
         {
-            metalCrystal = this.json.player.expofleetValue.metalCrystal / 100;
-            deut = this.json.player.expofleetValue.deut / 100;  
+            expofleetValue = this.json.player.expofleetValue / 100;
         }
 
-        let shipMSE = this.GetAverageFind() * (0.54 * metalCrystal + .46 * ratio[0] / ratio[1] * metalCrystal + 0.093 * ratio[0] / ratio[2] * deut);
-        return 0.22 * shipMSE
+        let shipMSE = this.GetAverageFind() * (0.54 + .46 * ratio[0] / ratio[1] + 0.093 * ratio[0] / ratio[2]);
+        return 0.22 * shipMSE * expofleetValue
     }
 
     calcExpoShipProd(){
@@ -2137,6 +2136,9 @@ class OgameHelper {
 
         let ratioString = this.json.player.ratio[0] + "/" + this.json.player.ratio[1] + "/" + this.json.player.ratio[2];
 
+        if(this.json.player.expofleetValue?.metalCrystal)
+            this.json.player.expofleetValue = this.json.player.expofleetValue.metalCrystal;
+
         let popupTemplate = `
             <div class="popup">
                 <div class="popup-header">
@@ -2158,12 +2160,12 @@ class OgameHelper {
                         <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
                     </tr>
                     <tr>    
-                        <td><label for="ExpoFleetValueMetalCrystal">Expo fleet value metal and crystal (percentage):</label></td>
-                        <td><input type="text" id="ExpoFleetValueMetalCrystal" ExpoFleetValueMetalCrystal="ExpoFleetValueMetalCrystal" style="width:100%" value="${this.json.player.expofleetValue?.metalCrystal ?? 100}"></td>
+                        <td><label for="ExpoFleetValue">Expo fleet value (percentage):</label></td>
+                        <td><input type="text" id="ExpoFleetValue" ExpoFleetValue="ExpoFleetValue" style="width:100%" value="${this.json.player.expofleetValue ?? 100}"></td>
                     </tr>
                     <tr>    
-                        <td><label for="ExpoFleetValueDeut">Expo fleet value deut (percentage):</label></td>
-                        <td><input type="text" id="ExpoFleetValueDeut" ExpoFleetValueDeut="ExpoFleetValueDeut" style="width:100%" value="${this.json.player.expofleetValue?.deut ?? 100}"></td>
+                        <td><label for="IncludeIndirectProductionBuildings">Indirect production upgrades in amortizationtable (WIP, calculation times 5+ sec):</label></td>
+                        <td><input type="text" id="IncludeIndirectProductionBuildings" IncludeIndirectProductionBuildings="IncludeIndirectProductionBuildings" style="width:100%" value="${this.json.player.includeIndirectProductionBuildings == "true" ?? "false"}"></td>
                     </tr>
                     <tr style="height:30px"></tr>
                     <tr>
@@ -2204,8 +2206,8 @@ class OgameHelper {
         if(!this.json.player.expofleetValue){
             this.json.player.expofleetValue = {};
         }
-        this.json.player.expofleetValue.metalCrystal = parseInt(document.querySelector("#ExpoFleetValueMetalCrystal").value);
-        this.json.player.expofleetValue.deut = parseInt(document.querySelector("#ExpoFleetValueDeut").value);
+        this.json.player.expofleetValue = parseInt(document.querySelector("#ExpoFleetValue").value);
+        this.json.player.includeIndirectProductionBuildings = document.querySelector("#IncludeIndirectProductionBuildings").value;
 
         this.saveData();
     }
