@@ -342,7 +342,7 @@ class OgameHelper {
      * @return {number} the cost calculated in MSE.
      */
     getMSECosts(planet, upgradeType, level){
-        level = parseInt(level.level ? level.level : level);
+        level = parseInt(level.level ?? level);
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalCost = 0;
         let crystalCost = 0;
@@ -384,13 +384,15 @@ class OgameHelper {
                 let verbeterdeStellaratorKorting = 0;
                 this.json.player.planets.forEach(planet => {
                     let tech = planet.lifeforms.techs.find(t => t.name == "Verbeterde Stellarator");
-                    if(tech) verbeterdeStellaratorKorting += parseInt(tech.level) * .0015 * this.getLifeformLevelBonus(planet);
+                    if(tech) verbeterdeStellaratorKorting += parseInt(tech.level.level ?? tech.level) * .0015 * (1 + this.getLifeformLevelBonus(planet));
+                    console.log(planet.coords + " / korting: " + verbeterdeStellaratorKorting);
                 });
                 factor -= Math.min(verbeterdeStellaratorKorting, 0.5);
+                console.log("factor:" + factor);
             }
-            metalCost = 2000 * Math.pow(2, level);
-            crystalCost = 4000 * Math.pow(2, level);
-            deutCost = 1000 * Math.pow(2, level);
+            metalCost = 2000 * Math.pow(2, level) * factor;
+            crystalCost = 4000 * Math.pow(2, level) * factor;
+            deutCost = 1000 * Math.pow(2, level) * factor;
         } else if (upgradeType === "astro"){
             metalCost = 4000 * Math.pow(1.75, level);
             crystalCost = 8000 * Math.pow(1.75, level);
@@ -1334,7 +1336,7 @@ class OgameHelper {
                     amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);    
                     if(planet.lifeforms?.techs?.length > 0){
                         planet.lifeforms.techs.forEach(tech => {
-                            const level = parseInt(tech.level.level ? tech.level.level : tech.level);
+                            const level = parseInt(tech.level.level ?? tech.level);
                             let extraMSE = this.getMSEProduction(planet, tech.name, level);
                             if(extraMSE > 0){
                                 let mseCost = this.getMSECosts(planet, tech.name, level);
@@ -1575,7 +1577,7 @@ class OgameHelper {
             } else if (upgrade.upgrade == "Verbeterde Stellarator"){
                 console.log(planet.lifeforms.techs)
                 let index = planet.lifeforms.techs.findIndex(t => t.name == "Verbeterde Stellarator");
-                curLevel = parseInt(planet.lifeforms.techs[index].level);
+                curLevel = parseInt(planet.lifeforms.techs[index].level.level ?? planet.lifeforms.techs[index].level);
                 upgradePercent = 0.15;
                 amorType = "lifeformtech";
             } else if (upgrade.upgrade == "mineralResearchCentre"){
@@ -1886,7 +1888,7 @@ class OgameHelper {
     }
 
     getLifeformLevelBonus(planet){
-        const level = 22; //fix
+        const level = 31; //fix
         return level * 0.001;
     }
 
