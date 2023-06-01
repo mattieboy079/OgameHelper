@@ -223,11 +223,7 @@ class OgameHelper {
         return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus + lifeformBonus;
     }
 
-    getPrerequisiteMSECosts(planet, upgradeType){
-        let metalCost = 0;
-
-        this.log("getPrerequisites of: " + upgradeType, "debug");
-
+    getPrerequisites(upgradeType){
         const upgradeRequirements = {
             'plasma': {
                 'ion': 5,
@@ -270,7 +266,15 @@ class OgameHelper {
                 'crystalRefinery': 6,
                 'megalith': 1,
                 'runeForge': 1,
-                'meditationEnclave': 41,
+                'meditationEnclave': 48,
+                'crystalFarm': 49,
+            },
+            'oriktorium': {
+                'meditationEnclave': 48,
+                'crystalFarm': 49,
+                'crystalRefinery': 5,
+                'megalith': 1,
+                'runeForge': 1, 
             },
             //mecha
             'highPerformanceSynthesizer': {
@@ -280,11 +284,19 @@ class OgameHelper {
             },
         }
 
-        if (!upgradeRequirements[upgradeType]) {
+        return upgradeRequirements[upgradeType];
+    }
+
+    getPrerequisiteMSECosts(planet, upgradeType){
+        let metalCost = 0;
+
+        this.log("getPrerequisites of: " + upgradeType, "debug");
+
+        const requiredUpgrades = this.getPrerequisites(upgradeType);
+    
+        if (!requiredUpgrades) {
             return 0;
         }
-    
-        const requiredUpgrades = upgradeRequirements[upgradeType];
     
         for (const [building, level] of Object.entries(requiredUpgrades)) {
             const currentLevel = parseInt(planet.lifeforms.buildings[building].level ? planet.lifeforms.buildings[building].level : planet.lifeforms.buildings[building]);
@@ -298,10 +310,33 @@ class OgameHelper {
         return metalCost;
     }
 
+    getPrerequisiteMSEProd(planet, upgradeType){
+        let metalProd = 0;
+
+        this.log("getPrerequisites of: " + upgradeType, "debug");
+
+        const requiredUpgrades = this.getPrerequisites(upgradeType);
+    
+        if (!requiredUpgrades) {
+            return 0;
+        }
+    
+        for (const [building, level] of Object.entries(requiredUpgrades)) {
+            const currentLevel = parseInt(planet.lifeforms.buildings[building].level ? planet.lifeforms.buildings[building].level : planet.lifeforms.buildings[building]);
+            if (currentLevel < level) {
+                for (let l = currentLevel; l < level; l++) {
+                    metalProd += this.getMSEProduction(planet, building, l);
+                }
+            }
+        }
+        
+        return metalProd;
+    }
+
     /**
      * Returns the cost calculated in metal of the given upgrade.
      *
-     * @param {number} planet The corresponding planet.
+     * @param {planet} planet The corresponding planet.
      * @param {string} upgradeType The building or technology to upgrade.
      * @param {number} level The level the building is before upgrading.
      * @return {number} the cost calculated in MSE.
@@ -563,22 +598,26 @@ class OgameHelper {
             let factor = 1;
             switch(planet.lifeforms.lifeformClass){
                 case LIFEFORM_CLASS_MENSEN:
-                    if (planet.lifeforms.buildings.researchCentre > 1) {
+                    const researchCentre = planet.lifeforms.buildings.researchCentre.level ?? planet.lifeforms.buildings.researchCentre;
+                    if (researchCentre > 1) {
                         factor -= planet.lifeforms.buildings.researchCentre * 0.005;
                     }
                     break;
                 case LIFEFORM_CLASS_ROCKTAL:
-                    if (planet.lifeforms.buildings.runeTechnologium > 1) {
-                        factor -= planet.lifeforms.buildings.runeTechnologium * 0.005;
+                    const runeTechnologium = planet.lifeforms.buildings.runeTechnologium.level ?? planet.lifeforms.buildings.runeTechnologium;
+                    if (runeTechnologium > 1) {
+                        factor -= runeTechnologium * 0.005;
                     }
                     break;
                 case LIFEFORM_CLASS_MECHA:
-                    if (planet.lifeforms.buildings.roboticsResearchCentre > 1) {
+                    const roboticsResearchCentre = planet.lifeforms.buildings.roboticsResearchCentre.level ?? planet.lifeforms.buildings.roboticsResearchCentre;
+                    if (roboticsResearchCentre > 1) {
                         factor -= planet.lifeforms.buildings.roboticsResearchCentre * 0.0025;
                     }
                     break;
                 case LIFEFORM_CLASS_KAELESH:
-                    if(planet.lifeforms.buildings.vortexChamber > 1){
+                    const vortexChamber = planet.lifeforms.buildings.vortexChamber.level ?? planet.lifeforms.buildings.vortexChamber;
+                    if(vortexChamber > 1){
                         factor -= planet.lifeforms.buildings.vortexChamber * 0.0025;
                     } 
                     break;
@@ -587,6 +626,7 @@ class OgameHelper {
             metalCost *= factor;
             crystalCost *= factor;
             deutCost *= factor;
+            console.log(this.getBigNumber(metalCost) + " / " + this.getBigNumber(crystalCost) + " / " + this.getBigNumber(deutCost));
         }
 
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
@@ -1540,7 +1580,9 @@ class OgameHelper {
             }
 
             let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
-            let mseCost = this.getMSECosts(planet, upgrade.upgrade, curLevel);
+            let mseProd = this.getPrerequisiteMSEProd(planet, upgrade.upgrade, curLevel);
+            let mseCost = this.getPrerequisiteMSECosts(planet, upgrade.upgrade, curLevel);
+            mseCost += this.getMSECosts(planet, upgrade.upgrade, curLevel);
             let mseToSpend = mseCost / savePercent;
 
             let maxMseSpend = maxMseProd;
@@ -1549,7 +1591,6 @@ class OgameHelper {
                 let item = testAmortizationList[0];
                 console.log(item);
                 if(item.type == upgrade.affected && (item.coords == "account" || item.coords == upgrade.coords)){
-                    console.log("yes");
                     mseToSpend -= item.msecost;
                 }
                 maxMseSpend -= item.msecost;
