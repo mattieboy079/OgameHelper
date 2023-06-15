@@ -250,20 +250,35 @@ class OgameHelper {
                 'residentialSector': 40,
             },
             //rocktal
+            'runeTechnologium': {
+                'meditationEnclave': 21,
+                'crystalFarm': 22,            
+            },
+            'runeForge': {
+                'meditationEnclave': 41,
+                'crystalFarm': 41,            
+            },
             'magmaForge': {
                 'runeTechnologium': 5,
                 'meditationEnclave': 21,
                 'crystalFarm': 22,
             },
+            'megalith': {
+                'runeForge': 1,
+                'meditationEnclave': 41,
+                'crystalFarm': 41,            
+            },
             'crystalRefinery': {
                 'megalith': 1,
                 'runeForge': 1,
                 'meditationEnclave': 41,
+                'crystalFarm': 41,            
             },
             'deuteriumSynthesizer': {
                 'megalith': 2,
                 'runeForge': 1,
                 'meditationEnclave': 41,
+                'crystalFarm': 41,            
             },
             'mineralResearchCentre': {
                 'oriktorium': 1,
@@ -495,7 +510,7 @@ class OgameHelper {
         } 
 
         //LIFEFORM TECHS
-        else if (upgradeType === "High-Performance Extractors" || upgradeType === "Hoogwaardige Extractoren") {
+        else if (upgradeType === "High-Performance Extractors" || upgradeType === "Hoogwaardige Extractoren" || upgradeType == "Estrattori ad alto rendimento") {
             metalCost = 7000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
@@ -505,7 +520,7 @@ class OgameHelper {
             crystalCost = 12500 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;
-        } else if (upgradeType === "High Energy Pump Systems" || upgradeType === "Hoge Energie Pomp Systemen") {
+        } else if (upgradeType === "High Energy Pump Systems" || upgradeType === "Hoge Energie Pomp Systemen" || upgradeType == "Sistemi di pompaggio ad alta energia") {
             metalCost = 15000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
@@ -515,7 +530,7 @@ class OgameHelper {
             crystalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;
-        } else if (upgradeType === "Catalyser Technology" || upgradeType == "Katalysatortechnologie") {
+        } else if (upgradeType === "Catalyser Technology" || upgradeType == "Katalysatortechnologie" || upgradeType == "Tecnologia Catalizzatore") {
             metalCost = 10000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 6000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.5, level) * (level + 1);
@@ -530,12 +545,12 @@ class OgameHelper {
             crystalCost = 12500 * Math.pow(1.5, level) * (level + 1);
             deutCost = 5000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;
-        } else if (upgradeType === "Telekinetic Tractor Beam" || upgradeType == "Telekinetische Tractorstraal") {
+        } else if (upgradeType === "Telekinetic Tractor Beam" || upgradeType == "Telekinetische Tractorstraal" || upgradeType == "Raggio di trazione telecinetico") {
             metalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 15000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 7500 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;
-        } else if (upgradeType === "Enhanced Sensor Technology" || upgradeType == "Verbeterde Sensortechnologie") {
+        } else if (upgradeType === "Enhanced Sensor Technology" || upgradeType == "Verbeterde Sensortechnologie" || upgradeType == "Tecnologia Sensori migliorata") {
             metalCost = 25000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
@@ -735,7 +750,7 @@ class OgameHelper {
         } 
         
         //LIFEFORM TECHS
-        else if (productionType == "High-Performance Extractors" || productionType == "Hoogwaardige Extractoren") {
+        else if (productionType == "High-Performance Extractors" || productionType == "Hoogwaardige Extractoren" || productionType == "Estrattori ad alto rendimento") {
             this.json.player.planets.forEach(p => {
                 metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
                 crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
@@ -745,7 +760,7 @@ class OgameHelper {
             this.json.player.planets.forEach(p => {
                 crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
             });
-        } else if (productionType == "High Energy Pump Systems" || productionType == "Hoge Energie Pomp Systemen") {
+        } else if (productionType == "High Energy Pump Systems" || productionType == "Hoge Energie Pomp Systemen" || productionType == "Sistemi di pompaggio ad alta energia") {
             this.json.player.planets.forEach(p => {
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
             });
@@ -755,7 +770,7 @@ class OgameHelper {
                 crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
             });
-       } else if (productionType == "Catalyser Technology" || productionType == "Katalysatortechnologie") {
+       } else if (productionType == "Catalyser Technology" || productionType == "Katalysatortechnologie" || productionType == "Tecnologia Catalizzatore") {
             this.json.player.planets.forEach(p => {
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
             });
@@ -769,9 +784,9 @@ class OgameHelper {
             this.json.player.planets.forEach(p => {
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
             });
-        } else if (productionType == "Telekinetic Tractor Beam" || productionType == "Telekinetische Tractorstraal") {
+        } else if (productionType == "Telekinetic Tractor Beam" || productionType == "Telekinetische Tractorstraal" || productionType == "Raggio di trazione telecinetico") {
             metalProd = 0.002 * this.calcBaseExpoShipProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformLevelBonus(planet));
-        } else if (productionType == "Enhanced Sensor Technology" || productionType == "Verbeterde Sensortechnologie") {
+        } else if (productionType == "Enhanced Sensor Technology" || productionType == "Verbeterde Sensortechnologie" || productionType == "Tecnologia Sensori migliorata") {
             metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformLevelBonus(planet));
         } 
         
@@ -1201,7 +1216,8 @@ class OgameHelper {
                     console.log(totalAmortization[r-1]);
                     
                     amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
-                    if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig")
+                    if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig" 
+                    || technology == "Raggio di trazione telecinetico" || technology == "Tecnologia Sensori migliorata")
                         amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
                 }
     
@@ -1253,7 +1269,8 @@ class OgameHelper {
                     color = totalAmortization[r - 1].color;
                     
                     amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
-                    if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig")
+                    if(technology == "Telekinetische Tractorstraal" || technology == "Verbeterde Sensortechnologie" || technology == "Zesde Zintuig" 
+                    || technology == "Raggio di trazione telecinetico" || technology == "Tecnologia Sensori migliorata")
                         amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
                 }
     
@@ -1882,7 +1899,7 @@ class OgameHelper {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms?.techs?.forEach(t => {
-                        if(t.name == "Verbeterde Sensortechnologie" || t.name == "Zesde Zintuig"){
+                        if(t.name == "Verbeterde Sensortechnologie" || t.name == "Zesde Zintuig" || t.name == "Tecnologia Sensori migliorata"){
                             bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
                         }
                     });
@@ -1922,7 +1939,7 @@ class OgameHelper {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms.techs.forEach(t => {
-                        if(t.name == "Telekinetische Tractorstraal"){
+                        if(t.name == "Telekinetische Tractorstraal" || t.name == "Raggio di trazione telecinetico"){
                             bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
                         }
                     });    
