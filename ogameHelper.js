@@ -206,21 +206,25 @@ class OgameHelper {
             const buildings = planet.lifeforms.buildings;
             this.log(buildings, "debug");
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                if(resource == "metal") lifeformBuildingBonus = 0.015 * parseInt(buildings.highEnergySmelting.level ? buildings.highEnergySmelting.level : buildings.highEnergySmelting);
-                else if(resource == "crystal") lifeformBuildingBonus = 0.015 * parseInt(buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction);
-                else if(resource == "deut") lifeformBuildingBonus = 0.01 * parseInt(buildings.fusionPoweredProduction.level ? buildings.fusionPoweredProduction.level : buildings.fusionPoweredProduction);
+                if(resource == "metal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.highEnergySmelting);
+                else if(resource == "crystal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.fusionPoweredProduction);
+                else if(resource == "deut") lifeformBuildingBonus = 0.01 * this.getLevel(buildings.fusionPoweredProduction);
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                if(resource == "metal") lifeformBuildingBonus = 0.02 * parseInt(buildings.magmaForge.level ? buildings.magmaForge.level : buildings.magmaForge);
-                else if(resource == "crystal") lifeformBuildingBonus = 0.02 * parseInt(buildings.crystalRefinery.level ? buildings.crystalRefinery.level : buildings.crystalRefinery);
-                else if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer);
+                if(resource == "metal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.magmaForge);
+                else if(resource == "crystal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.crystalRefinery);
+                else if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer.level ? buildings.deuteriumSynthesizer.level : buildings.deuteriumSynthesizer);
+                if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer?.level ?? buildings.deuteriumSynthesizer ?? 0);
             }
             this.log(lifeformBuildingBonus, "debug");
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
         }
         //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
         return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus + lifeformBonus;
+    }
+
+    getLevel(technology){
+        return parseInt(technology?.level ?? technology ?? 0);
     }
 
     getPrerequisites(upgradeType){
@@ -299,7 +303,7 @@ class OgameHelper {
         }
     
         for (const [building, level] of Object.entries(requiredUpgrades)) {
-            const currentLevel = parseInt(planet.lifeforms.buildings[building].level ? planet.lifeforms.buildings[building].level : planet.lifeforms.buildings[building]);
+            const currentLevel = this.getLevel(planet.lifeforms.buildings[building]);
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalCost += this.getMSECosts(planet, building, l);
@@ -383,7 +387,7 @@ class OgameHelper {
             if(this.json.settings.lifeforms){
                 let verbeterdeStellaratorKorting = 0;
                 this.json.player.planets.forEach(planet => {
-                    let tech = planet.lifeforms.techs.find(t => t.name == "Verbeterde Stellarator");
+                    let tech = planet.lifeforms.techs?.find(t => t.name == "Verbeterde Stellarator");
                     if(tech) verbeterdeStellaratorKorting += parseInt(tech.level.level ?? tech.level) * .0015 * (1 + this.getLifeformLevelBonus(planet));
                     console.log(planet.coords + " / korting: " + verbeterdeStellaratorKorting);
                 });
@@ -642,8 +646,10 @@ class OgameHelper {
 
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
-            if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith.level ? planet.lifeforms.buildings.megalith.level : planet.lifeforms.buildings.megalith);
-            if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre.level ? planet.lifeforms.buildings.mineralResearchCentre.level : planet.lifeforms.buildings.mineralResearchCentre);
+            if(planet.lifeforms.buildings){
+                if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith?.level ?? planet.lifeforms.buildings.megalith ?? 0);
+                if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre?.level ?? planet.lifeforms.buildings.mineralResearchCentre ?? 0);                    
+            }
             metalCost *= factor;
             crystalCost *= factor;
             deutCost *= factor;
@@ -1321,14 +1327,14 @@ class OgameHelper {
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                     amorColor = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", parseInt(planet.lifeforms.buildings.highEnergySmelting.level ? planet.lifeforms.buildings.highEnergySmelting.level : planet.lifeforms.buildings.highEnergySmelting), "-", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", parseInt(planet.lifeforms.buildings.fusionPoweredProduction.level ? planet.lifeforms.buildings.fusionPoweredProduction.level : planet.lifeforms.buildings.fusionPoweredProduction), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "-", amorColor));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", parseInt(planet.lifeforms.buildings.magmaForge.level ? planet.lifeforms.buildings.magmaForge.level : planet.lifeforms.buildings.magmaForge), "rocktalbuilding", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", parseInt(planet.lifeforms.buildings.crystalRefinery.level ? planet.lifeforms.buildings.crystalRefinery.level : planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", parseInt(planet.lifeforms.buildings.deuteriumSynthesizer.level ? planet.lifeforms.buildings.deuteriumSynthesizer.level : planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", this.getLevel(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding", amorColor));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", parseInt(planet.lifeforms.buildings.highPerformanceSynthesizer.level ? planet.lifeforms.buildings.highPerformanceSynthesizer.level : planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColor));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -1363,9 +1369,9 @@ class OgameHelper {
             coords: "account",
             name: "account",
             technology: "plasma",
-            level: (parseInt(this.json.player.plasma.level ?? this.json.player.plasma) + 1),
-            amortization: this.calculateAmortization(undefined, "plasma", parseInt(this.json.player.plasma.level ?? this.json.player.plasma)),
-            msecost: this.getMSECosts(undefined, "plasma", parseInt(this.json.player.plasma.level ?? this.json.player.plasma)),
+            level: (this.getLevel(this.json.player.plasma) + 1),
+            amortization: this.calculateAmortization(undefined, "plasma", this.getLevel(this.json.player.plasma)),
+            msecost: this.getMSECosts(undefined, "plasma", this.getLevel(this.json.player.plasma)),
             type: "plasma",
             color: amorColor
         });
