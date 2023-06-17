@@ -198,7 +198,7 @@ class OgameHelper {
         let plasmaLevel = this.json.player.plasma.level ?? this.json.player.plasma; 
         let plasmaBonus = plasmaLevel ? plasmaLevel * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
-        let processorBonus = planet.crawlers ? (planet.crawlers > this.calcMaxCrawlers(planet) ? this.calcMaxCrawlers(planet) : planet.crawlers) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0;
+        let processorBonus = Math.min(0.5, planet.crawlers ? (planet.crawlers > this.calcMaxCrawlers(planet) ? this.calcMaxCrawlers(planet) : planet.crawlers) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0);
         let lifeformBonus = 0;
         if(planet.lifeforms && planet.lifeforms.lifeformClass){
             let lifeformBuildingBonus = 0;
