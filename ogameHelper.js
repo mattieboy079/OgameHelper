@@ -30,7 +30,6 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-=======
 let CurrentPlayer;
 
 const logging = "info"; //info, debug, trace, test
@@ -235,6 +234,7 @@ class OgameHelper {
         let metalCost = 0;
 
         this.log("getPrerequisites of: " + upgradeType, "trace");
+    }
 
     getPrerequisites(upgradeType){
         const upgradeRequirements = {
@@ -1070,8 +1070,8 @@ class OgameHelper {
         };
     }
 
-    // createAmortizationWithPrerequisite(planet, upgradeType, level, amorType){
-    //     level = parseInt(level.level ? level.level : level);
+    createAmortizationWithPrerequisite(planet, upgradeType, level, amorType){
+        level = parseInt(level.level ? level.level : level);
         
         let mseProd = this.getMSEProduction(planet, upgradeType, level);
         const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
@@ -1179,7 +1179,8 @@ class OgameHelper {
             console.log(costLoweringUpgrades);
             if(this.json.player.includeIndirectProductionBuildings == "true")
                 absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
-
+        }
+        
         if(listType == "recursive"){
             //TODO: trim list for planet sided list
             let totalAmortization = this.createAmortizationListString(absoluteAmortization, 50);        
