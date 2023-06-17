@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Ogame Calculator",
     "description": "Several calculations to improve your ogame experience!",
-    "version": "0.7.5",
+    "version": "0.8.0",
     
     "content_scripts": [
         {
@@ -15,7 +15,7 @@
     ],
 
     "web_accessible_resources": [{
-        "resources": ["ogameHelper.js", "resources/*"],
+        "resources": ["ogameHelper.js", "functions.js", "resources/*", "logic/*"],
         "matches": ["<all_urls>"]
     }],
 
