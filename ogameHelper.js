@@ -5,9 +5,9 @@ const PLAYER_CLASS_WARRIOR = "generaal";
 const PLAYER_CLASS_MINER = "verzamelaar";
 const PLAYER_CLASS_NONE = "-";
 
-const ALLY_CLASS_EXPLORER = "onderzoeker";
-const ALLY_CLASS_WARRIOR = "krijger";
-const ALLY_CLASS_MINER = "handelaar";
+const ALLY_CLASS_EXPLORER = "explorer";
+const ALLY_CLASS_WARRIOR = "warrior";
+const ALLY_CLASS_MINER = "trader";
 const ALLY_CLASS_NONE = "-";
 
 const LIFEFORM_CLASS_MENSEN = "mensen";
@@ -158,20 +158,20 @@ class OgameHelper {
         console.log(this.json.settings);
     }
 
-    saveData(){
+    saveData(){+
         console.log("data to save:");
         console.log(this.json);
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
     }
 
     getBonus(planet, resource){
-        let verzamelaarBonus = this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.25 : 0;
-        let handelaarBonus = this.json.player.allyClass === ALLY_CLASS_MINER ? 0.05 : 0;
+        let verzamelaarBonus = this.json.player.playerClass == PLAYER_CLASS_MINER ? 0.25 : 0;
+        let handelaarBonus = this.json.player.allyClass == ALLY_CLASS_MINER ? 0.05 : 0;
         let plasmaFactor = resource === "metal" ? 0.01 : (resource === "crystal" ? 0.0066 : 0.0033);
-        let plasmaLevel = this.json.player.plasma.level ?? this.json.player.plasma; 
+        let plasmaLevel = this.getLevel(this.json.player.plasma); 
         let plasmaBonus = plasmaLevel ? plasmaLevel * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
-        let processorBonus = Math.min(0.5, planet.crawlers ? (planet.crawlers > this.calcMaxCrawlers(planet) ? this.calcMaxCrawlers(planet) : planet.crawlers) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0);
+        let processorBonus = Math.min(0.5, planet.crawlers ? Math.min(planet.crawlers, this.calcMaxCrawlers(planet)) * (this.json.player.playerClass === PLAYER_CLASS_MINER ? 0.00045 : 0.0002) : 0);
         let lifeformBonus = 0;
         if(planet.lifeforms && planet.lifeforms.lifeformClass){
             let lifeformBuildingBonus = 0;
@@ -186,7 +186,7 @@ class OgameHelper {
                 else if(resource == "crystal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.crystalRefinery);
                 else if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer?.level ?? buildings.deuteriumSynthesizer ?? 0);
+                if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
             }
             
             this.json.player.planets.forEach(p => {
@@ -350,7 +350,7 @@ class OgameHelper {
         }
     
         for (const [building, level] of Object.entries(requiredUpgrades)) {
-            const currentLevel = parseInt(planet.lifeforms.buildings[building].level ? planet.lifeforms.buildings[building].level : planet.lifeforms.buildings[building]);
+            const currentLevel = this.getLevel(planet.lifeforms.buildings[building]);
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalProd += this.getMSEProduction(planet, building, l);
@@ -370,7 +370,7 @@ class OgameHelper {
      * @return {number} the cost calculated in MSE.
      */
     getMSECosts(planet, upgradeType, level){
-        level = parseInt(level.level ?? level);
+        level = this.getLevel(level);
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalCost = 0;
         let crystalCost = 0;
@@ -412,7 +412,7 @@ class OgameHelper {
                 let verbeterdeStellaratorKorting = 0;
                 this.json.player.planets.forEach(planet => {
                     let tech = planet.lifeforms.techs?.find(t => t.name == "Verbeterde Stellarator" || t.name == "Concentratore astrale");
-                    if(tech) verbeterdeStellaratorKorting += parseInt(tech.level.level ?? tech.level) * .0015 * (1 + this.getLifeformLevelBonus(planet));
+                    if(tech) verbeterdeStellaratorKorting += this.getLevel(tech.level) * .0015 * (1 + this.getLifeformLevelBonus(planet));
                     console.log(planet.coords + " / korting: " + verbeterdeStellaratorKorting);
                 });
                 factor -= Math.min(verbeterdeStellaratorKorting, 0.5);
@@ -637,25 +637,25 @@ class OgameHelper {
             let factor = 1;
             switch(planet.lifeforms.lifeformClass){
                 case LIFEFORM_CLASS_MENSEN:
-                    const researchCentre = planet.lifeforms.buildings.researchCentre.level ?? planet.lifeforms.buildings.researchCentre;
+                    const researchCentre = this.getLevel(planet.lifeforms.buildings.researchCentre);
                     if (researchCentre > 1) {
                         factor -= planet.lifeforms.buildings.researchCentre * 0.005;
                     }
                     break;
                 case LIFEFORM_CLASS_ROCKTAL:
-                    const runeTechnologium = planet.lifeforms.buildings.runeTechnologium.level ?? planet.lifeforms.buildings.runeTechnologium;
+                    const runeTechnologium = this.getLevel(planet.lifeforms.buildings.runeTechnologium);
                     if (runeTechnologium > 1) {
                         factor -= runeTechnologium * 0.005;
                     }
                     break;
                 case LIFEFORM_CLASS_MECHA:
-                    const roboticsResearchCentre = planet.lifeforms.buildings.roboticsResearchCentre.level ?? planet.lifeforms.buildings.roboticsResearchCentre;
+                    const roboticsResearchCentre = this.getLevel(planet.lifeforms.buildings.roboticsResearchCentre);
                     if (roboticsResearchCentre > 1) {
                         factor -= planet.lifeforms.buildings.roboticsResearchCentre * 0.0025;
                     }
                     break;
                 case LIFEFORM_CLASS_KAELESH:
-                    const vortexChamber = planet.lifeforms.buildings.vortexChamber.level ?? planet.lifeforms.buildings.vortexChamber;
+                    const vortexChamber = this.getLevel(planet.lifeforms.buildings.vortexChamber);
                     if(vortexChamber > 1){
                         factor -= planet.lifeforms.buildings.vortexChamber * 0.0025;
                     } 
@@ -671,8 +671,8 @@ class OgameHelper {
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
             if(planet.lifeforms.buildings){
-                if(rockTalBuild) factor -= 0.01 * parseInt(planet.lifeforms.buildings.megalith?.level ?? planet.lifeforms.buildings.megalith ?? 0);
-                if(resProdBuild) factor -= 0.005 * parseInt(planet.lifeforms.buildings.mineralResearchCentre?.level ?? planet.lifeforms.buildings.mineralResearchCentre ?? 0);                    
+                if(rockTalBuild) factor -= 0.01 * this.getLevel(planet.lifeforms.buildings.megalith);
+                if(resProdBuild) factor -= 0.005 * this.getLevel(planet.lifeforms.buildings.mineralResearchCentre);                    
             }
             metalCost *= factor;
             crystalCost *= factor;
@@ -690,18 +690,14 @@ class OgameHelper {
      * @returns the hourly mse production of the given type at the given level
      */
     getMSEProduction(planet, productionType, level){
-
-        if(productionType != "astro"){
-            level = parseInt(level.level ? level.level : level);
-        }
-
-        
-
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalProd = 0;
         let crystalProd = 0;
         let deutProd = 0;   
         if(productionType === "metal"){
+            console.log(level);
+            console.log(this.getRawProduction(planet, productionType, level))
+            console.log((1 + this.getBonus(planet, productionType)))
             metalProd = (30 + this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, productionType);
         } else if (productionType === "crystal"){
             crystalProd = (15 + this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, productionType);
@@ -709,9 +705,9 @@ class OgameHelper {
             deutProd = (this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed;
         } else if (productionType === "plasma"){
             this.json.player.planets.forEach(p => {
-                metalProd += this.getRawProduction(p, "metal", p.metal.level ? p.metal.level : p.metal) * this.json.settings.economySpeed * this.getFactor(p, "metal");
-                crystalProd += this.getRawProduction(p, "crystal", p.crystal.level ? p.crystal.level : p.crystal) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
-                deutProd += this.getRawProduction(p, "deut", p.deut.level ? p.deut.level : p.deut) * this.json.settings.economySpeed;
+                metalProd += this.getRawProduction(p, "metal", this.getLevel(p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+                crystalProd += this.getRawProduction(p, "crystal", this.getLevel(p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+                deutProd += this.getRawProduction(p, "deut", this.getLevel(p.deut)) * this.json.settings.economySpeed;
             });
             metalProd *= 0.01;
             crystalProd *= 0.0066;
@@ -865,7 +861,7 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionSlots(){
-        return Math.floor(Math.sqrt(parseInt(this.json.player.astro.level ?? this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
+        return Math.floor(Math.sqrt(this.getLevel(this.json.player.astro))) + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0) + (this.json.player.admiral ? 1 : 0) + parseInt(this.json.player.exposlots);
     }
 
     getFactor(planet, productionType) {
@@ -907,7 +903,7 @@ class OgameHelper {
     }
 
     getExtraMSEProduction(planet, productionType, level){
-        if(level.level) level = level.level;
+        level = this.getLevel(level);
         return this.getMSEProduction(planet, productionType, level + 1) - this.getMSEProduction(planet, productionType, level); 
     }
 
@@ -1345,6 +1341,7 @@ class OgameHelper {
         this.json.player.planets.forEach((planet) => {
             if(!coords || planet.coords == coords){
                 amorColor = this.getAmortizationColor(planet.coords, "building", blocked);
+                console.log(planet);
                 totalAmortization.push(this.createAmortization(planet, "metal", planet.metal, "productionbuilding", amorColor));
                 totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, "productionbuilding", amorColor));
                 totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, "productionbuilding", amorColor));
@@ -1369,7 +1366,7 @@ class OgameHelper {
                     amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);    
                     if(planet.lifeforms?.techs?.length > 0){
                         planet.lifeforms.techs.forEach(tech => {
-                            const level = parseInt(tech.level.level ?? tech.level);
+                            const level = this.getLevel(tech.level);
                             let extraMSE = this.getMSEProduction(planet, tech.name, level);
                             if(extraMSE > 0){
                                 let mseCost = this.getMSECosts(planet, tech.name, level);
@@ -1419,7 +1416,7 @@ class OgameHelper {
         const newPlanetProduction = this.getMSEProduction(undefined, "astro", undefined);
         const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
 
-        const astro = (this.json.player.astro.level ?? this.json.player.astro);
+        const astro = this.getLevel(this.json.player.astro);
 
         totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(astro));
         if(astro % 2 == 1){
@@ -1590,6 +1587,12 @@ class OgameHelper {
         console.log(totalHourlyMseProd);
         let maxMseProd = parseFloat(amortizationList[amortizationList.length - 1].amortization) * totalHourlyMseProd * 24;
 
+        if(maxMseProd == Infinity){
+            console.log(amortizationList);
+            console.error("maxMseProd is Infinity");
+            return;
+        }
+
         costLoweringUpgrades.forEach(upgrade => {
             console.log(upgrade);
             let testAmortizationList = this.copyAmortizationArray(amortizationList);
@@ -1604,21 +1607,21 @@ class OgameHelper {
             let buildings = planet.lifeforms.buildings;
 
             if(upgrade.upgrade == "runeTechnologium"){
-                curLevel = parseInt(buildings.runeTechnologium.level ?? buildings.runeTechnologium);
+                curLevel = this.getLevel(buildings.runeTechnologium);
                 upgradePercent = 0.25;
                 amorType = "rocktalbuilding";
             } else if (upgrade.upgrade == "Verbeterde Stellarator" || upgrade.upgrade == "Concentratore astrale"){
                 console.log(planet.lifeforms.techs)
                 let index = planet.lifeforms.techs.findIndex(t => t.name == "Verbeterde Stellarator" || t.name == "Concentratore astrale");
-                curLevel = parseInt(planet.lifeforms.techs[index].level.level ?? planet.lifeforms.techs[index].level);
+                curLevel = this.getLevel(planet.lifeforms.techs[index].level);
                 upgradePercent = 0.15;
                 amorType = "lifeformtech";
             } else if (upgrade.upgrade == "mineralResearchCentre"){
-                curLevel = parseInt(buildings.mineralResearchCentre.level ?? buildings.mineralResearchCentre);
+                curLevel = this.getLevel(buildings.mineralResearchCentre);
                 upgradePercent = 0.5;
                 amorType = "rocktalbuilding";
             } else if (upgrade.upgrade == "megalith"){
-                curLevel = parseInt(buildings.megalith.level ?? buildings.megalith);
+                curLevel = this.getLevel(buildings.megalith);
                 upgradePercent = 1;
                 amorType = "rocktalbuilding";
             }
@@ -1682,7 +1685,7 @@ class OgameHelper {
     }
 
     createAmortization(planet, technology, level, amorType, amorColor){
-        if(level.level) level = level.level;
+        level = this.getLevel(level);
         return { 
             coords: planet.coords, 
             name: planet.name, 
@@ -1696,7 +1699,7 @@ class OgameHelper {
     }
 
     calculateAmortization(planet, technology, level){
-        if(level.level) level = level.level;
+        level = this.getLevel(level);
         if(technology == "astro"){
             //TODO: plasma and astro
         } else if (technology == "metal" || technology == "crystal" || technology == "deut"){
@@ -1734,9 +1737,9 @@ class OgameHelper {
         planets.forEach(p => {
             let tr = document.createElement('tr');
             tr.style.marginLeft = 10;
-            const metal = p.metal.level ? p.metal.level : p.metal;
-            const crystal = p.crystal.level ? p.crystal.level : p.crystal;
-            const deut = p.deut.level ? p.deut.level : p.deut;
+            const metal = this.getLevel(p.metal);
+            const crystal = this.getLevel(p.crystal);
+            const deut = this.getLevel(p.deut);
             let text = p.coords + " - " + metal + "/" + crystal + "/" + deut + " - " + p.maxTemp + "°C - " + p.crawlers + "/" + this.calcMaxCrawlers(p) + " crawlers";
             
             metalProd += (30 + this.getRawProduction(p, "metal", metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
@@ -1752,11 +1755,11 @@ class OgameHelper {
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Plasmatechnology: " + (this.json.player.plasma.level ?? this.json.player.plasma)));
+        tr.appendChild(document.createTextNode("Plasmatechnology: " + this.getLevel(this.json.player.plasma)));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Astrophysics: " + (this.json.player.astro.level ?? this.json.player.astro)));
+        tr.appendChild(document.createTextNode("Astrophysics: " + this.getLevel(this.json.player.astro)));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
@@ -1831,9 +1834,10 @@ class OgameHelper {
 
         planets.forEach(p => {
             console.log(p.coords);
-            console.log(this.calcMaxCrawlers(p));
-            let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1)) * 0.00045;
-            let extraCrawlersBonus = maxCrawlerBonus - (p.crawlers > this.calcMaxCrawlers(p) ? this.calcMaxCrawlers(p) : p.crawlers) * 0.0002;
+            let maxCrawlers = this.calcMaxCrawlers(p)
+            console.log(maxCrawlers);
+            let maxCrawlerBonus = Math.min(0.5, (maxCrawlers * (this.json.player.geologist ? 1.1 : 1)) * 0.00045);
+            let extraCrawlersBonus = Math.min(0.5, maxCrawlerBonus - Math.min(p.crawlers, maxCrawlers) * 0.0002);
             console.log(maxCrawlerBonus);
             console.log(extraCrawlersBonus);
 
@@ -1910,7 +1914,7 @@ class OgameHelper {
                     p.lifeforms?.techs?.forEach(t => {
                         if(t.name == "Verbeterde Sensortechnologie" || t.name == "Zesde Zintuig" 
                         || t.name == "Tecnologia Sensori migliorata" || t.name == "Sesto senso"){
-                            bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
+                            bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
                         }
                     });
                 }
@@ -1950,7 +1954,7 @@ class OgameHelper {
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms.techs.forEach(t => {
                         if(t.name == "Telekinetische Tractorstraal" || t.name == "Raggio di trazione telecinetico"){
-                            bonus += 0.002 * (t.level.level ? t.level.level : t.level) * (1 + lifeformBonus);
+                            bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
                         }
                     });    
                 }
@@ -1979,7 +1983,7 @@ class OgameHelper {
     }
 
     calcMaxCrawlers(planet){
-        return ((parseInt(planet.metal.level ? planet.metal.level : planet.metal) + parseInt(planet.crystal.level ? planet.crystal.level : planet.crystal) + parseInt(planet.deut.level ? planet.deut.level : planet.deut)) * 8) * ((this.json.player.playerClass == PLAYER_CLASS_MINER && this.json.player.geologist) ? 1.1 : 1);
+        return (this.getLevel(planet.metal) + this.getLevel(planet.crystal) + this.getLevel(planet.deut)) * 8 * ((this.json.player.playerClass == PLAYER_CLASS_MINER && this.json.player.geologist) ? 1.1 : 1);
     }
 
     checkPage(){
@@ -2127,6 +2131,23 @@ class OgameHelper {
             this.saveData();
             //TODO: UPDATE RESEARCH
         } else if (page === ALLIANCE) {
+            
+            // Get all elements with the class "sectioncontent"
+            var elements = document.getElementsByClassName("sectioncontent");
+            console.log(elements);
+            console.log(elements.length)
+            // Iterate over the elements
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                console.log(element);
+                // Check if the element has the id "allyData"
+                if (element.id === "allyData") {
+                    // Do something with the desired child element
+                    var childElement = element.querySelector(".contentz");
+                    console.log(childElement); // Replace this with your desired action
+                }
+            }
+
             if (document.querySelector(".value.alliance_class.small.explorer")) {
                 console.log("ally ontdekker");
                 this.json.player.allyClass = ALLY_CLASS_EXPLORER;
@@ -2193,6 +2214,10 @@ class OgameHelper {
                         <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
                     </tr>
                     <tr>    
+                        <td><label for="AllyClass">Alliance Class (trader/warrior/explorer):</label></td>
+                        <td><input type="text" id="AllyClass" AllyClass="AllyClass" style="width:100%" value="${this.json.player.allyClass ?? "-"}"></td>
+                    </tr>
+                    <tr>    
                         <td><label for="ExpoFleetValue">Expo fleet value (percentage):</label></td>
                         <td><input type="text" id="ExpoFleetValue" ExpoFleetValue="ExpoFleetValue" style="width:100%" value="${this.json.player.expofleetValue ?? 100}"></td>
                     </tr>
@@ -2239,6 +2264,7 @@ class OgameHelper {
         if(!this.json.player.expofleetValue){
             this.json.player.expofleetValue = {};
         }
+        this.json.player.allyClass = this.getAllyClass(document.querySelector("#AllyClass").value);
         this.json.player.expofleetValue = parseInt(document.querySelector("#ExpoFleetValue").value);
         this.json.player.includeIndirectProductionBuildings = document.querySelector("#IncludeIndirectProductionBuildings").value;
 
@@ -2251,6 +2277,13 @@ class OgameHelper {
         popup.classList.remove("active");
         popup.classList.remove("popup-overlay");
         document.body.removeChild(popup);
+    }
+
+    getAllyClass(value){
+        if (value == "trader") return ALLY_CLASS_MINER;
+        if (value == "warrior") return ALLY_CLASS_WARRIOR;
+        if (value == "explorer") return ALLY_CLASS_EXPLORER;
+        return ALLY_CLASS_NONE;
     }
 
     removeButtons(){
