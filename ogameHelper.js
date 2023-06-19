@@ -188,15 +188,52 @@ class OgameHelper {
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
                 if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer?.level ?? buildings.deuteriumSynthesizer ?? 0);
             }
-            console.log(lifeformBuildingBonus);
+            
+            this.json.player.planets.forEach(p => {
+                let HoogwaardigeExtractoren = p.lifeforms.techs.find(tech => tech.name == "High-Performance Extractors" || tech.name == "Hoogwaardige Extractoren" || tech.name == "Estrattori ad alto rendimento")
+                if(HoogwaardigeExtractoren) lifeformTechBonus += 0.0006 * this.getLevel(HoogwaardigeExtractoren.level);
+                let MagmaPoweredProduction = p.lifeforms.techs.find(tech => tech.name == "Magma-Powered Production" || tech.name == "Magma-Aangedreven Productie" || tech.name == "Tecniche estrattive magmatiche")
+                if(MagmaPoweredProduction) lifeformTechBonus += 0.0008 * this.getLevel(MagmaPoweredProduction.level);
+                let GeautomatiseerdeTransportlijnen = p.lifeforms.techs.find(tech => tech.name == "Automated Transport Lines" || tech.name == "Geautomatiseerde Transportlijnen" || tech.name == "Linee di trasporto automatizzate")
+                if(GeautomatiseerdeTransportlijnen) lifeformTechBonus += 0.0006 * this.getLevel(GeautomatiseerdeTransportlijnen.level);
+                let VerbeterdeProductieTechnologien = p.lifeforms.techs.find(tech => tech.name == "Enhanced Production Technologies" || tech.name == "Verbeterde Productie Technologiën" || tech.name == "Tecnologie di estrazione migliorate")
+                if(VerbeterdeProductieTechnologien) lifeformTechBonus += 0.0006 * this.getLevel(VerbeterdeProductieTechnologien.level);
+                let Psychoharmonisator = p.lifeforms.techs.find(tech => tech.name == "Psychoharmoniser" || tech.name == "Psychoharmonisator" || tech.name == "Armonizzatore psicologico")
+                if(Psychoharmonisator) lifeformTechBonus += 0.0006 * this.getLevel(Psychoharmonisator.level);
+                let ArtificialSwarmIntelligence = p.lifeforms.techs.find(tech => tech.name == "Artificial Swarm Intelligence" || tech.name === "Artificiële Zwerm Intelligentie" || tech.name == "Intelligenza collettiva artificiale")
+                if(ArtificialSwarmIntelligence) lifeformTechBonus += 0.0006 * this.getLevel(ArtificialSwarmIntelligence.level);
+                
+                if(resource == "metal"){
+                    let Dieptepeiling = p.lifeforms.techs.find(tech => tech.name == "Depth Souding" || tech.name == "Dieptepeiling" || tech.name == "Sondaggio da alte profondità")
+                    if(Dieptepeiling) lifeformTechBonus += 0.0008 * this.getLevel(Dieptepeiling.level);
+                    let VerhardeDiamantenBoorkoppen = p.lifeforms.techs.find(tech => tech.name == "Hardened Diamond Drill Heads" || tech.name == "Verharde Diamanten Boorkoppen" || tech.name == "Punte di diamante irrobustite")
+                    if(VerhardeDiamantenBoorkoppen) lifeformTechBonus += 0.0008 * this.getLevel(VerhardeDiamantenBoorkoppen.level);
+                }
+                else if(resource == "crystal"){
+                    let AkoestischScannen = p.lifeforms.techs.find(tech => tech.name == "Acoustic Scanning" || tech.name == "Akoestisch Scannen" || tech.name == "Sondaggio acustico")
+                    if(AkoestischScannen) lifeformTechBonus += 0.0008 * this.getLevel(AkoestischScannen.level);
+                    let SeismischeMijntechnologie = p.lifeforms.techs.find(tech => tech.name == "Seismic Mining Technology" || tech.name == "Seismische Mijntechnologie" || tech.name == "Tecnologie minerarie sismiche")
+                    if(SeismischeMijntechnologie) lifeformTechBonus += 0.0008 * this.getLevel(SeismischeMijntechnologie.level);
+                } else if (resource == "deut"){
+                    let HogeEnergiePompSystemen = p.lifeforms.techs.find(tech => tech.name == "High Energy Pump Systems" || tech.name == "Hoge Energie Pomp Systemen" || tech.name == "Sistemi di pompaggio ad alta energia")
+                    if(HogeEnergiePompSystemen) lifeformTechBonus += 0.0008 * this.getLevel(HogeEnergiePompSystemen.level);
+                    let Katalysatortechnologie = p.lifeforms.techs.find(tech => tech.name == "Catalyser Technology" || tech.name == "Katalysatortechnologie" || tech.name == "Tecnologia Catalizzatore")
+                    if(Katalysatortechnologie) lifeformTechBonus += 0.0008 * this.getLevel(Katalysatortechnologie.level);
+                    let Sulfideproces = p.lifeforms.techs.find(tech => tech.name == "Sulphide Process" || tech.name == "Sulfideproces" || tech.name == "Tecnologia Processo al solfuro")
+                    if(Sulfideproces) lifeformTechBonus += 0.0008 * this.getLevel(Sulfideproces.level);
+                    let MagmaAangedrevenPompsystemen = p.lifeforms.techs.find(tech => tech.name == "Magma-Powered Pump Systems" || tech.name == "Magma-aangedreven Pompsystemen" || tech.name == "Sistema di pompaggio al magma")
+                    if(MagmaAangedrevenPompsystemen) lifeformTechBonus += 0.0008 * this.getLevel(MagmaAangedrevenPompsystemen.level);
+                }
+            });
+            lifeformTechBonus *= (1 + this.getLifeformLevelBonus(planet));
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
         }
         //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
         return verzamelaarBonus + handelaarBonus + plasmaBonus + officerBonus + processorBonus + lifeformBonus;
     }
 
-    getLevel(technology){
-        return parseInt(technology?.level ?? technology ?? 0);
+    getLevel(technologyLevel){
+        return parseInt(technologyLevel?.level ?? technologyLevel ?? 0);
     }
 
     getPrerequisites(upgradeType){
