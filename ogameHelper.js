@@ -30,8 +30,6 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-const logging = "test"; //prod, dev, debug, test
-
 function getXMLData(xml){
     xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
 }
@@ -86,36 +84,11 @@ class OgameHelper {
                 this.saveData();
             }
         } else {
-            this.log("new");
+            console.log("new");
             this.json = {};
             this.getServerSettings(UNIVERSE);
             this.getPlayerInfo();
-            this.log(this.json);
-        }
-    }
-
-    /**
-     * 
-     * @param {string} log 
-     * @param {string} loglevel standard: dev
-     */
-    log(message, loglevel = "dev") {
-        const levels = {
-            prod: 1,
-            dev: 2,
-            debug: 3,
-            test: 4
-        };
-      
-        const loggingLevel = levels[logging] || 0;
-        const messageLevel = levels[loglevel] || 0;
-      
-        if (loggingLevel === 4) {
-            if (messageLevel === 4) {
-                console.log(message);
-            }
-        } else if (loggingLevel >= messageLevel) {
-          console.log(message);
+            console.log(this.json);
         }
     }
 
@@ -157,7 +130,7 @@ class OgameHelper {
             }
         });
 
-        this.log(this);
+        console.log(this);
     }
 
     trimCoords(coords){
@@ -166,7 +139,7 @@ class OgameHelper {
 
     async getServerSettings(universe){
         let url = getServerSettingsURL(universe);
-        this.log(url, "debug");
+        console.log(url);
         fetch(url)
         .then((rep) => rep.text())
         .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
@@ -181,13 +154,13 @@ class OgameHelper {
             this.json.settings.topscore = xml.querySelector("topScore").innerHTML    
             this.saveData();
         });
-        this.log("settings");
-        this.log(this.json.settings);
+        console.log("settings");
+        console.log(this.json.settings);
     }
 
     saveData(){
-        this.log("data to save:");
-        this.log(this.json);
+        console.log("data to save:");
+        console.log(this.json);
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
     }
 
@@ -204,7 +177,6 @@ class OgameHelper {
             let lifeformBuildingBonus = 0;
             let lifeformTechBonus = 0;
             const buildings = planet.lifeforms.buildings;
-            this.log(buildings, "debug");
             if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                 if(resource == "metal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.highEnergySmelting);
                 else if(resource == "crystal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.fusionPoweredProduction);
@@ -216,7 +188,7 @@ class OgameHelper {
             } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
                 if(resource == "deut") lifeformBuildingBonus = 0.02 * parseInt(buildings.deuteriumSynthesizer?.level ?? buildings.deuteriumSynthesizer ?? 0);
             }
-            this.log(lifeformBuildingBonus, "debug");
+            console.log(lifeformBuildingBonus);
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
         }
         //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBonus);
@@ -309,7 +281,7 @@ class OgameHelper {
     getPrerequisiteMSECosts(planet, upgradeType){
         let metalCost = 0;
 
-        this.log("getPrerequisites of: " + upgradeType, "debug");
+        console.log("getPrerequisites of: " + upgradeType);
 
         const requiredUpgrades = this.getPrerequisites(upgradeType);
     
@@ -332,7 +304,7 @@ class OgameHelper {
     getPrerequisiteMSEProd(planet, upgradeType){
         let metalProd = 0;
 
-        this.log("getPrerequisites of: " + upgradeType, "debug");
+        console.log("getPrerequisites of: " + upgradeType);
 
         const requiredUpgrades = this.getPrerequisites(upgradeType);
     
@@ -989,7 +961,7 @@ class OgameHelper {
     }
 
     checkPlanets(){
-        this.log("checking planets", "debug");
+        console.log("checking planets");
         let changed = false;
         const planetList = document.querySelectorAll(".smallplanet");
         const newPlanetList = [];
@@ -1097,7 +1069,7 @@ class OgameHelper {
     //             amor = mseCosts / mseProd;
     //             x++;
     //         }
-    //         this.log(`${planet.coords} -- ${upgradeType} -- ${(x - 1)} extra levels`, "debug");
+    //         console.log(`${planet.coords} -- ${upgradeType} -- ${(x - 1)} extra levels`);
 
     //         if(x > 1) newLevel = (level + 1) + "-" + (level + x);
     //         else newLevel = (level + x);                   
@@ -1159,11 +1131,11 @@ class OgameHelper {
 
     createAmortizationTable(coords = undefined, listType){
         let expoProfit = this.calcExpoProfit();
-        this.log("expo: " + this.getBigNumber(expoProfit), "debug");
+        console.log("expo: " + this.getBigNumber(expoProfit));
 
         const blocked = this.checkPlanetBlocks();
 
-        this.log(blocked, "debug");
+        console.log(blocked);
 
         //create table
         this.removeButtons();
@@ -1396,7 +1368,7 @@ class OgameHelper {
         totalAmortization.push(this.createAstroAmortizationObject());
 
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
-        this.log(totalAmortization, "debug");
+        console.log(totalAmortization);
         return totalAmortization;
     }
 
@@ -1646,7 +1618,7 @@ class OgameHelper {
                 type: amorType,
             });
             amortizationList.sort((a,b) => a.amortization - b.amortization);
-            this.log(amortizationList, "test");
+            console.log(amortizationList);
         });
 
         return amortizationList;
@@ -1718,7 +1690,7 @@ class OgameHelper {
         planets.sort((a,b) => parseInt(a.coords.split(":")[2]) - parseInt(b.coords.split(":")[2]));
         planets.sort((a,b) => parseInt(a.coords.split(":")[1]) - parseInt(b.coords.split(":")[1]));
         planets.sort((a,b) => parseInt(a.coords.split(":")[0]) - parseInt(b.coords.split(":")[0]));
-        this.log(planets, "debug");
+        console.log(planets);
 
         let metalProd = 0, crystalProd = 0, deutProd = 0;
 
@@ -1785,9 +1757,9 @@ class OgameHelper {
             tableBody.appendChild(tr);
             
             tr = document.createElement('tr');
-            this.log("expoprofit: " + this.getBigNumber(this.calcExpoProfit()), "dev");
-            this.log("miner per hour: " + this.getBigNumber(this.calcMinerBonusProfitHour()), "dev");
-            this.log("expoprofit per hour: " + this.getBigNumber(this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24), "dev");
+            console.log("expoprofit: " + this.getBigNumber(this.calcExpoProfit()));
+            console.log("miner per hour: " + this.getBigNumber(this.calcMinerBonusProfitHour()));
+            console.log("expoprofit per hour: " + this.getBigNumber(this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24));
             
             tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_MINER + " when doing less then " + this.getBigNumber(this.calcMinerBonusProfitHour() * 24 * 7 / this.calcExpoProfit()) + " expeditions per week."));
             tableBody.appendChild(tr);    
@@ -1821,12 +1793,12 @@ class OgameHelper {
         let metalProd = 0, crystalProd = 0, deutProd = 0;
 
         planets.forEach(p => {
-            this.log(p.coords, "debug");
-            this.log(this.calcMaxCrawlers(p), "debug");
+            console.log(p.coords);
+            console.log(this.calcMaxCrawlers(p));
             let maxCrawlerBonus = (this.calcMaxCrawlers(p) * (this.json.player.geologist ? 1.1 : 1)) * 0.00045;
             let extraCrawlersBonus = maxCrawlerBonus - (p.crawlers > this.calcMaxCrawlers(p) ? this.calcMaxCrawlers(p) : p.crawlers) * 0.0002;
-            this.log(maxCrawlerBonus, "debug");
-            this.log(extraCrawlersBonus, "debug");
+            console.log(maxCrawlerBonus);
+            console.log(extraCrawlersBonus);
 
             metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
             crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
@@ -1837,8 +1809,8 @@ class OgameHelper {
             deutProdMiner += (this.getRawProduction(p, "deut", p.deut) * (1 + 0.25 + extraCrawlersBonus + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
         });
 
-        this.log("minerprod: " + this.getBigNumber(metalProdMiner) + " - " + this.getBigNumber(crystalProdMiner) + " - " + this.getBigNumber(deutProdMiner), "dev");
-        this.log("prod:" + this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd), "dev");
+        console.log("minerprod: " + this.getBigNumber(metalProdMiner) + " - " + this.getBigNumber(crystalProdMiner) + " - " + this.getBigNumber(deutProdMiner));
+        console.log("prod:" + this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd));
         return metalProdMiner - metalProd + (crystalProdMiner - crystalProd) * ratio[0] / ratio[1] + (deutProdMiner - deutProd) * ratio[0] / ratio[2];
     }
 
@@ -1984,10 +1956,10 @@ class OgameHelper {
         if(page === OVERVIEW){
             this.checkPlanets();
             if(!currentIsMoon){
-                this.log(textContent, "debug");
-                this.log(currentCoords);
+                console.log(textContent);
+                console.log(currentCoords);
                 let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
-                this.log("planetindex: " + index);
+                console.log("planetindex: " + index);
                 if(this.json.player.planets[index]){
                     this.json.player.planets[index].maxTemp = parseInt(textContent[3].split("°C")[1].split(" ")[2]);
                 } else {
@@ -2004,8 +1976,8 @@ class OgameHelper {
         } else if (page === RESOURCES){
             this.checkPlanets();
             if(!currentIsMoon){
-                this.log("update mines");
-                this.log("Planetindex: " + this.json.player.planets.findIndex(p => p.coords == currentCoords));
+                console.log("update mines");
+                console.log("Planetindex: " + this.json.player.planets.findIndex(p => p.coords == currentCoords));
                 let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
                 if(this.json.player.planets[index]){
                     this.json.player.planets[index].metal = this.getTechnologyLevel("metalMine");
@@ -2033,8 +2005,8 @@ class OgameHelper {
         } else if (page === LIFEFORM){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
-            this.log("lifeform techs", "debug");
-            this.log(document.querySelectorAll(".technology"), "debug");
+            console.log("lifeform techs");
+            console.log(document.querySelectorAll(".technology"));
             let buildings = planet.lifeforms.buildings;
             if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                 buildings.residentialSector = this.getTechnologyLevel("lifeformTech11101");
@@ -2093,18 +2065,18 @@ class OgameHelper {
         } else if (page === LIFEFORM_RESEARCH){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
-            this.log("lifeform techs", "debug");
-            this.log(document.querySelectorAll(".technology"), "debug");
+            console.log("lifeform techs");
+            console.log(document.querySelectorAll(".technology"));
             let techs = [];
             for(let s = 1; s <= 18; s++){
                 let tech = this.getTechnologyFromSlot(s);
                 if(tech) techs.push(tech);
             }
-            this.log(techs, "debug");
+            console.log(techs);
             planet.lifeforms.techs = techs;
             this.createButtons(currentCoords);
         } else if (page === LIFEFORM_SETTINGS){
-            this.log(document.querySelector(".currentLevel"), "debug");
+            console.log(document.querySelector(".currentLevel"));
         } else if (page === FACILITIES){
             //TODO: UPDATE FACILITIES
         } else if (page === RESEARCH){
@@ -2119,16 +2091,16 @@ class OgameHelper {
             //TODO: UPDATE RESEARCH
         } else if (page === ALLIANCE) {
             if (document.querySelector(".value.alliance_class.small.explorer")) {
-                this.log("ally ontdekker", "debug");
+                console.log("ally ontdekker");
                 this.json.player.allyClass = ALLY_CLASS_EXPLORER;
             } else if (document.querySelector(".value.alliance_class.small.warrior")) {
-                this.log("ally generaal", "debug");
+                console.log("ally generaal");
                 this.json.player.allyClass = ALLY_CLASS_WARRIOR;
             } else if (document.querySelector(".value.alliance_class.small.trader")) {
-                this.log("ally trader", "debug");
+                console.log("ally trader");
                 this.json.player.allyClass = ALLY_CLASS_MINER;
             } else {
-                this.log("ally geen", "debug");
+                console.log("ally geen");
                 this.json.player.allyClass = ALLY_CLASS_NONE;
             }
             this.saveData();
