@@ -1199,7 +1199,7 @@ class OgameHelper {
 
         if(listType == "recursive"){
             //TODO: trim list for planet sided list
-            let totalAmortization = this.createAmortizationListString(absoluteAmortization, 50);        
+            let totalAmortization = this.createAmortizationListString(absoluteAmortization, this.json.player.recursiveListAmount ?? 50);        
 
             for(let r = 0; r < totalAmortization.length + 1; r++){
                 let tr = document.createElement('tr');
@@ -2222,6 +2222,10 @@ class OgameHelper {
                         <td><input type="text" id="ExpoFleetValue" ExpoFleetValue="ExpoFleetValue" style="width:100%" value="${this.json.player.expofleetValue ?? 100}"></td>
                     </tr>
                     <tr>    
+                        <td><label for="RecursiveListAmount">Amount of upgrades in recursive list:</label></td>
+                        <td><input type="text" id="RecursiveListAmount" RecursiveListAmount="RecursiveListAmount" style="width:100%" value="${this.json.player.recursiveListAmount ?? 50}"></td>
+                    </tr>
+                    <tr>    
                         <td><label for="IncludeIndirectProductionBuildings">Indirect production upgrades in amortizationtable (WIP, calculation times 5+ sec):</label></td>
                         <td><input type="text" id="IncludeIndirectProductionBuildings" IncludeIndirectProductionBuildings="IncludeIndirectProductionBuildings" style="width:100%" value="${this.json.player.includeIndirectProductionBuildings == "true" ?? "false"}"></td>
                     </tr>
@@ -2240,18 +2244,6 @@ class OgameHelper {
 
         this.openPopup(container);
     }
-    
-    openPopup(popup){
-        if (!popup) return;
-        
-        let button = document.querySelector(".close-button");
-        button.addEventListener("click", () => this.closePopup(popup));
-
-        button = document.querySelector(".save-button");
-        button.addEventListener("click", () => {this.saveSettings(); this.closePopup(popup);});
-
-        popup.classList.add("active");
-    }
 
     saveSettings(){
         let newRatio = document.querySelector("#Ratio").value.replaceAll(",", ".");
@@ -2266,9 +2258,22 @@ class OgameHelper {
         }
         this.json.player.allyClass = this.getAllyClass(document.querySelector("#AllyClass").value);
         this.json.player.expofleetValue = parseInt(document.querySelector("#ExpoFleetValue").value);
+        this.json.player.recursiveListAmount = parseInt(document.querySelector("#RecursiveListAmount").value);
         this.json.player.includeIndirectProductionBuildings = document.querySelector("#IncludeIndirectProductionBuildings").value;
 
         this.saveData();
+    }
+    
+    openPopup(popup){
+        if (!popup) return;
+        
+        let button = document.querySelector(".close-button");
+        button.addEventListener("click", () => this.closePopup(popup));
+
+        button = document.querySelector(".save-button");
+        button.addEventListener("click", () => {this.saveSettings(); this.closePopup(popup);});
+
+        popup.classList.add("active");
     }
 
     closePopup(popup){
