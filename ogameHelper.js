@@ -2226,7 +2226,7 @@ class OgameHelper {
                         <td><input type="text" id="RecursiveListAmount" RecursiveListAmount="RecursiveListAmount" style="width:100%" value="${this.json.player.recursiveListAmount ?? 50}"></td>
                     </tr>
                     <tr>    
-                        <td><label for="IncludeIndirectProductionBuildings">Indirect production upgrades in amortizationtable (WIP, calculation times 5+ sec):</label></td>
+                        <td><label for="IncludeIndirectProductionBuildings">Indirect production upgrades in amortizationtable (true/false)(WIP, calculation times 5+ sec):</label></td>
                         <td><input type="text" id="IncludeIndirectProductionBuildings" IncludeIndirectProductionBuildings="IncludeIndirectProductionBuildings" style="width:100%" value="${this.json.player.includeIndirectProductionBuildings == "true" ?? "false"}"></td>
                     </tr>
                     <tr style="height:30px"></tr>
@@ -2247,10 +2247,8 @@ class OgameHelper {
 
     saveSettings(){
         let newRatio = document.querySelector("#Ratio").value.replaceAll(",", ".");
-
         newRatio = newRatio.split("/");
-        newRatio.forEach(r => { r = parseFloat(r); });
-
+        this.json.player.ratio = [parseFloat(newRatio[0]), parseFloat(newRatio[1]), parseFloat(newRatio[2])];
         this.json.player.exporounds = parseFloat(document.querySelector("#Exporounds").value.replaceAll(",", "."));
         this.json.player.exposlots = parseInt(document.querySelector("#Exposlots").value);
         if(!this.json.player.expofleetValue){
