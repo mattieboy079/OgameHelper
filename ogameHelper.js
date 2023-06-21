@@ -1175,7 +1175,18 @@ class OgameHelper {
 
         let div = document.querySelector('.amortizationtable');
         div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable"}));
-        div.addEventListener("click", () => {
+        
+        let divHeader = document.createElement('div');
+        divHeader.innerHTML = `
+            <div class="popup-header">
+            <div class="title">Amortization Table</div>
+            <button settings-close-button class="close-button">&times;</button>
+            </div>
+            `
+        div.appendChild(divHeader);
+
+        let closeButton = document.querySelector(".close-button");
+        closeButton.addEventListener("click", () => {
             let div = document.querySelector('.amortizationtable');
             div.remove();
             this.checkPage();
@@ -1307,7 +1318,11 @@ class OgameHelper {
         }
 
         table.appendChild(tableBody);
-        div.appendChild(table);
+
+        let divBody = document.createElement('div');
+        divBody.appendChild(table);
+        
+        div.appendChild(divBody);
     }
 
     trimAmortizationList(amortizationList, coords){
@@ -1714,13 +1729,23 @@ class OgameHelper {
 
         const pageContent = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent"));
         const accountProductionDiv = this.createDOM("div", { class: "accountproduction"});
-        accountProductionDiv.addEventListener("click", () => {
+        pageContent.appendChild(accountProductionDiv);
+
+        let divHeader = document.createElement('div');
+        divHeader.innerHTML = `
+            <div class="popup-header">
+            <div class="title">Account production</div>
+            <button settings-close-button class="close-button">&times;</button>
+            </div>
+            `;
+        accountProductionDiv.appendChild(divHeader);
+        
+        let closeButton = document.querySelector(".close-button");
+        closeButton.addEventListener("click", () => {
             let div = document.querySelector('.accountproduction');
             div.remove();
             this.checkPage();
         })
-        pageContent.appendChild(accountProductionDiv);
-
         const table = document.createElement('table');
         table.style.width = '100%';
         table.setAttribute('border', '1');
