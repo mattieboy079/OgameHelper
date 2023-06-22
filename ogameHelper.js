@@ -413,10 +413,10 @@ class OgameHelper {
                 this.json.player.planets.forEach(planet => {
                     let tech = planet.lifeforms.techs?.find(t => t.name == "Verbeterde Stellarator" || t.name == "Concentratore astrale");
                     if(tech) verbeterdeStellaratorKorting += this.getLevel(tech.level) * .0015 * (1 + this.getLifeformLevelBonus(planet));
-                    console.log(planet.coords + " / korting: " + verbeterdeStellaratorKorting);
+//                    console.log(planet.coords + " / korting: " + verbeterdeStellaratorKorting);
                 });
                 factor -= Math.min(verbeterdeStellaratorKorting, 0.5);
-                console.log("factor:" + factor);
+//                console.log("factor:" + factor);
             }
             metalCost = 2000 * Math.pow(2, level) * factor;
             crystalCost = 4000 * Math.pow(2, level) * factor;
@@ -665,7 +665,7 @@ class OgameHelper {
             metalCost *= factor;
             crystalCost *= factor;
             deutCost *= factor;
-            console.log(this.getBigNumber(metalCost) + " / " + this.getBigNumber(crystalCost) + " / " + this.getBigNumber(deutCost));
+//            console.log(this.getBigNumber(metalCost) + " / " + this.getBigNumber(crystalCost) + " / " + this.getBigNumber(deutCost));
         }
 
         if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
@@ -695,9 +695,6 @@ class OgameHelper {
         let crystalProd = 0;
         let deutProd = 0;   
         if(productionType === "metal"){
-            console.log(level);
-            console.log(this.getRawProduction(planet, productionType, level))
-            console.log((1 + this.getBonus(planet, productionType)))
             metalProd = (30 + this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, productionType);
         } else if (productionType === "crystal"){
             crystalProd = (15 + this.getRawProduction(planet, productionType, level) * (1 + this.getBonus(planet, productionType))) * this.json.settings.economySpeed * this.getFactor(planet, productionType);
@@ -1378,9 +1375,12 @@ class OgameHelper {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
     
-                    amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);    
-                    if(planet.lifeforms?.techs?.length > 0){
-                        planet.lifeforms.techs.forEach(tech => {
+                    amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);
+                    
+                    for(let s = 0; s < 18; s++){
+                        console.log(s);
+                        const tech = planet.lifeforms.techs[s];
+                        if(tech){
                             const level = this.getLevel(tech.level);
                             let extraMSE = this.getMSEProduction(planet, tech.name, level);
                             if(extraMSE > 0){
@@ -1396,7 +1396,48 @@ class OgameHelper {
                                     color: amorColor,
                                 });
                             }
-                        });    
+                        } else {
+                            const possibleTechs = this.getTechsForSlot(s);
+                            console.log(possibleTechs);
+                            if(possibleTechs.length > 0){
+                                let possibleTechsAmortizations = [];
+                                const unlockCosts = this.getUnlockCostsForTechSlot(s, planet);
+                                console.log(unlockCosts);
+                                possibleTechs.forEach(tech => {
+                                    let level = 1;
+                                    let gainMse = this.getMSEProduction(planet, tech, level);
+                                    if(gainMse > 0){
+                                        let totalCost = unlockCosts + this.getMSECosts(planet, tech, level);
+                                        let currentROI = totalCost / gainMse;
+                                        console.log(gainMse + " / " + totalCost + " = " + currentROI);
+                                        while(this.getMSECosts(planet, tech, level + 1) / this.getMSEProduction(planet, tech, level + 1) < currentROI){
+                                            level++;
+                                            gainMse += this.getMSEProduction(planet, tech, level);
+                                            totalCost += this.getMSECosts(planet, tech, level);
+                                            currentROI = totalCost / gainMse;
+                                            console.log(gainMse + " / " + totalCost + " = " + currentROI);
+                                        }
+    
+                                        possibleTechsAmortizations.push({
+                                            coords: planet.coords, 
+                                            name: planet.name, 
+                                            technology: tech, 
+                                            level: "1-" + (level + 1), 
+                                            amortization: totalCost / gainMse / 24, 
+                                            msecost: totalCost,
+                                            type: "lifeformtech",
+                                            color: amorColor,
+                                        });
+                                    }
+                                });
+
+                                possibleTechsAmortizations.sort((a,b) => a.amortization - b.amortization);
+                                console.log(possibleTechsAmortizations);
+                                if(possibleTechsAmortizations.length > 0){
+                                    totalAmortization.push(possibleTechsAmortizations[0]);
+                                }
+                            }
+                        }
                     }            
                 }    
             }
@@ -1537,6 +1578,159 @@ class OgameHelper {
         return finalList;
     }
 
+    getTechsForSlot(slot){
+        switch(slot){
+            case 0:
+                return ["Catalyser Technology"];
+            case 1:
+                return ["Acoustic Scanning", "Sulphide Process"];
+            case 2:
+                return ["High Energy Pump Systems"];
+            case 3:
+                return ["Telekinetic Tractor Beam"];
+            case 4:
+                return ["Enhanced Sensor Technology", "Magma-Powered Production"];
+            case 5: 
+                return ["Automated Transport Lines"];
+            case 6:
+                return ["Depth Sounding"];
+            case 7:
+                return ["Enhanced Production Technologies"];
+            case 8: 
+                return ["Improved Stellarator"];
+            case 9:
+                return ["Hardened Diamond Drill Heads"];
+            case 10:
+                return ["Sixth Sense", "Seismic Mining Technology"];
+            case 11:
+                return ["Magma-Powered Pump Systems", "Psychoharmoniser"];
+            case 12:
+                return ["Artificial Swarm Intelligence", "Ion Crystal Modules"];
+            case 17: 
+                return ["Kaelesh Discoverer Enhancement", "Rock’tal Collector Enhancement"];
+            default:
+                return [];
+    }
+    }
+
+    getUnlockCostsForTechSlot(slot, planet){
+        console.log("unlockCosts " + planet.coords + " slot " + slot);
+        let popNeeded = 0;
+        slot = parseInt(slot);
+        switch(slot){
+            case 0:
+                popNeeded = 200000;
+            case 1:
+                popNeeded = 300000;
+            case 2:
+                popNeeded = 400000;
+            case 3:
+                popNeeded = 500000;
+            case 4:
+                popNeeded = 750000;
+            case 5: 
+                popNeeded = 1000000;
+            case 6:
+                popNeeded = 1200000;
+            case 7:
+                popNeeded = 3000000;
+            case 8: 
+                popNeeded = 5000000;
+            case 9:
+                popNeeded = 7000000;
+            case 10:
+                popNeeded = 9000000;
+            case 11:
+                popNeeded = 11000000;
+            case 12:
+                popNeeded = 13000000;
+            case 13: 
+                popNeeded = 26000000;
+            case 14: 
+                popNeeded = 56000000;
+            case 15: 
+                popNeeded = 112000000;
+            case 16: 
+                popNeeded = 224000000;
+            case 17: 
+                popNeeded = 448000000;
+        }
+
+        let popCapacityBase;
+        let popCapacityFactor;
+        let foodConsBase;
+        let foodConsFactor;
+        let foodProdBase;
+        let foodProdFactor;
+        let quartersLevel;
+        let foodLevel;
+        let quartersName;
+        let foodName;
+
+        switch(planet.lifeforms.lifeformClass){
+            case LIFEFORM_CLASS_MENSEN:
+                console.error("Lifeform '" + lifeform + "' not configured.");
+                return 0;
+            case LIFEFORM_CLASS_MECHA:
+                console.error("Lifeform '" + lifeform + "' not configured.");
+                return 0;
+            case LIFEFORM_CLASS_KAELESH:
+                console.error("Lifeform '" + lifeform + "' not configured.");
+                return 0;
+            case LIFEFORM_CLASS_ROCKTAL:
+                popCapacityBase = 150;
+                popCapacityFactor = 1.216;
+                foodConsBase = 5;
+                foodConsFactor = 1.15;
+                foodProdBase = 6;
+                foodProdFactor = 1.14;
+                quartersLevel = planet.lifeforms.buildings.meditationEnclave;
+                quartersName = "meditationEnclave";
+                foodLevel = planet.lifeforms.buildings.crystalFarm;
+                foodName = "crystalFarm";
+                break;
+            default:
+                console.error("Lifeform '" + lifeform + "' not found.");
+                return 0;
+        }
+
+        let traderFactor = this.json.player.allyClass == ALLY_CLASS_MINER ? 1.1 : 1;
+        let quartersLevelNeeded = quartersLevel;
+        let foodLevelNeeded = foodLevel;
+        if(slot < 6){
+            let t1cap = popCapacityBase * Math.pow(popCapacityFactor, quartersLevel) * (quartersLevel + 1)  * traderFactor;
+            while(t1cap < popNeeded){
+                quartersLevelNeeded++;
+                t1cap = popCapacityBase * Math.pow(popCapacityFactor, quartersLevelNeeded) * (quartersLevelNeeded + 1)  * traderFactor;
+            }
+
+            let foodCons = foodConsBase * Math.pow(foodConsFactor, quartersLevelNeeded) * (quartersLevelNeeded + 1);
+            let foodProd = foodProdBase * Math.pow(foodProdFactor, foodLevel) * (foodLevel + 1);
+
+            while(t1cap / foodCons * foodProd < popNeeded){
+                foodLevelNeeded++;
+                foodProd = foodProdBase * Math.pow(foodProdFactor, foodLevelNeeded) * (foodLevelNeeded + 1);
+            }
+            console.log("quarters: " + quartersLevelNeeded + " & food: " + foodLevelNeeded + " needed for slot " + slot);
+        } else if (slot < 12) {
+
+        } else if (slot < 18) {
+
+        } else {
+            console.error("slot higher than 18");
+            return 0;    
+        }
+
+        let mseCosts = 0;
+        for(let i = quartersLevel; i < quartersLevelNeeded; i++){
+            mseCosts += this.getMSECosts(planet, quartersName, i);
+        }
+        for(let i = foodLevel; i < foodLevelNeeded; i++){
+            mseCosts += this.getMSECosts(planet, foodName, i);
+        }
+        return mseCosts;
+    }
+
     getPlanetByCoords(coords){
         return this.json.player.planets.find(p => p.coords == coords);
     }
@@ -1651,13 +1845,13 @@ class OgameHelper {
             console.log(maxMseSpend);
             while(mseToSpend > 0 && maxMseSpend > 0){
                 let item = testAmortizationList[0];
-                console.log(item);
+//                console.log(item);
                 if(item.type == upgrade.affected && (item.coords == "account" || item.coords == upgrade.coords)){
                     mseToSpend -= item.msecost;
                 }
                 maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
-                console.log(this.getBigNumber(mseToSpend) + " / " + this.getBigNumber(maxMseSpend) + " / " + this.getBigNumber(totalMseCost));
+//                console.log(this.getBigNumber(mseToSpend) + " / " + this.getBigNumber(maxMseSpend) + " / " + this.getBigNumber(totalMseCost));
                 testAmortizationList[0] = this.upgradeAmortizationItem(item);
                 testAmortizationList.sort((a,b) => a.amortization - b.amortization);
             }
