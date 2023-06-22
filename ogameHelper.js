@@ -430,9 +430,11 @@ class OgameHelper {
         else if (upgradeType === "residentialSector") {
             metalCost = 7 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.2, level) * (level + 1);
+            resProdBuild = true;
         } else if (upgradeType === "biosphereFarm") {
             metalCost = 5 * Math.pow(1.23, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.23, level) * (level + 1);
+            resProdBuild = true;
         } else if (upgradeType === "researchCentre") {
             metalCost = 20000 * Math.pow(1.3, level) * (level + 1);
             crystalCost = 25000 * Math.pow(1.3, level) * (level + 1);
@@ -455,10 +457,12 @@ class OgameHelper {
             metalCost = 9 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 3 * Math.pow(1.2, level) * (level + 1);
             rockTalBuild = true;
+            resProdBuild = true;
         } else if (upgradeType === "crystalFarm") {
             metalCost = 7 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.2, level) * (level + 1);
             rockTalBuild = true;
+            resProdBuild = true;
         } else if (upgradeType === "runeTechnologium") {
             metalCost = 40000 * Math.pow(1.3, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.3, level) * (level + 1);
@@ -1144,13 +1148,19 @@ class OgameHelper {
             builds.push(planet.fusion);
 
             builds.forEach(b => {
-                if(b.timeFinished) blocked.push({coords: planet.coords, type: "building", timeFinished: b.timeFinished})
+                if(b.timeFinished) blocked.push({coords: planet.coords, type: "building", timeFinished: b.timeFinished});
             });
 
+            
             if(planet.lifeforms){
-                if(planet.lifeforms?.techs?.length > 0){
+                Object.entries(planet.lifeforms.buildings).forEach(([key, value]) => {
+                    console.log(key + " - " + value)
+                    if(value.timeFinished) blocked.push({coords: planet.coords, type: "lifeformbuilding", timeFinished: value.timeFinished});                    
+                })
+
+                if(planet.lifeforms.techs?.length > 0){
                     planet.lifeforms.techs.forEach(t => {
-                        if(t.level.timeFinished) blocked.push({coords: planet.coords, type: "lifeformtech", timeFinished: t.level.timeFinished})
+                        if(t.level.timeFinished) blocked.push({coords: planet.coords, type: "lifeformtech", timeFinished: t.level.timeFinished});
                     })    
                 }
             }
@@ -1200,7 +1210,7 @@ class OgameHelper {
             let costLoweringUpgrades = this.getIndirectProductionUpgrades();
             console.log(costLoweringUpgrades);
             if(this.json.player.includeIndirectProductionBuildings == "true")
-                absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades);
+                absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades, blocked);
         }
 
 
@@ -1360,22 +1370,22 @@ class OgameHelper {
 
 
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
-                    amorColor = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
+                    let amorColorBuilding = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "-", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "-", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "-", amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), "rocktalbuilding", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding", amorColor));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", this.getLevel(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), "rocktalbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), "rocktalbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", this.getLevel(planet.lifeforms.buildings.deuteriumSynthesizer), "rocktalbuilding", amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColor));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
     
-                    amorColor = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);
+                    let amorColorTech = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);
                     
                     for(let s = 0; s < 18; s++){
                         console.log(s);
@@ -1393,7 +1403,7 @@ class OgameHelper {
                                     amortization: mseCost / extraMSE / 24, 
                                     msecost: mseCost,
                                     type: "lifeformtech",
-                                    color: amorColor,
+                                    color: amorColorTech,
                                 });
                             }
                         } else {
@@ -1401,7 +1411,8 @@ class OgameHelper {
                             console.log(possibleTechs);
                             if(possibleTechs.length > 0){
                                 let possibleTechsAmortizations = [];
-                                const unlockCosts = this.getUnlockCostsForTechSlot(s, planet);
+                                const unlockPrerequisites = this.getUnlockPrerequisitesForTechSlot(s, planet);
+                                const unlockCosts = this.getUnlockCostsForPrerequisites(planet, unlockPrerequisites);
                                 console.log(unlockCosts);
                                 possibleTechs.forEach(tech => {
                                     let level = 1;
@@ -1421,12 +1432,12 @@ class OgameHelper {
                                         possibleTechsAmortizations.push({
                                             coords: planet.coords, 
                                             name: planet.name, 
-                                            technology: tech, 
+                                            technology: tech  + " (slot " + (s + 1) + ")", 
                                             level: "1-" + (level + 1), 
                                             amortization: totalCost / gainMse / 24, 
                                             msecost: totalCost,
                                             type: "lifeformtech",
-                                            color: amorColor,
+                                            color: amorColorTech,
                                         });
                                     }
                                 });
@@ -1434,7 +1445,75 @@ class OgameHelper {
                                 possibleTechsAmortizations.sort((a,b) => a.amortization - b.amortization);
                                 console.log(possibleTechsAmortizations);
                                 if(possibleTechsAmortizations.length > 0){
-                                    totalAmortization.push(possibleTechsAmortizations[0]);
+                                    if(unlockCosts > 0){
+                                        let quarters = unlockPrerequisites.quarters;
+                                        let food = unlockPrerequisites.food;
+                                        let t2building = unlockPrerequisites.t2popBuilding;
+                                        let t3building = unlockPrerequisites.t3popBuilding;
+
+                                        if(quarters.level < quarters.levelNeeded){
+                                            let level = parseInt(quarters.level) + 1 == quarters.levelNeeded 
+                                            ? quarters.levelNeeded 
+                                            : (parseInt(quarters.level) + 1) + "-" + quarters.levelNeeded
+                                            totalAmortization.push({
+                                                coords: planet.coords, 
+                                                name: planet.name, 
+                                                technology: /*possibleTechsAmortizations[0].technology + " => " + */ quarters.name, 
+                                                level: level, 
+                                                amortization: possibleTechsAmortizations[0].amortization, 
+                                                msecost: possibleTechsAmortizations[0].msecost,
+                                                type: "lifeformbuilding",
+                                                color: amorColorBuilding,
+                                            })
+                                        }
+                                        if(food.level < food.levelNeeded){
+                                            let level = parseInt(food.level) + 1 == food.levelNeeded 
+                                            ? food.levelNeeded 
+                                            : (parseInt(food.level) + 1) + "-" + food.levelNeeded
+                                            totalAmortization.push({
+                                                coords: planet.coords, 
+                                                name: planet.name, 
+                                                technology: /*possibleTechsAmortizations[0].technology + " => " + */ food.name, 
+                                                level: level, 
+                                                amortization: possibleTechsAmortizations[0].amortization, 
+                                                msecost: possibleTechsAmortizations[0].msecost,
+                                                type: "lifeformbuilding",
+                                                color: amorColorBuilding,
+                                            })
+                                        }
+                                        if(t2building.level < t2building.levelNeeded){
+                                            let level = parseInt(t2building.level) + 1 == t2building.levelNeeded 
+                                            ? t2building.levelNeeded 
+                                            : (parseInt(t2building.level) + 1) + "-" + t2building.levelNeeded
+                                            totalAmortization.push({
+                                                coords: planet.coords, 
+                                                name: planet.name, 
+                                                technology: /*possibleTechsAmortizations[0].technology + " => " + */ t2building.name, 
+                                                level: level, 
+                                                amortization: possibleTechsAmortizations[0].amortization, 
+                                                msecost: possibleTechsAmortizations[0].msecost,
+                                                type: "lifeformbuilding",
+                                                color: amorColorBuilding,
+                                            })
+                                        }
+                                        if(t3building.level < t3building.levelNeeded){
+                                            let level = parseInt(t3building.level) + 1 == t3building.levelNeeded 
+                                            ? t3building.levelNeeded 
+                                            : (parseInt(t3building.level) + 1) + "-" + t3building.levelNeeded
+                                            totalAmortization.push({
+                                                coords: planet.coords, 
+                                                name: planet.name, 
+                                                technology: /*possibleTechsAmortizations[0].technology + " => " + */ t3building.name, 
+                                                level: level, 
+                                                amortization: possibleTechsAmortizations[0].amortization, 
+                                                msecost: possibleTechsAmortizations[0].msecost,
+                                                type: "lifeformbuilding",
+                                                color: amorColorBuilding,
+                                            })
+                                        }
+                                    } else {
+                                        totalAmortization.push(possibleTechsAmortizations[0]);
+                                    }
                                 }
                             }
                         }
@@ -1455,14 +1534,14 @@ class OgameHelper {
             color: amorColor
         });
 
-        totalAmortization.push(this.createAstroAmortizationObject());
+        totalAmortization.push(this.createAstroAmortizationObject(blocked));
 
         totalAmortization.sort((a,b) => a.amortization - b.amortization);
         console.log(totalAmortization);
         return totalAmortization;
     }
 
-    createAstroAmortizationObject(){
+    createAstroAmortizationObject(blocked){
         //astro
         let totalMSECostsAstroNewPlanet = 0;
         let totalMSECostsAstroNewExpo = 0;
@@ -1525,6 +1604,7 @@ class OgameHelper {
             astroLevelStringNewExpo += " - " + nextAstro;
         }
 
+        let amorColor = this.getAmortizationColor("account", "research", blocked);
         if(totalMSECostsAstroNewExpo / totalMSEProdAstroNewExpo < totalMSECostsAstroNewPlanet / totalMSEProdAstroNewPlanet){
             return {
                 coords: "account",
@@ -1534,6 +1614,7 @@ class OgameHelper {
                 amortization: totalMSECostsAstroNewExpo / totalMSEProdAstroNewExpo / 24,
                 msecost: totalMSECostsAstroNewExpo,
                 type: "astro",
+                color: amorColor,
             };
         } else {
             return {
@@ -1544,6 +1625,7 @@ class OgameHelper {
                 amortization: totalMSECostsAstroNewPlanet / totalMSEProdAstroNewPlanet / 24,
                 msecost: totalMSECostsAstroNewPlanet,
                 type: "astro",
+                color: amorColor,
             };
         }
     }
@@ -1613,7 +1695,7 @@ class OgameHelper {
     }
     }
 
-    getUnlockCostsForTechSlot(slot, planet){
+    getUnlockPrerequisitesForTechSlot(slot, planet){
         console.log("unlockCosts " + planet.coords + " slot " + slot);
         let popNeeded = 0;
         slot = parseInt(slot);
@@ -1666,6 +1748,11 @@ class OgameHelper {
         let foodLevel;
         let quartersName;
         let foodName;
+        let t2popBuildingLevel;
+        let t2popBuildingName;
+        let t3popBuildingLevel;
+        let t3popBuildingName;
+
 
         switch(planet.lifeforms.lifeformClass){
             case LIFEFORM_CLASS_MENSEN:
@@ -1684,10 +1771,16 @@ class OgameHelper {
                 foodConsFactor = 1.15;
                 foodProdBase = 6;
                 foodProdFactor = 1.14;
-                quartersLevel = planet.lifeforms.buildings.meditationEnclave;
+                quartersLevel = this.getLevel(planet.lifeforms.buildings.meditationEnclave);
+                console.log(quartersLevel);
                 quartersName = "meditationEnclave";
-                foodLevel = planet.lifeforms.buildings.crystalFarm;
+                foodLevel = this.getLevel(planet.lifeforms.buildings.crystalFarm);
+                console.log(foodLevel);
                 foodName = "crystalFarm";
+                t2popBuildingLevel = this.getLevel(planet.lifeforms.buildings.runeForge);
+                t2popBuildingName = "runeForge";
+                t3popBuildingLevel = this.getLevel(planet.lifeforms.buildings.oriktorium);
+                t3popBuildingName = "oriktorium";
                 break;
             default:
                 console.error("Lifeform '" + lifeform + "' not found.");
@@ -1695,9 +1788,14 @@ class OgameHelper {
         }
 
         let traderFactor = this.json.player.allyClass == ALLY_CLASS_MINER ? 1.1 : 1;
-        let quartersLevelNeeded = quartersLevel;
-        let foodLevelNeeded = foodLevel;
+        let quartersLevelNeeded = 0;
+        let foodLevelNeeded = 0;
+        let t2popBuildingLevelNeeded = 0;
+        let t3popBuildingLevelNeeded = 0;
+
         if(slot < 6){
+            let quartersLevelNeeded = quartersLevel;
+            let foodLevelNeeded = foodLevel;
             let t1cap = popCapacityBase * Math.pow(popCapacityFactor, quartersLevel) * (quartersLevel + 1)  * traderFactor;
             while(t1cap < popNeeded){
                 quartersLevelNeeded++;
@@ -1712,23 +1810,192 @@ class OgameHelper {
                 foodProd = foodProdBase * Math.pow(foodProdFactor, foodLevelNeeded) * (foodLevelNeeded + 1);
             }
             console.log("quarters: " + quartersLevelNeeded + " & food: " + foodLevelNeeded + " needed for slot " + slot);
-        } else if (slot < 12) {
-
         } else if (slot < 18) {
-
+            switch(slot){
+                case 6:
+                    quartersLevelNeeded = 43;
+                    foodLevelNeeded = 43;
+                    t2popBuildingLevelNeeded = 5;
+                    break;
+                case 7:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 46;
+                        foodLevelNeeded = 46;
+                        t2popBuildingLevelNeeded = 6;
+                    } else {
+                        quartersLevelNeeded = 46;
+                        foodLevelNeeded = 47;
+                        t2popBuildingLevelNeeded = 6;
+                    }
+                    break;
+                case 8:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 47;
+                        foodLevelNeeded = 48;
+                        t2popBuildingLevelNeeded = 7;
+                    } else {
+                        quartersLevelNeeded = 47;
+                        foodLevelNeeded = 48;
+                        t2popBuildingLevelNeeded = 8;
+                    }
+                    break;
+                case 9:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 48;
+                        foodLevelNeeded = 49;
+                        t2popBuildingLevelNeeded = 8;
+                    } else {
+                        quartersLevelNeeded = 48;
+                        foodLevelNeeded = 50;
+                        t2popBuildingLevelNeeded = 8;
+                    }
+                    break;
+                case 10:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 49;
+                        foodLevelNeeded = 51;
+                        t2popBuildingLevelNeeded = 8;
+                    } else {
+                        quartersLevelNeeded = 50;
+                        foodLevelNeeded = 51;
+                        t2popBuildingLevelNeeded = 8;
+                    }
+                    break;
+                case 11:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 50;
+                        foodLevelNeeded = 52;
+                        t2popBuildingLevelNeeded = 8;
+                    } else {
+                        quartersLevelNeeded = 51;
+                        foodLevelNeeded = 52;
+                        t2popBuildingLevelNeeded = 8;
+                    }
+                    break;
+                case 12:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 61;
+                        foodLevelNeeded = 64;
+                        t2popBuildingLevelNeeded = 12;
+                        t3popBuildingLevelNeeded = 7;
+                    } else {
+                        quartersLevelNeeded = 62;
+                        foodLevelNeeded = 64;
+                        t2popBuildingLevelNeeded = 12;
+                        t3popBuildingLevelNeeded = 7;
+                    }
+                    break;
+                case 13:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 64;
+                        foodLevelNeeded = 67;
+                        t2popBuildingLevelNeeded = 12;
+                        t3popBuildingLevelNeeded = 8;
+                    } else {
+                        quartersLevelNeeded = 65;
+                        foodLevelNeeded = 67;
+                        t2popBuildingLevelNeeded = 12;
+                        t3popBuildingLevelNeeded = 8;
+                    }
+                    break;
+                case 14:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 67;
+                        foodLevelNeeded = 69;
+                        t2popBuildingLevelNeeded = 13;
+                        t3popBuildingLevelNeeded = 9;
+                    } else {
+                        quartersLevelNeeded = 67;
+                        foodLevelNeeded = 69;
+                        t2popBuildingLevelNeeded = 14;
+                        t3popBuildingLevelNeeded = 9;
+                    }
+                    break;
+                case 15:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 69;
+                        foodLevelNeeded = 72;
+                        t2popBuildingLevelNeeded = 14;
+                        t3popBuildingLevelNeeded = 10;
+                    } else {
+                        quartersLevelNeeded = 70;
+                        foodLevelNeeded = 72;
+                        t2popBuildingLevelNeeded = 14;
+                        t3popBuildingLevelNeeded = 10;
+                    }
+                    break;
+                case 16:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 72;
+                        foodLevelNeeded = 75;
+                        t2popBuildingLevelNeeded = 15;
+                        t3popBuildingLevelNeeded = 10;
+                    } else {
+                        quartersLevelNeeded = 72;
+                        foodLevelNeeded = 75;
+                        t2popBuildingLevelNeeded = 15;
+                        t3popBuildingLevelNeeded = 11;
+                    }
+                    break;
+                case 17:
+                    if(this.json.player.allyClass == ALLY_CLASS_MINER){
+                        quartersLevelNeeded = 75;
+                        foodLevelNeeded = 78;
+                        t2popBuildingLevelNeeded = 15;
+                        t3popBuildingLevelNeeded = 11;
+                    } else {
+                        quartersLevelNeeded = 75;
+                        foodLevelNeeded = 78;
+                        t2popBuildingLevelNeeded = 16;
+                        t3popBuildingLevelNeeded = 11;
+                    }
+                    break;
+            }
+            console.log("quarters: " + quartersLevelNeeded + " & food: " + foodLevelNeeded + " & t2pop: " + t2popBuildingLevelNeeded + " & t3pop: " + t3popBuildingLevelNeeded + " needed for slot " + slot);
         } else {
             console.error("slot higher than 18");
             return 0;    
         }
 
+        return{
+            'quarters': {
+                'name': quartersName,
+                'level': quartersLevel,
+                'levelNeeded': quartersLevelNeeded,
+            },
+            'food': {
+                'name': foodName,
+                'level': foodLevel,
+                'levelNeeded': foodLevelNeeded,
+            },
+            't2popBuilding': {
+                'name': t2popBuildingName,
+                'level': t2popBuildingLevel,
+                'levelNeeded': t2popBuildingLevelNeeded,
+            },
+            't3popBuilding': {
+                'name': t3popBuildingName,
+                'level': t3popBuildingLevel,
+                'levelNeeded': t3popBuildingLevelNeeded,
+            },
+        };
+    }
+
+    getUnlockCostsForPrerequisites(planet, prerequisites){
         let mseCosts = 0;
-        for(let i = quartersLevel; i < quartersLevelNeeded; i++){
-            mseCosts += this.getMSECosts(planet, quartersName, i);
+        for(let i = prerequisites.quarters.level; i < prerequisites.quarters.levelNeeded; i++){
+            mseCosts += this.getMSECosts(planet, prerequisites.quarters.name, i);
         }
-        for(let i = foodLevel; i < foodLevelNeeded; i++){
-            mseCosts += this.getMSECosts(planet, foodName, i);
+        for(let i = prerequisites.foodLevel; i < prerequisites.food.levelNeeded; i++){
+            mseCosts += this.getMSECosts(planet, prerequisites.food.name, i);
         }
-        return mseCosts;
+        for(let i = prerequisites.t2popBuilding.level; i < prerequisites.t2popBuilding.levelNeeded; i++){
+            mseCosts += this.getMSECosts(planet, prerequisites.t2popBuilding.name, i);
+        }
+        for(let i = prerequisites.t3popBuilding.level; i < prerequisites.t3popBuilding.levelNeeded; i++){
+            mseCosts += this.getMSECosts(planet, prerequisites.t3popBuilding.name, i);
+        }
+        return mseCosts
     }
 
     getPlanetByCoords(coords){
@@ -1791,7 +2058,7 @@ class OgameHelper {
         return costLoweringUpgrades;
     }
 
-    addIndirectProductionUpgradesToAmortization(amortizationList, costLoweringUpgrades){
+    addIndirectProductionUpgradesToAmortization(amortizationList, costLoweringUpgrades, blocked){
         let totalHourlyMseProd = this.calcTotalMseProduction();
         console.log(totalHourlyMseProd);
         let maxMseProd = parseFloat(amortizationList[amortizationList.length - 1].amortization) * totalHourlyMseProd * 24;
@@ -1812,6 +2079,7 @@ class OgameHelper {
             let curLevel;
             let upgradePercent;
             let amorType;
+            let amorColor;
 
             let buildings = planet.lifeforms.buildings;
 
@@ -1819,20 +2087,24 @@ class OgameHelper {
                 curLevel = this.getLevel(buildings.runeTechnologium);
                 upgradePercent = 0.25;
                 amorType = "rocktalbuilding";
+                amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
             } else if (upgrade.upgrade == "Verbeterde Stellarator" || upgrade.upgrade == "Concentratore astrale"){
                 console.log(planet.lifeforms.techs)
                 let index = planet.lifeforms.techs.findIndex(t => t.name == "Verbeterde Stellarator" || t.name == "Concentratore astrale");
                 curLevel = this.getLevel(planet.lifeforms.techs[index].level);
                 upgradePercent = 0.15;
                 amorType = "lifeformtech";
+                amorColor = this.getAmortizationColor(upgrade.coords, "lifeformtech", blocked)
             } else if (upgrade.upgrade == "mineralResearchCentre"){
                 curLevel = this.getLevel(buildings.mineralResearchCentre);
                 upgradePercent = 0.5;
                 amorType = "rocktalbuilding";
+                amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
             } else if (upgrade.upgrade == "megalith"){
                 curLevel = this.getLevel(buildings.megalith);
                 upgradePercent = 1;
                 amorType = "rocktalbuilding";
+                amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
             }
 
             let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
@@ -1865,6 +2137,7 @@ class OgameHelper {
                 amortization: amort,
                 msecost: mseCost,
                 type: amorType,
+                color: amorColor,
             });
             amortizationList.sort((a,b) => a.amortization - b.amortization);
             console.log(amortizationList);
