@@ -23,6 +23,7 @@ const LIFEFORM_SETTINGS = "lfsettings";
 const FACILITIES = "facilities";
 const RESEARCH = "research";
 const ALLIANCE = "alliance";
+const MESSAGES = "messages";
 
 let METAALMIJN;
 let KRISTALMIJN;
@@ -80,19 +81,19 @@ class OgameHelper {
             //let newPlayer = new Player(this.json.player);
             this.getServerSettings(UNIVERSE);
             if(!this.json.player){
-                this.getPlayerInfo();
+                this.getNewPlayerJson();
                 this.saveData();
             }
         } else {
             console.log("new");
             this.json = {};
             this.getServerSettings(UNIVERSE);
-            this.getPlayerInfo();
+            this.getNewPlayerJson();
             console.log(this.json);
         }
     }
 
-    getPlayerInfo(){
+    getNewPlayerJson(){
         this.json.player = {};
         if (document.querySelector("#characterclass .explorer")) {
             this.json.player.playerClass = PLAYER_CLASS_EXPLORER;
@@ -109,7 +110,6 @@ class OgameHelper {
         this.json.player.legerleiding = this.json.player.geologist && this.json.player.engineer && (document.querySelector(".commander.on") ? true : false) && (document.querySelector(".admiral.on") ? true : false) && (document.querySelector(".technocrat.on") ? true : false);
 
         this.json.player.allyClass = ALLY_CLASS_NONE;
-        //TODO: GET ALLY CLASS
         
         this.json.player.ratio = [3, 2, 1];
         this.json.player.astro = 0;
@@ -2678,7 +2678,84 @@ class OgameHelper {
                 }
                 this.saveData();
             }, 50);
-        }  
+        } else if (page === MESSAGES) {
+            setTimeout(() => {
+                let messageElements = document.querySelectorAll('.msg');
+                let spyReports = [];
+                console.log(messageElements);
+                messageElements.forEach(message => {
+                    let title = message.querySelector('.msg_title.blue_txt a')
+                    let href = title.getAttribute('href');
+                    let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
+                    let x = coordinates[1];
+                    let y = coordinates[2];
+                    let z = coordinates[3];
+                    
+                    let spyReport = {
+                        msgId: message.dataset.msgId,
+                        coords: x + ':' + y + ':' + z,
+                    }
+                    let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
+                    button.addEventListener('click', () => { this.readSpyReportContent(spyReport) });
+
+                    spyReports.push(spyReport);
+                });
+
+                console.log(spyReports);
+
+                // let elements = document.querySelectorAll('.fright.txt_link.msg_action_link.overlay');
+                // console.log(elements);
+                // elements.forEach(button => {
+                //     button.addEventListener
+                // });
+            }, 1000);
+        }
+    }
+
+    readSpyReportContent(spyReport){
+        setTimeout(() => {
+            console.log("try reading spy report");
+            console.log(spyReport);
+
+            let detailMsg = document.querySelector('.detail_msg');
+            if(!detailMsg) return;
+
+            let details = document.querySelectorAll('.detail_txt');
+            console.log(details);
+            details.forEach(detail => {
+                if(detail.innerText.slice(0, 6) === "Klasse") spyReport.Klasse = detail.innerText.split(':')[1];
+                if(detail.innerText.slice(0, 16) === "Alliantie Klasse") spyReport.AlliantieKlasse = detail.innerText.split(':')[1];
+            });
+
+            let detailLists = document.querySelectorAll('.detail_list');
+            console.log(detailLists);
+            
+            let information = [];
+            detailLists.forEach(detail => {
+                let elements = detail.innerText.split("\n");
+
+                for (var i = 0; i < elements.length; i += 2) {
+                  var name = elements[i];
+                  var level = elements[i + 1];
+                  information.push({ name: name, level: level });
+                }
+            });
+
+            spyReport.Metaalmijn = information.find(x => x.name == "Metaalmijn")?.level ?? 0;
+            spyReport.Kristalmijn = information.find(x => x.name == "Kristalmijn")?.level ?? 0;
+            spyReport.Deuteriumfabriek = information.find(x => x.name == "Deuteriumfabriek")?.level ?? 0;
+            spyReport.Metaalopslag = information.find(x => x.name == "Metaalopslag")?.level ?? 0;
+            spyReport.Kristalopslag = information.find(x => x.name == "Kristalopslag")?.level ?? 0;
+            spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? 0;
+            spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? 0;
+
+            console.log(information);
+            console.log(spyReport);
+        }, 1000);
+    }
+
+    saveSpyReportData(spyReport){
+
     }
 
     createButtons(coords = undefined){
