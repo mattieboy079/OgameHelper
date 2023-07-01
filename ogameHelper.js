@@ -31,28 +31,60 @@ let DEUTFABRIEK;
 let PLASMATECHNIEK;
 let ASTROFYSICA;
 
-function getXMLData(xml){
-    xml.then((rep) => rep.text()).then((str) => new window.DOMParser().parseFromString(str, "text/xml")).then((xml) => {return xml});
+async function getXMLDoc(xml){
+    const xmlText = await xml.text();
+    
+    const parser = new DOMParser();
+
+    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    console.log(xmlDoc);
+    const elements = xmlDoc.getElementsByTagName('player');
+    console.log(elements);
+    
+    return xmlDoc;
+}
+
+function getObjectsFromXmlDoc(xmlDoc, objectName){
+    console.log(xmlDoc);
+    const elements = xmlDoc.getElementsByTagName(objectName);
+    console.log(elements);
+    const objects = [];
+
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+
+      const attributes = {};
+      for (let i = 0; i < element.attributes.length; i++) {
+        const attribute = element.attributes[i];
+        attributes[attribute.name] = attribute.value;
+      }
+
+      objects.push(attributes);
+    }
+
+    return objects;
 }
 
 function getServerSettingsURL(universe){
     return `https://${universe}.ogame.gameforge.com/api/serverData.xml`;
 }
 
-function getPlayers(universe){
-    return getXMLData(fetch(`https://${universe}.ogame.gameforge.com/api/players.xml`));
+async function getPlayers(universe){
+    const xmlDoc = await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/players.xml`));
+    return getObjectsFromXmlDoc(xmlDoc, 'player')
 }
 
-function getAlliances(universe){
-    return getXMLData(fetch(`https://${universe}.ogame.gameforge.com/api/alliances.xml`));
+async function getAlliances(universe){
+    return await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/alliances.xml`));
 }
 
-function getHighscore(universe, category, type){
-    return getXMLData(fetch(`https://${universe}.ogame.gameforge.com/api/highscore.xml?category=${category}&type=${type}`));
+async function getHighscore(universe, category, type){
+    return await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/highscore.xml?category=${category}&type=${type}`));
 }
 
-function getUniverse(universe){
-    return getXMLData(fetch(`https://${universe}.ogame.gameforge.com/api/universe.xml`));
+async function getUniverse(universe){    
+    const xmlDoc = await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/universe.xml`));
+    return getObjectsFromXmlDoc(xmlDoc, 'planet');
 }
 
 const UNIVERSE = window.location.host.split(".")[0];
@@ -2681,34 +2713,49 @@ class OgameHelper {
         } else if (page === MESSAGES) {
             setTimeout(() => {
                 let messageElements = document.querySelectorAll('.msg');
-                let spyReports = [];
-                console.log(messageElements);
-                messageElements.forEach(message => {
-                    let title = message.querySelector('.msg_title.blue_txt a')
-                    let href = title.getAttribute('href');
-                    let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
-                    let x = coordinates[1];
-                    let y = coordinates[2];
-                    let z = coordinates[3];
-                    
-                    let spyReport = {
-                        msgId: message.dataset.msgId,
-                        coords: x + ':' + y + ':' + z,
-                    }
-                    let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                    button.addEventListener('click', () => { this.readSpyReportContent(spyReport) });
+                if(messageElements){
+                    let spyReports = [];
+                    console.log(messageElements);
+                    messageElements.forEach(message => {
+                        let title = message.querySelector('.msg_title.blue_txt a')
+                        let href = title.getAttribute('href');
+                        let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
+                        let x = coordinates[1];
+                        let y = coordinates[2];
+                        let z = coordinates[3];
+                        
+                        let res = message.innerText.split('\n')[13].split(': ');
+                        console.log(res);
+                        let metal = res[1].replace('Kristal', '');
+                        let crystal = res[2].replace('Deuterium', '');
+                        let deut = res[3];
 
-                    spyReports.push(spyReport);
-                });
+                        if(metal.includes('M')) metal = parseFloat(metal.replace('M', '').replace(',', '.')) * 1000000; else metal = parseFloat(metal.replace('.', ''));
+                        if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
+                        if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));
+    
+                        console.log(metal);
+                        console.log(crystal);
+                        console.log(deut);
+    
+                        let spyReport = {
+                            msgId: message.dataset.msgId,
+                            coords: x + ':' + y + ':' + z,
+                            metal: metal,
+                            crystal: crystal,
+                            deut: deut,
+                        }
+                        let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
+                        button.addEventListener('click', () => { this.readSpyReportContent(spyReport) });
+    
+                        spyReports.push(spyReport);
+                    });
+    
+                    console.log(spyReports);    
+                }
 
-                console.log(spyReports);
-
-                // let elements = document.querySelectorAll('.fright.txt_link.msg_action_link.overlay');
-                // console.log(elements);
-                // elements.forEach(button => {
-                //     button.addEventListener
-                // });
-            }, 1000);
+                this.getInactivePlanets().then(planets => { console.log(planets) });
+            }, 1500);
         }
     }
 
@@ -2752,6 +2799,20 @@ class OgameHelper {
             console.log(information);
             console.log(spyReport);
         }, 1000);
+    }
+
+    async getInactivePlanets(){
+        let players = await getPlayers(UNIVERSE);
+        let inactives = players.filter(p => p.status?.toLowerCase() == 'i');
+        console.log(inactives);
+        let inactivePlanets = await this.getPlanetsByFilter(inactives);
+        console.log(inactivePlanets);
+        return inactivePlanets;
+    }
+
+    async getPlanetsByFilter(playerFilter){
+        let planets = await getUniverse(UNIVERSE);
+        return planets.filter(planet => playerFilter.map(player => player.id).includes(planet.player));
     }
 
     saveSpyReportData(spyReport){
