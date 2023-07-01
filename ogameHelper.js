@@ -33,21 +33,14 @@ let ASTROFYSICA;
 
 async function getXMLDoc(xml){
     const xmlText = await xml.text();
-    
     const parser = new DOMParser();
-
     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-    console.log(xmlDoc);
-    const elements = xmlDoc.getElementsByTagName('player');
-    console.log(elements);
-    
+   
     return xmlDoc;
 }
 
 function getObjectsFromXmlDoc(xmlDoc, objectName){
-    console.log(xmlDoc);
     const elements = xmlDoc.getElementsByTagName(objectName);
-    console.log(elements);
     const objects = [];
 
     for (let i = 0; i < elements.length; i++) {
@@ -190,10 +183,15 @@ class OgameHelper {
         console.log(this.json.settings);
     }
 
-    saveData(){+
+    saveData(){
         console.log("data to save:");
         console.log(this.json);
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
+    }
+
+    saveInactiveData(inactiveList){
+        console.log(inactiveList);
+        localStorage.setItem("ogh-" + UNIVERSE + "-inactives", JSON.stringify(inactiveList));
     }
 
     getBonus(planet, resource){
@@ -2712,11 +2710,16 @@ class OgameHelper {
             }, 50);
         } else if (page === MESSAGES) {
             setTimeout(() => {
+                let savedInactives = localStorage.getItem("ogh-" + UNIVERSE + "-inactives");
+
                 let messageElements = document.querySelectorAll('.msg');
                 if(messageElements){
                     let spyReports = [];
                     console.log(messageElements);
                     messageElements.forEach(message => {
+                        let isInactive = message.querySelector('.status_abbr_inactive') || message.querySelector('.status_abbr_longinactive');
+                        if(!isInactive) return;
+
                         let title = message.querySelector('.msg_title.blue_txt a')
                         let href = title.getAttribute('href');
                         let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
@@ -2725,7 +2728,6 @@ class OgameHelper {
                         let z = coordinates[3];
                         
                         let res = message.innerText.split('\n')[13].split(': ');
-                        console.log(res);
                         let metal = res[1].replace('Kristal', '');
                         let crystal = res[2].replace('Deuterium', '');
                         let deut = res[3];
@@ -2733,11 +2735,10 @@ class OgameHelper {
                         if(metal.includes('M')) metal = parseFloat(metal.replace('M', '').replace(',', '.')) * 1000000; else metal = parseFloat(metal.replace('.', ''));
                         if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
                         if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));
-    
-                        console.log(metal);
-                        console.log(crystal);
-                        console.log(deut);
-    
+        
+                        let timestamp = message.querySelector('.msg_date');
+                        console.log(timestamp.textContent.trim());
+
                         let spyReport = {
                             msgId: message.dataset.msgId,
                             coords: x + ':' + y + ':' + z,
@@ -2815,7 +2816,7 @@ class OgameHelper {
         return planets.filter(planet => playerFilter.map(player => player.id).includes(planet.player));
     }
 
-    saveSpyReportData(spyReport){
+    createSpyTable(){
 
     }
 
