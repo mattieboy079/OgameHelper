@@ -2736,11 +2736,15 @@ class OgameHelper {
                         if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
                         if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));
         
-                        let timestamp = message.querySelector('.msg_date');
-                        console.log(timestamp.textContent.trim());
-
+                        let timestamp = message.querySelector('.msg_date').textContent;
+                        let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
+                        // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
+                        let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
+                        let unixTimestamp = dateObject.getTime() / 1000;
+                        
                         let spyReport = {
                             msgId: message.dataset.msgId,
+                            timestamp: unixTimestamp,
                             coords: x + ':' + y + ':' + z,
                             metal: metal,
                             crystal: crystal,
