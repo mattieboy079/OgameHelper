@@ -189,6 +189,10 @@ class OgameHelper {
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
     }
 
+    getInactiveData(){
+        return JSON.parse(localStorage.getItem("ogh-" + UNIVERSE + "-inactives"));
+    }
+
     saveInactiveData(inactiveList){
         console.log(inactiveList);
         localStorage.setItem("ogh-" + UNIVERSE + "-inactives", JSON.stringify(inactiveList));
@@ -2710,7 +2714,7 @@ class OgameHelper {
             }, 50);
         } else if (page === MESSAGES) {
             setTimeout(() => {
-                let savedInactives = localStorage.getItem("ogh-" + UNIVERSE + "-inactives");
+                let savedInactives = this.getInactiveData();
 
                 let messageElements = document.querySelectorAll('.msg');
                 if(messageElements){
@@ -2726,7 +2730,19 @@ class OgameHelper {
                         let x = coordinates[1];
                         let y = coordinates[2];
                         let z = coordinates[3];
-                        
+                        let coords = x + ':' + y + ':' + z;
+
+                        let timestamp = message.querySelector('.msg_date').textContent;
+                        let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
+                        // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
+                        let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
+                        let unixTimestamp = dateObject.getTime() / 1000;
+
+
+                        let savedSpyIndex = savedInactives.findIndex(s => s.coords === coords);
+
+                        if (savedSpyIndex == -1 || unixTimestamp <= savedInactives[savedSpyIndex].timestamp) return
+
                         let res = message.innerText.split('\n')[13].split(': ');
                         let metal = res[1].replace('Kristal', '');
                         let crystal = res[2].replace('Deuterium', '');
@@ -2734,29 +2750,29 @@ class OgameHelper {
 
                         if(metal.includes('M')) metal = parseFloat(metal.replace('M', '').replace(',', '.')) * 1000000; else metal = parseFloat(metal.replace('.', ''));
                         if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
-                        if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));
-        
-                        let timestamp = message.querySelector('.msg_date').textContent;
-                        let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
-                        // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
-                        let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
-                        let unixTimestamp = dateObject.getTime() / 1000;
+                        if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));                        
                         
                         let spyReport = {
                             msgId: message.dataset.msgId,
                             timestamp: unixTimestamp,
-                            coords: x + ':' + y + ':' + z,
+                            coords: coords,
                             metal: metal,
                             crystal: crystal,
                             deut: deut,
                         }
+
+                        if(savedSpyIndex == -1){
+                            savedInactives.push(spyReport);
+                        } else {
+                            savedInactives[savedSpyIndex] = spyReport;          
+                        }
+                        
                         let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
                         button.addEventListener('click', () => { this.readSpyReportContent(spyReport) });
-    
-                        spyReports.push(spyReport);
                     });
     
                     console.log(spyReports);    
+                    this.saveInactiveData(savedInactives);
                 }
 
                 this.getInactivePlanets().then(planets => { console.log(planets) });
