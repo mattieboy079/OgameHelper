@@ -72,7 +72,8 @@ async function getAlliances(universe){
 }
 
 async function getHighscore(universe, category, type){
-    return await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/highscore.xml?category=${category}&type=${type}`));
+    const xmlDoc = await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/highscore.xml?category=${category}&type=${type}`));
+    return getObjectsFromXmlDoc(xmlDoc, 'player');
 }
 
 async function getUniverse(universe){    
@@ -2715,6 +2716,7 @@ class OgameHelper {
         } else if (page === MESSAGES) {
             setTimeout(() => {
                 let savedInactives = this.getInactiveData();
+                console.log(savedInactives);
 
                 let messageElements = document.querySelectorAll('.msg');
                 if(messageElements){
@@ -2824,10 +2826,16 @@ class OgameHelper {
 
     async getInactivePlanets(){
         let players = await getPlayers(UNIVERSE);
+        let highscore = await getHighscore(UNIVERSE, 1, 0);
         let inactives = players.filter(p => p.status?.toLowerCase() == 'i');
+        inactives.forEach(player => {
+            player.points =  parseInt(highscore.find(p => p.id == player.id).score);
+        });
         console.log(inactives);
+        inactives = inactives.filter(p => p.points > 100);
+        console.log(inactives);
+        //Todo: filter spelers met punten < 100 eruit
         let inactivePlanets = await this.getPlanetsByFilter(inactives);
-        console.log(inactivePlanets);
         return inactivePlanets;
     }
 
