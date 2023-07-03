@@ -191,11 +191,11 @@ class OgameHelper {
     }
 
     getInactiveData(){
+        return [];
         return JSON.parse(localStorage.getItem("ogh-" + UNIVERSE + "-inactives"));
     }
 
     saveInactiveData(inactiveList){
-        console.log(inactiveList);
         localStorage.setItem("ogh-" + UNIVERSE + "-inactives", JSON.stringify(inactiveList));
     }
 
@@ -2720,7 +2720,6 @@ class OgameHelper {
 
                 let messageElements = document.querySelectorAll('.msg');
                 if(messageElements){
-                    let spyReports = [];
                     console.log(messageElements);
                     messageElements.forEach(message => {
                         let isInactive = message.querySelector('.status_abbr_inactive') || message.querySelector('.status_abbr_longinactive');
@@ -2741,9 +2740,10 @@ class OgameHelper {
                         let unixTimestamp = dateObject.getTime() / 1000;
 
 
-                        let savedSpyIndex = savedInactives.findIndex(s => s.coords === coords);
+                        if(savedInactives == null) savedInactives = [];
+                        let savedSpyIndex = savedInactives?.findIndex(s => s.coords === coords);
 
-                        if (savedSpyIndex == -1 || unixTimestamp <= savedInactives[savedSpyIndex].timestamp) return
+                        if (savedSpyIndex != -1 && unixTimestamp <= savedInactives[savedSpyIndex].timestamp) return;
 
                         let res = message.innerText.split('\n')[13].split(': ');
                         let metal = res[1].replace('Kristal', '');
@@ -2773,7 +2773,7 @@ class OgameHelper {
                         button.addEventListener('click', () => { this.readSpyReportContent(spyReport) });
                     });
     
-                    console.log(spyReports);    
+                    console.log(savedInactives);    
                     this.saveInactiveData(savedInactives);
                 }
 
@@ -2831,10 +2831,7 @@ class OgameHelper {
         inactives.forEach(player => {
             player.points =  parseInt(highscore.find(p => p.id == player.id).score);
         });
-        console.log(inactives);
         inactives = inactives.filter(p => p.points > 100);
-        console.log(inactives);
-        //Todo: filter spelers met punten < 100 eruit
         let inactivePlanets = await this.getPlanetsByFilter(inactives);
         return inactivePlanets;
     }
