@@ -191,7 +191,6 @@ class OgameHelper {
     }
 
     getInactiveData(){
-        return [];
         return JSON.parse(localStorage.getItem("ogh-" + UNIVERSE + "-inactives"));
     }
 
@@ -912,6 +911,23 @@ class OgameHelper {
         }
     }
 
+    getFactorForPos(pos, productionType) {
+        switch (productionType) {
+            case "metal":
+                if (pos === 8) return 1.35;
+                if (pos === 7 || pos === 9) return 1.23;
+                if (pos === 6 || pos === 10) return 1.1;
+                return 1;
+            case "crystal":
+                if (pos === 1) return 1.4;
+                if (pos === 2) return 1.3;
+                if (pos === 3) return 1.2;
+                return 1;
+            default:
+                return 1;
+        }
+    }
+
     /**
      * 
      * @param {planet} planet 
@@ -1020,7 +1036,7 @@ class OgameHelper {
             14: -70,
             15: -110
         };
-        return averageTemperatures[parseInt(coords.split(":")[2], 10)];
+        return averageTemperatures[parseInt(coords.split(":")[2])];
     }
 
     checkPlanets(){
@@ -2742,8 +2758,18 @@ class OgameHelper {
 
                         if(savedInactives == null) savedInactives = [];
                         let savedSpyIndex = savedInactives?.findIndex(s => s.coords === coords);
+                        let savedSpyReport = savedInactives[savedSpyIndex];
 
-                        if (savedSpyIndex != -1 && unixTimestamp <= savedInactives[savedSpyIndex].timestamp) return;
+                        console.log(savedSpyReport);
+
+                        if (savedSpyIndex != -1 && unixTimestamp <= savedSpyReport.timestamp) {
+                            if(savedSpyReport.Plasmatechniek == "-1"){
+                                let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
+                                console.log(button);
+                                button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });    
+                            }    
+                            return;
+                        };
 
                         let res = message.innerText.split('\n')[13].split(': ');
                         let metal = res[1].replace('Kristal', '');
@@ -2765,19 +2791,40 @@ class OgameHelper {
 
                         if(savedSpyIndex == -1){
                             savedInactives.push(spyReport);
+                            savedSpyIndex = savedInactives.length - 1;
                         } else {
-                            savedInactives[savedSpyIndex] = spyReport;          
+                            savedInactives[savedSpyIndex].msgId = spyReport.msgId;
+                            savedInactives[savedSpyIndex].timestamp = spyReport.timestamp;
+                            savedInactives[savedSpyIndex].metal = spyReport.metal;
+                            savedInactives[savedSpyIndex].crystal = spyReport.crystal;
+                            savedInactives[savedSpyIndex].deut = spyReport.deut;          
                         }
-                        
+
                         let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                        button.addEventListener('click', () => { this.readSpyReportContent(spyReport) });
+                        console.log(button);
+                        button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });
                     });
-    
                     console.log(savedInactives);    
-                    this.saveInactiveData(savedInactives);
                 }
 
-                this.getInactivePlanets().then(planets => { console.log(planets) });
+                this.getInactivePlanets().then(planets => { 
+                    savedInactives = savedInactives.filter(i => planets.some(p => p.coords === i.coords));
+                    this.saveInactiveData(savedInactives);
+                    const unixNow = Math.floor(Date.now() / 1000);
+                    let SpyTableObjects = [];
+                    savedInactives.forEach(inactive => {
+                        let hoursPast = unixNow - inactive.timestamp;
+                        let spyTableObject = {};
+                        spyTableObject.coords = inactive.coords;
+                        spyTableObject.data = inactive.Plasmatechniek == "-1" ? "incomplete" : "complete";
+                        let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", inactive.Metaalmijn != "-1" ? parseInt(inactive.Metaalmijn) : 0, inactive.Plasmatechniek != "-1" ? parseInt(inactive.Plasmatechniek) : 0, 0);
+                        spyTableObject.metal = inactive.metal + metalHourlyProd / 3600 * hoursPast;
+                        let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", inactive.Metaalmijn != "-1" ? parseInt(inactive.Metaalmijn) : 0, inactive.Plasmatechniek != "-1" ? parseInt(inactive.Plasmatechniek) : 0, 0);
+                        spyTableObject.crystal = inactive.crystal + crystalHourlyProd / 3600 * hoursPast;
+                        let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", inactive.Metaalmijn != "-1" ? parseInt(inactive.Metaalmijn) : 0, inactive.Plasmatechniek != "-1" ? parseInt(inactive.Plasmatechniek) : 0, 0);
+                        spyTableObject.deut = inactive.deut + deutHourlyProd / 3600 * hoursPast;
+                    });
+                });
             }, 1500);
         }
     }
@@ -2811,16 +2858,33 @@ class OgameHelper {
                 }
             });
 
-            spyReport.Metaalmijn = information.find(x => x.name == "Metaalmijn")?.level ?? 0;
-            spyReport.Kristalmijn = information.find(x => x.name == "Kristalmijn")?.level ?? 0;
-            spyReport.Deuteriumfabriek = information.find(x => x.name == "Deuteriumfabriek")?.level ?? 0;
-            spyReport.Metaalopslag = information.find(x => x.name == "Metaalopslag")?.level ?? 0;
-            spyReport.Kristalopslag = information.find(x => x.name == "Kristalopslag")?.level ?? 0;
-            spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? 0;
-            spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? 0;
+            spyReport.Metaalmijn = information.find(x => x.name == "Metaalmijn")?.level ?? "-1";
+            spyReport.Kristalmijn = information.find(x => x.name == "Kristalmijn")?.level ?? "-1";
+            spyReport.Deuteriumfabriek = information.find(x => x.name == "Deuteriumfabriek")?.level ?? "-1";
+            spyReport.Metaalopslag = information.find(x => x.name == "Metaalopslag")?.level ?? "-1";
+            spyReport.Kristalopslag = information.find(x => x.name == "Kristalopslag")?.level ?? "-1";
+            spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? "-1";
+            spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? "-1";
 
             console.log(information);
             console.log(spyReport);
+
+            let savedInactives = this.getInactiveData();
+            console.log(savedInactives);
+            let savedSpyIndex = savedInactives?.findIndex(s => s.coords === spyReport.coords);
+            console.log(savedSpyIndex);
+            if (savedSpyIndex == -1) return;
+
+            savedInactives[savedSpyIndex].Metaalmijn = spyReport.Metaalmijn;
+            savedInactives[savedSpyIndex].Kristalmijn = spyReport.Kristalmijn;
+            savedInactives[savedSpyIndex].Deuteriumfabriek = spyReport.Deuteriumfabriek;
+            savedInactives[savedSpyIndex].Metaalopslag = spyReport.Metaalopslag;
+            savedInactives[savedSpyIndex].Kristalopslag = spyReport.Kristalopslag;
+            savedInactives[savedSpyIndex].Deuteriumtank = spyReport.Deuteriumtank;
+            savedInactives[savedSpyIndex].Plasmatechniek = spyReport.Plasmatechniek;
+
+            console.log(savedInactives);
+            this.saveInactiveData(savedInactives);
         }, 1000);
     }
 
@@ -2839,6 +2903,30 @@ class OgameHelper {
     async getPlanetsByFilter(playerFilter){
         let planets = await getUniverse(UNIVERSE);
         return planets.filter(planet => playerFilter.map(player => player.id).includes(planet.player));
+    }
+
+    getProductionForInactive(coords, type, level, plasma, bonus){
+        let pos = coords.split(':')[2];
+        let prod;
+        let factor = this.getFactorForPos(pos, type);
+
+        switch(type){
+            case "metal":
+                prod = 30 * level * Math.pow(1.1, level);
+                bonus += plasma * 0.01;
+                break;
+            case "crystal":
+                prod = 20 * level * Math.pow(1.1, level);
+                bonus += plasma * 0.066;
+                break;
+            case "deut":
+                prod = 30 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (this.getAverageTemp(coords) - 20));
+                bonus += plasma * 0.033;
+                break;
+        }
+
+        prod *= factor * (1 + bonus);
+        return prod;
     }
 
     createSpyTable(){
