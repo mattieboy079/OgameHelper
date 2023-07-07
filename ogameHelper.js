@@ -1198,9 +1198,11 @@ class OgameHelper {
 
             
             if(planet.lifeforms){
-                Object.entries(planet.lifeforms.buildings).forEach(([key, value]) => {
-                    if(value.timeFinished) blocked.push({coords: planet.coords, type: "lifeformbuilding", timeFinished: value.timeFinished});                    
-                })
+                if(planet.lifeforms.buildings){
+                    Object.entries(planet.lifeforms.buildings).forEach(([key, value]) => {
+                        if(value.timeFinished) blocked.push({coords: planet.coords, type: "lifeformbuilding", timeFinished: value.timeFinished});                    
+                    })    
+                }
 
                 if(planet.lifeforms.techs?.length > 0){
                     planet.lifeforms.techs.forEach(t => {
@@ -2760,10 +2762,10 @@ class OgameHelper {
                         let savedSpyIndex = savedInactives?.findIndex(s => s.coords === coords);
                         let savedSpyReport = savedInactives[savedSpyIndex];
 
-                        console.log(savedSpyReport);
-
                         if (savedSpyIndex != -1 && unixTimestamp <= savedSpyReport.timestamp) {
-                            if(savedSpyReport.Plasmatechniek == "-1"){
+                            console.log(savedSpyReport.Plasmatechniek == undefined);
+                            console.log(savedSpyReport.Plasmatechniek == "-1");
+                            if(savedSpyReport.Plasmatechniek == undefined || savedSpyReport.Plasmatechniek == "-1"){
                                 let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
                                 console.log(button);
                                 button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });    
@@ -2802,50 +2804,61 @@ class OgameHelper {
 
                         let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
                         console.log(button);
-                        button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });
+                        button.addEventListener('click', () => { this.readSpyReportContent(savedInactives[savedSpyIndex]) });
                     });
                     console.log(savedInactives);    
                 }
 
-                this.getInactivePlanets().then(planets => { 
-                    savedInactives = savedInactives.filter(i => planets.some(p => p.coords === i.coords));
-                    this.saveInactiveData(savedInactives);
-                    const unixNow = Math.floor(Date.now() / 1000);
-                    let SpyTableObjects = [];
-                    savedInactives.forEach(inactive => {
-                        let hoursPast = unixNow - inactive.timestamp;
-                        let spyTableObject = {};
-                        spyTableObject.coords = inactive.coords;
-                        spyTableObject.data = inactive.Plasmatechniek == "-1" ? "incomplete" : "complete";
-                        let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", inactive.Metaalmijn != "-1" ? parseInt(inactive.Metaalmijn) : 0, inactive.Plasmatechniek != "-1" ? parseInt(inactive.Plasmatechniek) : 0, 0);
-                        spyTableObject.metal = inactive.metal + metalHourlyProd / 3600 * hoursPast;
-                        let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", inactive.Metaalmijn != "-1" ? parseInt(inactive.Metaalmijn) : 0, inactive.Plasmatechniek != "-1" ? parseInt(inactive.Plasmatechniek) : 0, 0);
-                        spyTableObject.crystal = inactive.crystal + crystalHourlyProd / 3600 * hoursPast;
-                        let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", inactive.Metaalmijn != "-1" ? parseInt(inactive.Metaalmijn) : 0, inactive.Plasmatechniek != "-1" ? parseInt(inactive.Plasmatechniek) : 0, 0);
-                        spyTableObject.deut = inactive.deut + deutHourlyProd / 3600 * hoursPast;
-                    });
+                this.getInactivePlanets().then(planets => {
+                    console.log(planets);
+                    if(savedInactives?.length > 0){
+                        savedInactives = savedInactives.filter(i => planets.some(p => p.coords === i.coords));
+                        this.saveInactiveData(savedInactives);
+                        const unixNow = Math.floor(Date.now() / 1000);
+                        let SpyTableObjects = [];
+                        savedInactives.forEach(inactive => {
+                            let hoursPast = unixNow - inactive.timestamp;
+                            let spyTableObject = {};
+                            spyTableObject.coords = inactive.coords;
+                            let metal = parseInt(inactive.Metaalmijn ?? 0);
+                            let crystal = parseInt(inactive.Kristalmijn ?? 0);
+                            let deut = parseInt(inactive.Deuteriumfabriek ?? 0);
+                            let plasma = parseInt(inactive.Plasmatechniek ?? 0);
+                            spyTableObject.data = inactive.Plasmatechniek ? "complete" : "incomplete";
+                            let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", metal >= 0 ? metal : 0, plasma >= 0 ? plasma : 0, 0);
+                            spyTableObject.metal = inactive.metal + metalHourlyProd / 3600 * hoursPast;
+                            let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", crystal >= 0 ? crystal : 0, plasma >= 0 ? plasma : 0, 0);
+                            spyTableObject.crystal = inactive.crystal + crystalHourlyProd / 3600 * hoursPast;
+                            let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", deut >= 0 ? deut : 0, plasma >= 0 ? plasma : 0, 0);
+                            spyTableObject.deut = inactive.deut + deutHourlyProd / 3600 * hoursPast;
+                            SpyTableObjects.push(spyTableObject);
+                        });
+                        SpyTableObjects.sort((a,b) => this.getMseValue(this.json.player.ratio, b.metal, b.crystal, b.deut) - this.getMseValue(this.json.player.ratio, a.metal, a.crystal, a.deut));
+                        console.log(SpyTableObjects);
+                    }
                 });
             }, 1500);
         }
     }
 
+    getMseValue(ratio, metal, crystal, deut){
+        return parseFloat(metal) + ratio[0] / ratio[1] * parseFloat(crystal) + ratio[0] / ratio[2] * parseFloat(deut);
+    }
+
     readSpyReportContent(spyReport){
         setTimeout(() => {
             console.log("try reading spy report");
-            console.log(spyReport);
 
             let detailMsg = document.querySelector('.detail_msg');
             if(!detailMsg) return;
 
             let details = document.querySelectorAll('.detail_txt');
-            console.log(details);
             details.forEach(detail => {
                 if(detail.innerText.slice(0, 6) === "Klasse") spyReport.Klasse = detail.innerText.split(':')[1];
                 if(detail.innerText.slice(0, 16) === "Alliantie Klasse") spyReport.AlliantieKlasse = detail.innerText.split(':')[1];
             });
 
             let detailLists = document.querySelectorAll('.detail_list');
-            console.log(detailLists);
             
             let information = [];
             detailLists.forEach(detail => {
@@ -2866,13 +2879,10 @@ class OgameHelper {
             spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? "-1";
             spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? "-1";
 
-            console.log(information);
             console.log(spyReport);
 
             let savedInactives = this.getInactiveData();
-            console.log(savedInactives);
             let savedSpyIndex = savedInactives?.findIndex(s => s.coords === spyReport.coords);
-            console.log(savedSpyIndex);
             if (savedSpyIndex == -1) return;
 
             savedInactives[savedSpyIndex].Metaalmijn = spyReport.Metaalmijn;
@@ -2896,6 +2906,7 @@ class OgameHelper {
             player.points =  parseInt(highscore.find(p => p.id == player.id).score);
         });
         inactives = inactives.filter(p => p.points > 100);
+        console.log(inactives.sort((a,b) => b.points - a.points));
         let inactivePlanets = await this.getPlanetsByFilter(inactives);
         return inactivePlanets;
     }
