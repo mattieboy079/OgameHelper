@@ -868,10 +868,16 @@ class OgameHelper {
             //TODO
             return 0;
         } else if (productionType === "Kaelesh Discoverer Enhancement" || productionType === "Kaelesh Ontdekker Verbetering" || productionType == "Rinforzo Esploratore Kaelesh"){
-            //TODO
+            if(this.json.player.playerClass === PLAYER_CLASS_EXPLORER){
+                metalProd = 0.002 * (this.calcExpoShipProd() + this.calcExpoResProd());
+                return metalProd;
+            }
             return 0;           
         } else if (productionType === "Rock’tal Collector Enhancement" || productionType === "Rock’tal Verzamelaar Verbetering" || productionType == "Potenziamento Collezionista Rock`tal"){
-            //TODO
+            if(this.json.player.playerClass === PLAYER_CLASS_COLLECTOR){
+                metalProd = 0;
+                return metalProd;
+            }
             return 0;           
         }
         
