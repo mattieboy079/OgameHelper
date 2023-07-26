@@ -180,7 +180,6 @@ class OgameHelper {
             this.json.settings.topscore = xml.querySelector("topScore").innerHTML    
             this.saveData();
         });
-        console.log("settings");
         console.log(this.json.settings);
     }
 
@@ -207,22 +206,24 @@ class OgameHelper {
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
         let processorBonus = Math.min(0.5, planet.crawlers ? Math.min(planet.crawlers, this.calcMaxCrawlers(planet)) * (this.json.player.playerClass === PLAYER_CLASS_COLLECTOR ? 0.00045 : 0.0002) : 0);
         let lifeformBonus = 0;
-        if(planet.lifeforms && planet.lifeforms.lifeformClass){
+        if(this.json.settings.lifeforms){
             let lifeformBuildingBonus = 0;
             let lifeformTechBonus = 0;
-            const buildings = planet.lifeforms.buildings;
-            if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
-                if(resource == "metal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.highEnergySmelting);
-                else if(resource == "crystal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.fusionPoweredProduction);
-                else if(resource == "deut") lifeformBuildingBonus = 0.01 * this.getLevel(buildings.fusionPoweredProduction);
-            } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                if(resource == "metal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.magmaForge);
-                else if(resource == "crystal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.crystalRefinery);
-                else if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
-            } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
+            if(planet.lifeforms && planet.lifeforms.lifeformClass){
+                const buildings = planet.lifeforms.buildings;
+                if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
+                    if(resource == "metal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.highEnergySmelting);
+                    else if(resource == "crystal") lifeformBuildingBonus = 0.015 * this.getLevel(buildings.fusionPoweredProduction);
+                    else if(resource == "deut") lifeformBuildingBonus = 0.01 * this.getLevel(buildings.fusionPoweredProduction);
+                } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
+                    if(resource == "metal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.magmaForge);
+                    else if(resource == "crystal") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.crystalRefinery);
+                    else if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
+                } else if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
+                    if(resource == "deut") lifeformBuildingBonus = 0.02 * this.getLevel(buildings.deuteriumSynthesizer);
+                }
             }
-            
+
             totalPlanets.forEach(p => {
                 let HoogwaardigeExtractoren = p.lifeforms.techs.find(tech => tech.name == "High-Performance Extractors" || tech.name == "Hoogwaardige Extractoren" || tech.name == "Estrattori ad alto rendimento")
                 if(HoogwaardigeExtractoren) lifeformTechBonus += 0.0006 * this.getLevel(HoogwaardigeExtractoren.level);
@@ -746,13 +747,12 @@ class OgameHelper {
             planets.push(planet);
 
             this.json.player.planets.forEach(p => {
-                metalProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "metal", planets) - this.getBonus(p, "metal", this.json.player.planets));
-                crystalProd += this.getRawProduction(p, "crystal", p.crystal) * (this.getBonus(p, "crystal", planets) - this.getBonus(p, "crystal", this.json.player.planets));
-                deutProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "deut", planets) - this.getBonus(p, "deut", this.json.player.planets));
+                metalProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "metal", planets) - this.getBonus(p, "metal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
+                crystalProd += this.getRawProduction(p, "crystal", p.crystal) * (this.getBonus(p, "crystal", planets) - this.getBonus(p, "crystal", this.json.player.planets))  * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
+                deutProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "deut", planets) - this.getBonus(p, "deut", this.json.player.planets)) * this.json.settings.economySpeed;
                 console.log(this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd))
             });
 
-            console.log(planets);
             metalProd += (30 + this.getRawProduction(planet, "metal", planet.metal) * (1 + this.getBonus(planet, "metal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
             crystalProd += (15 + this.getRawProduction(planet, "crystal", planet.crystal) * (1 + this.getBonus(planet, "crystal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
             deutProd += (this.getRawProduction(planet, "deut", planet.deut) * (1 + this.getBonus(planet, "deut", planets))) * this.json.settings.economySpeed;
@@ -771,9 +771,9 @@ class OgameHelper {
         } else if (productionType === "mineralResearchCentre") {
             let perc = 0.005 / (1 - 0.005 * parseInt(level))
             this.json.player.planets.forEach(p => {
-                metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
-                crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
-                deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, productionType))) * this.json.settings.economySpeed;
+                metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+                crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+                deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
             });
 
             metalProd *= perc / this.json.player.planets.length;
@@ -942,7 +942,7 @@ class OgameHelper {
      * @returns the hourly production of productionType at planet with the given level
      */
     getRawProduction(planet, productionType, level) {
-        if(level.level) level = level.level;
+        level = this.getLevel(level);
         if (productionType === "metal") {
             return 30 * level * Math.pow(1.1, level);
         } else if (productionType === "crystal") {
@@ -1431,7 +1431,7 @@ class OgameHelper {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "-", amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
-                        console.error("lifeform not found: " + planet.lifeforms.lifeformClass);
+                        console.warn("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
     
                     let amorColorTech = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);
@@ -1441,6 +1441,9 @@ class OgameHelper {
                         if(tech){
                             const level = this.getLevel(tech.level);
                             let extraMSE = this.getMSEProduction(planet, tech.name, level);
+                            if(s == 3 || s == 4 || s == 10)
+                                console.log(s + ": " + this.getBigNumber(extraMSE));
+
                             if(extraMSE > 0){
                                 let mseCost = this.getMSECosts(planet, tech.name, level);
                                 totalAmortization.push({
@@ -1612,6 +1615,7 @@ class OgameHelper {
         }
 
         avgPlanet.lifeforms = {
+            lifeformClass: planetToCreate,
             techs: [],
             buildings: {},
         }
@@ -1644,11 +1648,11 @@ class OgameHelper {
                 advancedRecyclingPlant: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.advancedRecyclingPlant))),
             }
         } else if(planetToCreate == LIFEFORM_CLASS_MENSEN){
-            console.error("Not implemented: avg Planet for humans");
+            console.warn("Not implemented: avg Planet for humans");
         } else if(planetToCreate == LIFEFORM_CLASS_MECHA){
-            console.error("Not implemented: avg Planet for mecha");
+            console.warn("Not implemented: avg Planet for mecha");
         } else if(planetToCreate == LIFEFORM_CLASS_KAELESH){
-            console.error("Not implemented: avg Planet for kaelesh");
+            console.warn("Not implemented: avg Planet for kaelesh");
         }
 
         return avgPlanet;
@@ -1698,10 +1702,17 @@ class OgameHelper {
         let totalMSECostsAstroNewExpo = 0;
         let totalMSEProdAstroNewPlanet = 0;
         let totalMSEProdAstroNewExpo = 0;
+        let newPlanetExpoBoostProduction = 0;
 
         let avgPlanet = this.getAvgPlanet();
         
         const newPlanetProduction = this.getMSEProduction(avgPlanet, "astro", undefined);
+        if(this.json.settings.lifeforms){
+            newPlanetExpoBoostProduction = avgPlanet.lifeforms.techs[3].level * this.getMSEProduction(avgPlanet, "Telekinetische Tractorstraal", avgPlanet.lifeforms.techs[3].level);
+            newPlanetExpoBoostProduction += avgPlanet.lifeforms.techs[4].level * this.getMSEProduction(avgPlanet, "Verbeterde Sensortechnologie", avgPlanet.lifeforms.techs[4].level);
+            newPlanetExpoBoostProduction += avgPlanet.lifeforms.techs[10].level * this.getMSEProduction(avgPlanet, "Zesde Zintuig", avgPlanet.lifeforms.techs[10].level);    
+        }
+
         const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
 
         const astro = this.getLevel(this.json.player.astro);
@@ -1711,24 +1722,72 @@ class OgameHelper {
             totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(astro) + 1);
         } 
 
-        let highestMetal = 0, highestCrystal = 0, highestDeut = 0; 
-        this.json.player.planets.forEach(planet => {
-            if(planet.metal > highestMetal) highestMetal = planet.metal;
-            if(planet.crystal > highestCrystal) highestCrystal = planet.crystal;
-            if(planet.deut > highestDeut) highestDeut = planet.deut;
-        });
-
-        const p = this.newPlanet("1:1:8", "temp");
-
         let newPlanetMSECost = 0;
 
-        for (let l = 0; l < highestMetal; l++) newPlanetMSECost += this.getMSECosts(p, "metal", l);
-        for (let l = 0; l < highestCrystal; l++) newPlanetMSECost += this.getMSECosts(p, "crystal", l);
-        for (let l = 0; l < highestDeut; l++) newPlanetMSECost += this.getMSECosts(p, "deut", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.metal; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "metal", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.crystal; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystal", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.deut; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deut", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.solar; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "solar", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.roboticsFactory; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "roboticsFactory", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.shipyard; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "shipyard", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.researchlab; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "researchlab", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.missileSilo; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "missileSilo", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        for (let l = 0; l < avgPlanet.nanite; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "nanite", l);
+        console.log(this.getBigNumber(newPlanetMSECost));
+        
+        if(this.json.settings.lifeforms){
+            console.log(avgPlanet.lifeforms.lifeformClass);
+            avgPlanet.lifeforms.techs.forEach(t => {
+                for (let l = 0; l < t.level; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, t.name, l);
+                console.log(this.getBigNumber(newPlanetMSECost));
+            });
+
+            switch(avgPlanet.lifeforms.lifeformClass){
+                case LIFEFORM_CLASS_ROCKTAL:
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.meditationEnclave; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "meditationEnclave", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.crystalFarm; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalFarm", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.runeTechnologium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeTechnologium", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.runeForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeForge", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.oriktorium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "oriktorium", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.magmaForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "magmaForge", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.disruptionChamber; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "disruptionChamber", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.megalith; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "megalith", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.crystalRefinery; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalRefinery", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.deuteriumSynthesizer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deuteriumSynthesizer", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.mineralResearchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "mineralResearchCentre", l);
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    for (let l = 0; l < avgPlanet.lifeforms.buildings.advancedRecyclingPlant; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "advancedRecyclingPlant", l);              
+                    console.log(this.getBigNumber(newPlanetMSECost));
+                    break;
+            }                
+        }
 
         totalMSECostsAstroNewPlanet += newPlanetMSECost;
-        totalMSEProdAstroNewPlanet += newPlanetProduction;
-
+        console.log(this.getBigNumber(totalMSECostsAstroNewPlanet));
+        totalMSEProdAstroNewPlanet += newPlanetProduction + newPlanetExpoBoostProduction;
+        console.log(this.getBigNumber(newPlanetProduction));
+        console.log(this.getBigNumber(newPlanetExpoBoostProduction));
+        console.log(this.getBigNumber(totalMSEProdAstroNewPlanet));
+        
         let astroLevelStringNewPlanet = (parseInt(astro) + 1)
         
         if(astro % 2 == 1){
@@ -1908,13 +1967,13 @@ class OgameHelper {
 
         switch(planet.lifeforms.lifeformClass){
             case LIFEFORM_CLASS_MENSEN:
-                console.error("Lifeform '" + lifeform + "' not configured.");
+                console.warn("Lifeform '" + lifeform + "' not configured.");
                 return 0;
             case LIFEFORM_CLASS_MECHA:
-                console.error("Lifeform '" + lifeform + "' not configured.");
+                console.warn("Lifeform '" + lifeform + "' not configured.");
                 return 0;
             case LIFEFORM_CLASS_KAELESH:
-                console.error("Lifeform '" + lifeform + "' not configured.");
+                console.warn("Lifeform '" + lifeform + "' not configured.");
                 return 0;
             case LIFEFORM_CLASS_ROCKTAL:
                 popCapacityBase = 150;
@@ -1933,7 +1992,7 @@ class OgameHelper {
                 t3popBuildingName = "oriktorium";
                 break;
             default:
-                console.error("Lifeform '" + lifeform + "' not found.");
+                console.warn("Lifeform '" + lifeform + "' not found.");
                 return 0;
         }
 
@@ -3010,13 +3069,15 @@ class OgameHelper {
                 }
             });
 
-            spyReport.Metaalmijn = information.find(x => x.name == "Metaalmijn")?.level ?? "-1";
-            spyReport.Kristalmijn = information.find(x => x.name == "Kristalmijn")?.level ?? "-1";
-            spyReport.Deuteriumfabriek = information.find(x => x.name == "Deuteriumfabriek")?.level ?? "-1";
-            spyReport.Metaalopslag = information.find(x => x.name == "Metaalopslag")?.level ?? "-1";
-            spyReport.Kristalopslag = information.find(x => x.name == "Kristalopslag")?.level ?? "-1";
-            spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? "-1";
-            spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? "-1";
+            console.log(information);
+            if(information[3] == '' && information[4] == '' && information[5] == '') return;
+            spyReport.Metaalmijn = information.find(x => x.name == "Metaalmijn")?.level ?? "0";
+            spyReport.Kristalmijn = information.find(x => x.name == "Kristalmijn")?.level ?? "0";
+            spyReport.Deuteriumfabriek = information.find(x => x.name == "Deuteriumfabriek")?.level ?? "0";
+            spyReport.Metaalopslag = information.find(x => x.name == "Metaalopslag")?.level ?? "0";
+            spyReport.Kristalopslag = information.find(x => x.name == "Kristalopslag")?.level ?? "0";
+            spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? "0";
+            spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? "0";
 
             console.log(spyReport);
 
@@ -3040,9 +3101,11 @@ class OgameHelper {
     async getInactivePlanets(){
         let players = await getPlayers(UNIVERSE);
         let highscore = await getHighscore(UNIVERSE, 1, 0);
+        console.log(highscore);
         let inactives = players.filter(p => p.status?.toLowerCase() == 'i');
         inactives.forEach(player => {
-            player.points =  parseInt(highscore.find(p => p.id == player.id).score);
+            console.log(player);
+            player.points = parseInt(highscore.find(p => p.id == player.id)?.score ?? -1);
         });
         inactives = inactives.filter(p => p.points > 100);
         console.log(inactives.sort((a,b) => b.points - a.points));
@@ -3229,7 +3292,7 @@ class OgameHelper {
         for(let i = 1; i <= 4; i++){
             if(document.querySelector(".technology.lifeformTech1" + i + "2" + slot)){
                 return {
-                    name: document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("title").split("<br/>")[0],
+                    name: document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("title").split("<br/>")[0].replace("\n", ""),
                     level: this.getTechnologyLevel("lifeformTech1" + i + "2" + slot)
                 }
             }    
@@ -3249,7 +3312,7 @@ class OgameHelper {
         } else if (document.querySelector("#lifeform .lifeform4")) {
             lifeformClass = LIFEFORM_CLASS_KAELESH;
         } else {
-            console.error("Unknown lifeform: " + document.querySelector("#lifeform"));
+            console.warn("Unknown lifeform: " + document.querySelector("#lifeform"));
         }
 
         if(!planet.lifeforms) planet.lifeforms = {};
