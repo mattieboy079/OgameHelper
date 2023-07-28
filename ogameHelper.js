@@ -1632,6 +1632,35 @@ class OgameHelper {
         }
         console.log(avgPlanet);
 
+
+        if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA){
+            buildings.assemblyLine = this.getTechnologyLevel("lifeformTech13101");
+            buildings.fusionCellFactory = this.getTechnologyLevel("lifeformTech13102");
+            buildings.roboticsResearchCentre = this.getTechnologyLevel("lifeformTech13103");
+            buildings.updateNetwork = this.getTechnologyLevel("lifeformTech13104");
+            buildings.quantumComputerCentre = this.getTechnologyLevel("lifeformTech13105");
+            buildings.automatisedAssemblyCentre = this.getTechnologyLevel("lifeformTech13106");
+            buildings.highPerformanceTransformer = this.getTechnologyLevel("lifeformTech13107");
+            buildings.microchipAssemblyLine =this.getTechnologyLevel("lifeformTech13108");
+            buildings.productionAssemblyHall = this.getTechnologyLevel("lifeformTech13109");
+            buildings.highPerformanceSynthesizer = this.getTechnologyLevel("lifeformTech13110");
+            buildings.chipMassProduction = this.getTechnologyLevel("lifeformTech13111");
+            buildings.nanoRepairBots = this.getTechnologyLevel("lifeformTech13112");
+        } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH){
+            buildings.sanctuary = this.getTechnologyLevel("lifeformTech14101");
+            buildings.antimatterCondenser = this.getTechnologyLevel("lifeformTech14102");
+            buildings.vortexChamber = this.getTechnologyLevel("lifeformTech14103");
+            buildings.hallsOfRealisation = this.getTechnologyLevel("lifeformTech14104");
+            buildings.forumOfTranscendence = this.getTechnologyLevel("lifeformTech14105");
+            buildings.antimatterConvector = this.getTechnologyLevel("lifeformTech14106");
+            buildings.cloningLaboratory = this.getTechnologyLevel("lifeformTech14107");
+            buildings.chrysalisAccelerator =this.getTechnologyLevel("lifeformTech14108");
+            buildings.bioModifier = this.getTechnologyLevel("lifeformTech14109");
+            buildings.psionicModulator = this.getTechnologyLevel("lifeformTech14110");
+            buildings.shipManufacturingHall = this.getTechnologyLevel("lifeformTech14111");
+            buildings.supraRefractor = this.getTechnologyLevel("lifeformTech14112");
+        } 
+
         if(planetToCreate == LIFEFORM_CLASS_ROCKTAL){
             avgPlanet.lifeforms.buildings = {
                 meditationEnclave: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.meditationEnclave))),
@@ -1648,11 +1677,50 @@ class OgameHelper {
                 advancedRecyclingPlant: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.advancedRecyclingPlant))),
             }
         } else if(planetToCreate == LIFEFORM_CLASS_MENSEN){
-            console.warn("Not implemented: avg Planet for humans");
+            avgPlanet.lifeforms.buildings = {
+                residentialSector: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.residentialSector))),
+                biosphereFarm: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.biosphereFarm))),
+                researchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.researchCentre))),
+                academyOfSciences: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.academyOfSciences))),
+                neuroCalibrationCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.neuroCalibrationCentre))),
+                highEnergySmelting: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.highEnergySmelting))),
+                foodSilo: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.foodSilo))),
+                fusionPoweredProduction: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.fusionPoweredProduction))),
+                skyscraper: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.skyscraper))),
+                biotechLab: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.biotechLab))),
+                metropolis: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.metropolis))),
+                planetaryShield: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.planetaryShield))),             
+            }            
         } else if(planetToCreate == LIFEFORM_CLASS_MECHA){
-            console.warn("Not implemented: avg Planet for mecha");
+            avgPlanet.lifeforms.buildings = {
+                assemblyLine: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.assemblyLine))),
+                fusionCellFactory: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.fusionCellFactory))),
+                roboticsResearchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.roboticsResearchCentre))),
+                updateNetwork: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.updateNetwork))),
+                quantumComputerCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.quantumComputerCentre))),
+                automatisedAssemblyCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.automatisedAssemblyCentre))),
+                highPerformanceTransformer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.highPerformanceTransformer))),
+                microchipAssemblyLine: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.microchipAssemblyLine))),
+                productionAssemblyHall: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.productionAssemblyHall))),
+                highPerformanceSynthesizer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.highPerformanceSynthesizer))),
+                chipMassProduction: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.chipMassProduction))),
+                nanoRepairBots: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.nanoRepairBots))),             
+            }
         } else if(planetToCreate == LIFEFORM_CLASS_KAELESH){
-            console.warn("Not implemented: avg Planet for kaelesh");
+            avgPlanet.lifeforms.buildings = {
+                sanctuary: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.sanctuary))),
+                antimatterCondenser: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.antimatterCondenser))),
+                vortexChamber: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.vortexChamber))),
+                hallsOfRealisation: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.hallsOfRealisation))),
+                forumOfTranscendence: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.forumOfTranscendence))),
+                antimatterConvector: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.antimatterConvector))),
+                cloningLaboratory: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.cloningLaboratory))),
+                chrysalisAccelerator: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.chrysalisAccelerator))),
+                bioModifier: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.bioModifier))),
+                psionicModulator: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.psionicModulator))),
+                shipManufacturingHall: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.shipManufacturingHall))),
+                supraRefractor: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.supraRefractor))),                        
+            }
         }
 
         return avgPlanet;
@@ -3338,6 +3406,9 @@ class OgameHelper {
             console.warn("Unknown lifeform: " + document.querySelector("#lifeform"));
         }
 
+        if(lifeformClass == "none") return planet;
+
+        
         if(!planet.lifeforms) planet.lifeforms = {};
 
         if(!planet.lifeforms.lifeformClass || lifeformClass != planet.lifeforms.lifeformClass){
