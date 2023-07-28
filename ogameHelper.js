@@ -1205,7 +1205,7 @@ class OgameHelper {
             
             if(planet.lifeforms){
                 if(planet.lifeforms.buildings){
-                    Object.entries(planet.lifeforms.buildings).forEach(([key, value]) => {
+                    Object.entries(planet.lifeforms.buildings)?.forEach(([key, value]) => {
                         if(value.timeFinished) blocked.push({coords: planet.coords, type: "lifeformbuilding", timeFinished: value.timeFinished});                    
                     })    
                 }
@@ -1877,7 +1877,7 @@ class OgameHelper {
             case 0:
                 return ["Catalyser Technology"];
             case 1:
-                return ["Acoustic Scanning", "Sulphide Process"];
+                return ["Acoustic Scanning", "Sulphide Process", "High-Performance Extractors"];
             case 2:
                 return ["High Energy Pump Systems"];
             case 3:
@@ -1967,13 +1967,36 @@ class OgameHelper {
 
         switch(planet.lifeforms.lifeformClass){
             case LIFEFORM_CLASS_MENSEN:
-                console.warn("Lifeform '" + lifeform + "' not configured.");
+                popCapacityBase = 210;
+                popCapacityFactor = 1.21;
+                foodConsBase = 5;
+                foodConsFactor = 1.15;
+                foodProdBase = 10;
+                foodProdFactor = 1.14;
+                quartersLevel = this.getLevel(planet.lifeforms.buildings.residentialSector);
+                quartersName = "residentialSector";
+                foodLevel = this.getLevel(planet.lifeforms.buildings.biosphereFarm);
+                foodName = "biosphereFarm";
+                t2popBuildingLevel = this.getLevel(planet.lifeforms.buildings.academyOfSciences);
+                t2popBuildingName = "academyOfSciences";
+                t3popBuildingLevel = this.getLevel(planet.lifeforms.buildings.neuroCalibrationCentre);
+                t3popBuildingName = "neuroCalibrationCentre";
                 return 0;
             case LIFEFORM_CLASS_MECHA:
-                console.warn("Lifeform '" + lifeform + "' not configured.");
-                return 0;
-            case LIFEFORM_CLASS_KAELESH:
-                console.warn("Lifeform '" + lifeform + "' not configured.");
+                popCapacityBase = 500;
+                popCapacityFactor = 1.205;
+                foodConsBase = 5;
+                foodConsFactor = 1.15;
+                foodProdBase = 6;
+                foodProdFactor = 1.12;
+                quartersLevel = this.getLevel(planet.lifeforms.buildings.assemblyLine);
+                quartersName = "assemblyLine";
+                foodLevel = this.getLevel(planet.lifeforms.buildings.fusionCellFactory);
+                foodName = "fusionCellFactory";
+                t2popBuildingLevel = this.getLevel(planet.lifeforms.buildings.updateNetwork);
+                t2popBuildingName = "updateNetwork";
+                t3popBuildingLevel = this.getLevel(planet.lifeforms.buildings.quantumComputerCentre);
+                t3popBuildingName = "quantumComputerCentre";
                 return 0;
             case LIFEFORM_CLASS_ROCKTAL:
                 popCapacityBase = 150;
@@ -1992,7 +2015,7 @@ class OgameHelper {
                 t3popBuildingName = "oriktorium";
                 break;
             default:
-                console.warn("Lifeform '" + lifeform + "' not found.");
+                console.warn("Lifeform '" + planet.lifeforms.lifeformClass + "' not found.");
                 return 0;
         }
 
@@ -2930,112 +2953,112 @@ class OgameHelper {
                 this.saveData();
             }, 50);
         } else if (page === MESSAGES) {
-            setTimeout(() => {
-                let savedInactives = this.getInactiveData();
-                console.log(savedInactives);
+            // setTimeout(() => {
+            //     let savedInactives = this.getInactiveData();
+            //     console.log(savedInactives);
 
-                let messageElements = document.querySelectorAll('.msg');
-                if(messageElements){
-                    console.log(messageElements);
-                    messageElements.forEach(message => {
-                        let isInactive = message.querySelector('.status_abbr_inactive') || message.querySelector('.status_abbr_longinactive');
-                        if(!isInactive) return;
+            //     let messageElements = document.querySelectorAll('.msg');
+            //     if(messageElements){
+            //         console.log(messageElements);
+            //         messageElements.forEach(message => {
+            //             let isInactive = message.querySelector('.status_abbr_inactive') || message.querySelector('.status_abbr_longinactive');
+            //             if(!isInactive) return;
 
-                        let title = message.querySelector('.msg_title.blue_txt a')
-                        let href = title.getAttribute('href');
-                        let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
-                        let x = coordinates[1];
-                        let y = coordinates[2];
-                        let z = coordinates[3];
-                        let coords = x + ':' + y + ':' + z;
+            //             let title = message.querySelector('.msg_title.blue_txt a')
+            //             let href = title.getAttribute('href');
+            //             let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
+            //             let x = coordinates[1];
+            //             let y = coordinates[2];
+            //             let z = coordinates[3];
+            //             let coords = x + ':' + y + ':' + z;
 
-                        let timestamp = message.querySelector('.msg_date').textContent;
-                        let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
-                        // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
-                        let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
-                        let unixTimestamp = dateObject.getTime() / 1000;
+            //             let timestamp = message.querySelector('.msg_date').textContent;
+            //             let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
+            //             // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
+            //             let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
+            //             let unixTimestamp = dateObject.getTime() / 1000;
 
 
-                        if(savedInactives == null) savedInactives = [];
-                        let savedSpyIndex = savedInactives?.findIndex(s => s.coords === coords);
-                        let savedSpyReport = savedInactives[savedSpyIndex];
+            //             if(savedInactives == null) savedInactives = [];
+            //             let savedSpyIndex = savedInactives?.findIndex(s => s.coords === coords);
+            //             let savedSpyReport = savedInactives[savedSpyIndex];
 
-                        if (savedSpyIndex != -1 && unixTimestamp <= savedSpyReport.timestamp) {
-                            console.log(savedSpyReport.Plasmatechniek == undefined);
-                            console.log(savedSpyReport.Plasmatechniek == "-1");
-                            if(savedSpyReport.Plasmatechniek == undefined || savedSpyReport.Plasmatechniek == "-1"){
-                                let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                                console.log(button);
-                                button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });    
-                            }    
-                            return;
-                        };
+            //             if (savedSpyIndex != -1 && unixTimestamp <= savedSpyReport.timestamp) {
+            //                 console.log(savedSpyReport.Plasmatechniek == undefined);
+            //                 console.log(savedSpyReport.Plasmatechniek == "-1");
+            //                 if(savedSpyReport.Plasmatechniek == undefined || savedSpyReport.Plasmatechniek == "-1"){
+            //                     let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
+            //                     console.log(button);
+            //                     button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });    
+            //                 }    
+            //                 return;
+            //             };
 
-                        let res = message.innerText.split('\n')[13].split(': ');
-                        let metal = res[1].replace('Kristal', '');
-                        let crystal = res[2].replace('Deuterium', '');
-                        let deut = res[3];
+            //             let res = message.innerText.split('\n')[13].split(': ');
+            //             let metal = res[1].replace('Kristal', '');
+            //             let crystal = res[2].replace('Deuterium', '');
+            //             let deut = res[3];
 
-                        if(metal.includes('M')) metal = parseFloat(metal.replace('M', '').replace(',', '.')) * 1000000; else metal = parseFloat(metal.replace('.', ''));
-                        if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
-                        if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));                        
+            //             if(metal.includes('M')) metal = parseFloat(metal.replace('M', '').replace(',', '.')) * 1000000; else metal = parseFloat(metal.replace('.', ''));
+            //             if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
+            //             if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));                        
                         
-                        let spyReport = {
-                            msgId: message.dataset.msgId,
-                            timestamp: unixTimestamp,
-                            coords: coords,
-                            metal: metal,
-                            crystal: crystal,
-                            deut: deut,
-                        }
+            //             let spyReport = {
+            //                 msgId: message.dataset.msgId,
+            //                 timestamp: unixTimestamp,
+            //                 coords: coords,
+            //                 metal: metal,
+            //                 crystal: crystal,
+            //                 deut: deut,
+            //             }
 
-                        if(savedSpyIndex == -1){
-                            savedInactives.push(spyReport);
-                            savedSpyIndex = savedInactives.length - 1;
-                        } else {
-                            savedInactives[savedSpyIndex].msgId = spyReport.msgId;
-                            savedInactives[savedSpyIndex].timestamp = spyReport.timestamp;
-                            savedInactives[savedSpyIndex].metal = spyReport.metal;
-                            savedInactives[savedSpyIndex].crystal = spyReport.crystal;
-                            savedInactives[savedSpyIndex].deut = spyReport.deut;          
-                        }
+            //             if(savedSpyIndex == -1){
+            //                 savedInactives.push(spyReport);
+            //                 savedSpyIndex = savedInactives.length - 1;
+            //             } else {
+            //                 savedInactives[savedSpyIndex].msgId = spyReport.msgId;
+            //                 savedInactives[savedSpyIndex].timestamp = spyReport.timestamp;
+            //                 savedInactives[savedSpyIndex].metal = spyReport.metal;
+            //                 savedInactives[savedSpyIndex].crystal = spyReport.crystal;
+            //                 savedInactives[savedSpyIndex].deut = spyReport.deut;          
+            //             }
 
-                        let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                        console.log(button);
-                        button.addEventListener('click', () => { this.readSpyReportContent(savedInactives[savedSpyIndex]) });
-                    });
-                    console.log(savedInactives);    
-                }
+            //             let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
+            //             console.log(button);
+            //             button.addEventListener('click', () => { this.readSpyReportContent(savedInactives[savedSpyIndex]) });
+            //         });
+            //         console.log(savedInactives);    
+            //     }
 
-                this.getInactivePlanets().then(planets => {
-                    console.log(planets);
-                    if(savedInactives?.length > 0){
-                        savedInactives = savedInactives.filter(i => planets.some(p => p.coords === i.coords));
-                        this.saveInactiveData(savedInactives);
-                        const unixNow = Math.floor(Date.now() / 1000);
-                        let SpyTableObjects = [];
-                        savedInactives.forEach(inactive => {
-                            let hoursPast = unixNow - inactive.timestamp;
-                            let spyTableObject = {};
-                            spyTableObject.coords = inactive.coords;
-                            let metal = parseInt(inactive.Metaalmijn ?? 0);
-                            let crystal = parseInt(inactive.Kristalmijn ?? 0);
-                            let deut = parseInt(inactive.Deuteriumfabriek ?? 0);
-                            let plasma = parseInt(inactive.Plasmatechniek ?? 0);
-                            spyTableObject.data = inactive.Plasmatechniek ? "complete" : "incomplete";
-                            let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", metal >= 0 ? metal : 0, plasma >= 0 ? plasma : 0, 0);
-                            spyTableObject.metal = inactive.metal + metalHourlyProd / 3600 * hoursPast;
-                            let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", crystal >= 0 ? crystal : 0, plasma >= 0 ? plasma : 0, 0);
-                            spyTableObject.crystal = inactive.crystal + crystalHourlyProd / 3600 * hoursPast;
-                            let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", deut >= 0 ? deut : 0, plasma >= 0 ? plasma : 0, 0);
-                            spyTableObject.deut = inactive.deut + deutHourlyProd / 3600 * hoursPast;
-                            SpyTableObjects.push(spyTableObject);
-                        });
-                        SpyTableObjects.sort((a,b) => this.getMseValue(this.json.player.ratio, b.metal, b.crystal, b.deut) - this.getMseValue(this.json.player.ratio, a.metal, a.crystal, a.deut));
-                        console.log(SpyTableObjects);
-                    }
-                });
-            }, 1500);
+            //     this.getInactivePlanets().then(planets => {
+            //         console.log(planets);
+            //         if(savedInactives?.length > 0){
+            //             savedInactives = savedInactives.filter(i => planets.some(p => p.coords === i.coords));
+            //             this.saveInactiveData(savedInactives);
+            //             const unixNow = Math.floor(Date.now() / 1000);
+            //             let SpyTableObjects = [];
+            //             savedInactives.forEach(inactive => {
+            //                 let hoursPast = unixNow - inactive.timestamp;
+            //                 let spyTableObject = {};
+            //                 spyTableObject.coords = inactive.coords;
+            //                 let metal = parseInt(inactive.Metaalmijn ?? 0);
+            //                 let crystal = parseInt(inactive.Kristalmijn ?? 0);
+            //                 let deut = parseInt(inactive.Deuteriumfabriek ?? 0);
+            //                 let plasma = parseInt(inactive.Plasmatechniek ?? 0);
+            //                 spyTableObject.data = inactive.Plasmatechniek ? "complete" : "incomplete";
+            //                 let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", metal >= 0 ? metal : 0, plasma >= 0 ? plasma : 0, 0);
+            //                 spyTableObject.metal = inactive.metal + metalHourlyProd / 3600 * hoursPast;
+            //                 let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", crystal >= 0 ? crystal : 0, plasma >= 0 ? plasma : 0, 0);
+            //                 spyTableObject.crystal = inactive.crystal + crystalHourlyProd / 3600 * hoursPast;
+            //                 let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", deut >= 0 ? deut : 0, plasma >= 0 ? plasma : 0, 0);
+            //                 spyTableObject.deut = inactive.deut + deutHourlyProd / 3600 * hoursPast;
+            //                 SpyTableObjects.push(spyTableObject);
+            //             });
+            //             SpyTableObjects.sort((a,b) => this.getMseValue(this.json.player.ratio, b.metal, b.crystal, b.deut) - this.getMseValue(this.json.player.ratio, a.metal, a.crystal, a.deut));
+            //             console.log(SpyTableObjects);
+            //         }
+            //     });
+            // }, 1500);
         }
     }
 
