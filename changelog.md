@@ -1,2 +1,0 @@
-- Enhancement: Astro ROI houdt nu rekening met lifeform gebouwen, onderzoeken en de bonus die over de oude planeten heen gaat
-- Bugfix: Hoogwaardige extractoren zit nu in het rijtje van voorgestelde techs
