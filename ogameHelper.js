@@ -750,13 +750,11 @@ class OgameHelper {
                 metalProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "metal", planets) - this.getBonus(p, "metal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
                 crystalProd += this.getRawProduction(p, "crystal", p.crystal) * (this.getBonus(p, "crystal", planets) - this.getBonus(p, "crystal", this.json.player.planets))  * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
                 deutProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "deut", planets) - this.getBonus(p, "deut", this.json.player.planets)) * this.json.settings.economySpeed;
-                console.log(this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd))
             });
 
             metalProd += (30 + this.getRawProduction(planet, "metal", planet.metal) * (1 + this.getBonus(planet, "metal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
             crystalProd += (15 + this.getRawProduction(planet, "crystal", planet.crystal) * (1 + this.getBonus(planet, "crystal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
             deutProd += (this.getRawProduction(planet, "deut", planet.deut) * (1 + this.getBonus(planet, "deut", planets))) * this.json.settings.economySpeed;
-            console.log(this.getBigNumber(metalProd) + " - " + this.getBigNumber(crystalProd) + " - " + this.getBigNumber(deutProd))
         } else if (productionType === "highEnergySmelting") {
             metalProd = 0.015 * this.getRawProduction(planet, "metal", planet.metal) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
         } else if (productionType === "fusionPoweredProduction") {
@@ -1441,8 +1439,6 @@ class OgameHelper {
                         if(tech){
                             const level = this.getLevel(tech.level);
                             let extraMSE = this.getMSEProduction(planet, tech.name, level);
-                            if(s == 3 || s == 4 || s == 10)
-                                console.log(s + ": " + this.getBigNumber(extraMSE));
 
                             if(extraMSE > 0){
                                 let mseCost = this.getMSECosts(planet, tech.name, level);
@@ -1630,36 +1626,6 @@ class OgameHelper {
                 });
             }
         }
-        console.log(avgPlanet);
-
-
-        if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA){
-            buildings.assemblyLine = this.getTechnologyLevel("lifeformTech13101");
-            buildings.fusionCellFactory = this.getTechnologyLevel("lifeformTech13102");
-            buildings.roboticsResearchCentre = this.getTechnologyLevel("lifeformTech13103");
-            buildings.updateNetwork = this.getTechnologyLevel("lifeformTech13104");
-            buildings.quantumComputerCentre = this.getTechnologyLevel("lifeformTech13105");
-            buildings.automatisedAssemblyCentre = this.getTechnologyLevel("lifeformTech13106");
-            buildings.highPerformanceTransformer = this.getTechnologyLevel("lifeformTech13107");
-            buildings.microchipAssemblyLine =this.getTechnologyLevel("lifeformTech13108");
-            buildings.productionAssemblyHall = this.getTechnologyLevel("lifeformTech13109");
-            buildings.highPerformanceSynthesizer = this.getTechnologyLevel("lifeformTech13110");
-            buildings.chipMassProduction = this.getTechnologyLevel("lifeformTech13111");
-            buildings.nanoRepairBots = this.getTechnologyLevel("lifeformTech13112");
-        } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH){
-            buildings.sanctuary = this.getTechnologyLevel("lifeformTech14101");
-            buildings.antimatterCondenser = this.getTechnologyLevel("lifeformTech14102");
-            buildings.vortexChamber = this.getTechnologyLevel("lifeformTech14103");
-            buildings.hallsOfRealisation = this.getTechnologyLevel("lifeformTech14104");
-            buildings.forumOfTranscendence = this.getTechnologyLevel("lifeformTech14105");
-            buildings.antimatterConvector = this.getTechnologyLevel("lifeformTech14106");
-            buildings.cloningLaboratory = this.getTechnologyLevel("lifeformTech14107");
-            buildings.chrysalisAccelerator =this.getTechnologyLevel("lifeformTech14108");
-            buildings.bioModifier = this.getTechnologyLevel("lifeformTech14109");
-            buildings.psionicModulator = this.getTechnologyLevel("lifeformTech14110");
-            buildings.shipManufacturingHall = this.getTechnologyLevel("lifeformTech14111");
-            buildings.supraRefractor = this.getTechnologyLevel("lifeformTech14112");
-        } 
 
         if(planetToCreate == LIFEFORM_CLASS_ROCKTAL){
             avgPlanet.lifeforms.buildings = {
@@ -1792,69 +1758,41 @@ class OgameHelper {
 
         let newPlanetMSECost = 0;
 
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.metal; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "metal", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.crystal; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystal", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.deut; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deut", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.solar; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "solar", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.roboticsFactory; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "roboticsFactory", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.shipyard; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "shipyard", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.researchlab; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "researchlab", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.missileSilo; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "missileSilo", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         for (let l = 0; l < avgPlanet.nanite; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "nanite", l);
-        console.log(this.getBigNumber(newPlanetMSECost));
         
         if(this.json.settings.lifeforms){
-            console.log(avgPlanet.lifeforms.lifeformClass);
             avgPlanet.lifeforms.techs.forEach(t => {
                 for (let l = 0; l < t.level; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, t.name, l);
-                console.log(this.getBigNumber(newPlanetMSECost));
             });
 
             switch(avgPlanet.lifeforms.lifeformClass){
                 case LIFEFORM_CLASS_ROCKTAL:
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.meditationEnclave; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "meditationEnclave", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.crystalFarm; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalFarm", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.runeTechnologium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeTechnologium", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.runeForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeForge", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.oriktorium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "oriktorium", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.magmaForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "magmaForge", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.disruptionChamber; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "disruptionChamber", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.megalith; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "megalith", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.crystalRefinery; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalRefinery", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.deuteriumSynthesizer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deuteriumSynthesizer", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.mineralResearchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "mineralResearchCentre", l);
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     for (let l = 0; l < avgPlanet.lifeforms.buildings.advancedRecyclingPlant; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "advancedRecyclingPlant", l);              
-                    console.log(this.getBigNumber(newPlanetMSECost));
                     break;
             }                
         }
 
         totalMSECostsAstroNewPlanet += newPlanetMSECost;
-        console.log(this.getBigNumber(totalMSECostsAstroNewPlanet));
         totalMSEProdAstroNewPlanet += newPlanetProduction + newPlanetExpoBoostProduction;
-        console.log(this.getBigNumber(newPlanetProduction));
-        console.log(this.getBigNumber(newPlanetExpoBoostProduction));
-        console.log(this.getBigNumber(totalMSEProdAstroNewPlanet));
         
         let astroLevelStringNewPlanet = (parseInt(astro) + 1)
         
