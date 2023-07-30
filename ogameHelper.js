@@ -225,38 +225,38 @@ class OgameHelper {
             }
 
             totalPlanets.forEach(p => {
-                let HoogwaardigeExtractoren = p.lifeforms.techs.find(tech => tech.name == "High-Performance Extractors" || tech.name == "Hoogwaardige Extractoren" || tech.name == "Estrattori ad alto rendimento")
+                let HoogwaardigeExtractoren = p.lifeforms?.techs?.find(tech => tech.name == "High-Performance Extractors" || tech.name == "Hoogwaardige Extractoren" || tech.name == "Estrattori ad alto rendimento")
                 if(HoogwaardigeExtractoren) lifeformTechBonus += 0.0006 * this.getLevel(HoogwaardigeExtractoren.level);
-                let MagmaPoweredProduction = p.lifeforms.techs.find(tech => tech.name == "Magma-Powered Production" || tech.name == "Magma-Aangedreven Productie" || tech.name == "Tecniche estrattive magmatiche")
+                let MagmaPoweredProduction = p.lifeforms?.techs?.find(tech => tech.name == "Magma-Powered Production" || tech.name == "Magma-Aangedreven Productie" || tech.name == "Tecniche estrattive magmatiche")
                 if(MagmaPoweredProduction) lifeformTechBonus += 0.0008 * this.getLevel(MagmaPoweredProduction.level);
-                let GeautomatiseerdeTransportlijnen = p.lifeforms.techs.find(tech => tech.name == "Automated Transport Lines" || tech.name == "Geautomatiseerde Transportlijnen" || tech.name == "Linee di trasporto automatizzate")
+                let GeautomatiseerdeTransportlijnen = p.lifeforms?.techs?.find(tech => tech.name == "Automated Transport Lines" || tech.name == "Geautomatiseerde Transportlijnen" || tech.name == "Linee di trasporto automatizzate")
                 if(GeautomatiseerdeTransportlijnen) lifeformTechBonus += 0.0006 * this.getLevel(GeautomatiseerdeTransportlijnen.level);
-                let VerbeterdeProductieTechnologien = p.lifeforms.techs.find(tech => tech.name == "Enhanced Production Technologies" || tech.name == "Verbeterde Productie Technologiën" || tech.name == "Tecnologie di estrazione migliorate")
+                let VerbeterdeProductieTechnologien = p.lifeforms?.techs?.find(tech => tech.name == "Enhanced Production Technologies" || tech.name == "Verbeterde Productie Technologiën" || tech.name == "Tecnologie di estrazione migliorate")
                 if(VerbeterdeProductieTechnologien) lifeformTechBonus += 0.0006 * this.getLevel(VerbeterdeProductieTechnologien.level);
-                let Psychoharmonisator = p.lifeforms.techs.find(tech => tech.name == "Psychoharmoniser" || tech.name == "Psychoharmonisator" || tech.name == "Armonizzatore psicologico")
+                let Psychoharmonisator = p.lifeforms?.techs?.find(tech => tech.name == "Psychoharmoniser" || tech.name == "Psychoharmonisator" || tech.name == "Armonizzatore psicologico")
                 if(Psychoharmonisator) lifeformTechBonus += 0.0006 * this.getLevel(Psychoharmonisator.level);
-                let ArtificialSwarmIntelligence = p.lifeforms.techs.find(tech => tech.name == "Artificial Swarm Intelligence" || tech.name === "Artificiële Zwerm Intelligentie" || tech.name == "Intelligenza collettiva artificiale")
+                let ArtificialSwarmIntelligence = p.lifeforms?.techs?.find(tech => tech.name == "Artificial Swarm Intelligence" || tech.name === "Artificiële Zwerm Intelligentie" || tech.name == "Intelligenza collettiva artificiale")
                 if(ArtificialSwarmIntelligence) lifeformTechBonus += 0.0006 * this.getLevel(ArtificialSwarmIntelligence.level);
                 
                 if(resource == "metal"){
-                    let Dieptepeiling = p.lifeforms.techs.find(tech => tech.name == "Depth Souding" || tech.name == "Dieptepeiling" || tech.name == "Sondaggio da alte profondità")
+                    let Dieptepeiling = p.lifeforms?.techs?.find(tech => tech.name == "Depth Souding" || tech.name == "Dieptepeiling" || tech.name == "Sondaggio da alte profondità")
                     if(Dieptepeiling) lifeformTechBonus += 0.0008 * this.getLevel(Dieptepeiling.level);
-                    let VerhardeDiamantenBoorkoppen = p.lifeforms.techs.find(tech => tech.name == "Hardened Diamond Drill Heads" || tech.name == "Verharde Diamanten Boorkoppen" || tech.name == "Punte di diamante irrobustite")
+                    let VerhardeDiamantenBoorkoppen = p.lifeforms?.techs?.find(tech => tech.name == "Hardened Diamond Drill Heads" || tech.name == "Verharde Diamanten Boorkoppen" || tech.name == "Punte di diamante irrobustite")
                     if(VerhardeDiamantenBoorkoppen) lifeformTechBonus += 0.0008 * this.getLevel(VerhardeDiamantenBoorkoppen.level);
                 }
                 else if(resource == "crystal"){
-                    let AkoestischScannen = p.lifeforms.techs.find(tech => tech.name == "Acoustic Scanning" || tech.name == "Akoestisch Scannen" || tech.name == "Sondaggio acustico")
+                    let AkoestischScannen = p.lifeforms?.techs?.find(tech => tech.name == "Acoustic Scanning" || tech.name == "Akoestisch Scannen" || tech.name == "Sondaggio acustico")
                     if(AkoestischScannen) lifeformTechBonus += 0.0008 * this.getLevel(AkoestischScannen.level);
-                    let SeismischeMijntechnologie = p.lifeforms.techs.find(tech => tech.name == "Seismic Mining Technology" || tech.name == "Seismische Mijntechnologie" || tech.name == "Tecnologie minerarie sismiche")
+                    let SeismischeMijntechnologie = p.lifeforms?.techs?.find(tech => tech.name == "Seismic Mining Technology" || tech.name == "Seismische Mijntechnologie" || tech.name == "Tecnologie minerarie sismiche")
                     if(SeismischeMijntechnologie) lifeformTechBonus += 0.0008 * this.getLevel(SeismischeMijntechnologie.level);
                 } else if (resource == "deut"){
-                    let HogeEnergiePompSystemen = p.lifeforms.techs.find(tech => tech.name == "High Energy Pump Systems" || tech.name == "Hoge Energie Pomp Systemen" || tech.name == "Sistemi di pompaggio ad alta energia")
+                    let HogeEnergiePompSystemen = p.lifeforms?.techs?.find(tech => tech.name == "High Energy Pump Systems" || tech.name == "Hoge Energie Pomp Systemen" || tech.name == "Sistemi di pompaggio ad alta energia")
                     if(HogeEnergiePompSystemen) lifeformTechBonus += 0.0008 * this.getLevel(HogeEnergiePompSystemen.level);
-                    let Katalysatortechnologie = p.lifeforms.techs.find(tech => tech.name == "Catalyser Technology" || tech.name == "Katalysatortechnologie" || tech.name == "Tecnologia Catalizzatore")
+                    let Katalysatortechnologie = p.lifeforms?.techs?.find(tech => tech.name == "Catalyser Technology" || tech.name == "Katalysatortechnologie" || tech.name == "Tecnologia Catalizzatore")
                     if(Katalysatortechnologie) lifeformTechBonus += 0.0008 * this.getLevel(Katalysatortechnologie.level);
-                    let Sulfideproces = p.lifeforms.techs.find(tech => tech.name == "Sulphide Process" || tech.name == "Sulfideproces" || tech.name == "Tecnologia Processo al solfuro")
+                    let Sulfideproces = p.lifeforms?.techs?.find(tech => tech.name == "Sulphide Process" || tech.name == "Sulfideproces" || tech.name == "Tecnologia Processo al solfuro")
                     if(Sulfideproces) lifeformTechBonus += 0.0008 * this.getLevel(Sulfideproces.level);
-                    let MagmaAangedrevenPompsystemen = p.lifeforms.techs.find(tech => tech.name == "Magma-Powered Pump Systems" || tech.name == "Magma-aangedreven Pompsystemen" || tech.name == "Sistema di pompaggio al magma")
+                    let MagmaAangedrevenPompsystemen = p.lifeforms?.techs?.find(tech => tech.name == "Magma-Powered Pump Systems" || tech.name == "Magma-aangedreven Pompsystemen" || tech.name == "Sistema di pompaggio al magma")
                     if(MagmaAangedrevenPompsystemen) lifeformTechBonus += 0.0008 * this.getLevel(MagmaAangedrevenPompsystemen.level);
                 }
             });
@@ -701,7 +701,7 @@ class OgameHelper {
 //            console.log(this.getBigNumber(metalCost) + " / " + this.getBigNumber(crystalCost) + " / " + this.getBigNumber(deutCost));
         }
 
-        if(planet && this.json.settings.lifeforms && planet.lifeforms.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
+        if(planet && this.json.settings.lifeforms && planet.lifeforms?.lifeformClass === LIFEFORM_CLASS_ROCKTAL){
             let factor = 1;
             if(planet.lifeforms.buildings){
                 if(rockTalBuild) factor -= 0.01 * this.getLevel(planet.lifeforms.buildings.megalith);
@@ -1415,7 +1415,7 @@ class OgameHelper {
                 totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, "productionbuilding", amorColor));
                 totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, "productionbuilding", amorColor));
 
-
+                console.log("olla");
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                     let amorColorBuilding = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
@@ -1458,6 +1458,7 @@ class OgameHelper {
                             if(possibleTechs.length > 0){
                                 let possibleTechsAmortizations = [];
                                 const unlockPrerequisites = this.getUnlockPrerequisitesForTechSlot(s, planet);
+                                console.log(unlockPrerequisites);
                                 const unlockCosts = this.getUnlockCostsForPrerequisites(planet, unlockPrerequisites);
                                 possibleTechs.forEach(tech => {
                                     let level = 1;
@@ -1629,63 +1630,63 @@ class OgameHelper {
 
         if(planetToCreate == LIFEFORM_CLASS_ROCKTAL){
             avgPlanet.lifeforms.buildings = {
-                meditationEnclave: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.meditationEnclave))),
-                crystalFarm: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.crystalFarm))),
-                runeTechnologium: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.runeTechnologium))),
-                runeForge: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.runeForge))),
-                oriktorium: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.oriktorium))),
-                magmaForge: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.magmaForge))),
-                disruptionChamber: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.disruptionChamber))),
-                megalith: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.megalith))),
-                crystalRefinery: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.crystalRefinery))),
-                deuteriumSynthesizer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.deuteriumSynthesizer))),
-                mineralResearchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.mineralResearchCentre))),
-                advancedRecyclingPlant: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.advancedRecyclingPlant))),
+                meditationEnclave: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.meditationEnclave))),
+                crystalFarm: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.crystalFarm))),
+                runeTechnologium: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.runeTechnologium))),
+                runeForge: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.runeForge))),
+                oriktorium: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.oriktorium))),
+                magmaForge: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.magmaForge))),
+                disruptionChamber: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.disruptionChamber))),
+                megalith: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.megalith))),
+                crystalRefinery: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.crystalRefinery))),
+                deuteriumSynthesizer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.deuteriumSynthesizer))),
+                mineralResearchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.mineralResearchCentre))),
+                advancedRecyclingPlant: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.advancedRecyclingPlant))),
             }
         } else if(planetToCreate == LIFEFORM_CLASS_MENSEN){
             avgPlanet.lifeforms.buildings = {
-                residentialSector: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.residentialSector))),
-                biosphereFarm: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.biosphereFarm))),
-                researchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.researchCentre))),
-                academyOfSciences: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.academyOfSciences))),
-                neuroCalibrationCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.neuroCalibrationCentre))),
-                highEnergySmelting: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.highEnergySmelting))),
-                foodSilo: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.foodSilo))),
-                fusionPoweredProduction: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.fusionPoweredProduction))),
-                skyscraper: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.skyscraper))),
-                biotechLab: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.biotechLab))),
-                metropolis: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.metropolis))),
-                planetaryShield: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.planetaryShield))),             
+                residentialSector: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.residentialSector))),
+                biosphereFarm: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.biosphereFarm))),
+                researchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.researchCentre))),
+                academyOfSciences: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.academyOfSciences))),
+                neuroCalibrationCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.neuroCalibrationCentre))),
+                highEnergySmelting: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.highEnergySmelting))),
+                foodSilo: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.foodSilo))),
+                fusionPoweredProduction: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.fusionPoweredProduction))),
+                skyscraper: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.skyscraper))),
+                biotechLab: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.biotechLab))),
+                metropolis: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.metropolis))),
+                planetaryShield: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.planetaryShield))),             
             }            
         } else if(planetToCreate == LIFEFORM_CLASS_MECHA){
             avgPlanet.lifeforms.buildings = {
-                assemblyLine: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.assemblyLine))),
-                fusionCellFactory: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.fusionCellFactory))),
-                roboticsResearchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.roboticsResearchCentre))),
-                updateNetwork: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.updateNetwork))),
-                quantumComputerCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.quantumComputerCentre))),
-                automatisedAssemblyCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.automatisedAssemblyCentre))),
-                highPerformanceTransformer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.highPerformanceTransformer))),
-                microchipAssemblyLine: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.microchipAssemblyLine))),
-                productionAssemblyHall: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.productionAssemblyHall))),
-                highPerformanceSynthesizer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.highPerformanceSynthesizer))),
-                chipMassProduction: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.chipMassProduction))),
-                nanoRepairBots: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.nanoRepairBots))),             
+                assemblyLine: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.assemblyLine))),
+                fusionCellFactory: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.fusionCellFactory))),
+                roboticsResearchCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.roboticsResearchCentre))),
+                updateNetwork: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.updateNetwork))),
+                quantumComputerCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.quantumComputerCentre))),
+                automatisedAssemblyCentre: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.automatisedAssemblyCentre))),
+                highPerformanceTransformer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.highPerformanceTransformer))),
+                microchipAssemblyLine: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.microchipAssemblyLine))),
+                productionAssemblyHall: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.productionAssemblyHall))),
+                highPerformanceSynthesizer: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.highPerformanceSynthesizer))),
+                chipMassProduction: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.chipMassProduction))),
+                nanoRepairBots: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.nanoRepairBots))),             
             }
         } else if(planetToCreate == LIFEFORM_CLASS_KAELESH){
             avgPlanet.lifeforms.buildings = {
-                sanctuary: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.sanctuary))),
-                antimatterCondenser: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.antimatterCondenser))),
-                vortexChamber: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.vortexChamber))),
-                hallsOfRealisation: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.hallsOfRealisation))),
-                forumOfTranscendence: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.forumOfTranscendence))),
-                antimatterConvector: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.antimatterConvector))),
-                cloningLaboratory: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.cloningLaboratory))),
-                chrysalisAccelerator: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.chrysalisAccelerator))),
-                bioModifier: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.bioModifier))),
-                psionicModulator: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.psionicModulator))),
-                shipManufacturingHall: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.shipManufacturingHall))),
-                supraRefractor: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings.supraRefractor))),                        
+                sanctuary: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.sanctuary))),
+                antimatterCondenser: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.antimatterCondenser))),
+                vortexChamber: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.vortexChamber))),
+                hallsOfRealisation: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.hallsOfRealisation))),
+                forumOfTranscendence: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.forumOfTranscendence))),
+                antimatterConvector: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.antimatterConvector))),
+                cloningLaboratory: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.cloningLaboratory))),
+                chrysalisAccelerator: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.chrysalisAccelerator))),
+                bioModifier: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.bioModifier))),
+                psionicModulator: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.psionicModulator))),
+                shipManufacturingHall: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.shipManufacturingHall))),
+                supraRefractor: this.calculateMedian(planets.map(p => this.getLevel(p.lifeforms.buildings?.supraRefractor))),                        
             }
         }
 
@@ -1693,7 +1694,7 @@ class OgameHelper {
     }
 
     getTechNameFromIndex(techs, index){
-        if(techs.length > index && index >= 0) return techs[index].name;
+        if(techs?.length > index && index >= 0) return techs[index].name;
         else return undefined;
     }
 
@@ -1742,9 +1743,14 @@ class OgameHelper {
         
         const newPlanetProduction = this.getMSEProduction(avgPlanet, "astro", undefined);
         if(this.json.settings.lifeforms){
-            newPlanetExpoBoostProduction = avgPlanet.lifeforms.techs[3].level * this.getMSEProduction(avgPlanet, "Telekinetische Tractorstraal", avgPlanet.lifeforms.techs[3].level);
-            newPlanetExpoBoostProduction += avgPlanet.lifeforms.techs[4].level * this.getMSEProduction(avgPlanet, "Verbeterde Sensortechnologie", avgPlanet.lifeforms.techs[4].level);
-            newPlanetExpoBoostProduction += avgPlanet.lifeforms.techs[10].level * this.getMSEProduction(avgPlanet, "Zesde Zintuig", avgPlanet.lifeforms.techs[10].level);    
+            let tractorstraal = avgPlanet.lifeforms?.techs?.find(t => t.name == "Telekinetische Tractorstraal");
+            let sensortechnologie = avgPlanet.lifeforms?.techs?.find(t => t.name == "Verbeterde Sensortechnologie");
+            let zesdeZintuig = avgPlanet.lifeforms?.techs?.find(t => t.name == "Zesde Zintuig");
+
+            newPlanetExpoBoostProduction = 0;
+            if(tractorstraal) newPlanetExpoBoostProduction += tractorstraal.level * this.getMSEProduction(avgPlanet, "Telekinetische Tractorstraal", tractorstraal.level);
+            if(sensortechnologie) newPlanetExpoBoostProduction += sensortechnologie.level * this.getMSEProduction(avgPlanet, "Telekinetische Tractorstraal", sensortechnologie.level);
+            if(zesdeZintuig) newPlanetExpoBoostProduction += zesdeZintuig.level * this.getMSEProduction(avgPlanet, "Telekinetische Tractorstraal", zesdeZintuig.level);
         }
 
         const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
@@ -1769,24 +1775,24 @@ class OgameHelper {
         for (let l = 0; l < avgPlanet.nanite; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "nanite", l);
         
         if(this.json.settings.lifeforms){
-            avgPlanet.lifeforms.techs.forEach(t => {
+            avgPlanet.lifeforms?.techs?.forEach(t => {
                 for (let l = 0; l < t.level; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, t.name, l);
             });
 
-            switch(avgPlanet.lifeforms.lifeformClass){
+            switch(avgPlanet.lifeforms?.lifeformClass){
                 case LIFEFORM_CLASS_ROCKTAL:
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.meditationEnclave; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "meditationEnclave", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.crystalFarm; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalFarm", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.runeTechnologium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeTechnologium", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.runeForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeForge", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.oriktorium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "oriktorium", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.magmaForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "magmaForge", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.disruptionChamber; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "disruptionChamber", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.megalith; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "megalith", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.crystalRefinery; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalRefinery", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.deuteriumSynthesizer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deuteriumSynthesizer", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.mineralResearchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "mineralResearchCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms.buildings.advancedRecyclingPlant; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "advancedRecyclingPlant", l);              
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.meditationEnclave; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "meditationEnclave", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.crystalFarm; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalFarm", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.runeTechnologium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeTechnologium", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.runeForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeForge", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.oriktorium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "oriktorium", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.magmaForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "magmaForge", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.disruptionChamber; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "disruptionChamber", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.megalith; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "megalith", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.crystalRefinery; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalRefinery", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.deuteriumSynthesizer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deuteriumSynthesizer", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.mineralResearchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "mineralResearchCentre", l);
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.advancedRecyclingPlant; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "advancedRecyclingPlant", l);              
                     break;
             }                
         }
@@ -1987,7 +1993,7 @@ class OgameHelper {
                 t2popBuildingName = "academyOfSciences";
                 t3popBuildingLevel = this.getLevel(planet.lifeforms.buildings.neuroCalibrationCentre);
                 t3popBuildingName = "neuroCalibrationCentre";
-                return 0;
+                break;
             case LIFEFORM_CLASS_MECHA:
                 popCapacityBase = 500;
                 popCapacityFactor = 1.205;
@@ -2003,7 +2009,7 @@ class OgameHelper {
                 t2popBuildingName = "updateNetwork";
                 t3popBuildingLevel = this.getLevel(planet.lifeforms.buildings.quantumComputerCentre);
                 t3popBuildingName = "quantumComputerCentre";
-                return 0;
+                break;
             case LIFEFORM_CLASS_ROCKTAL:
                 popCapacityBase = 150;
                 popCapacityFactor = 1.216;
@@ -2682,7 +2688,7 @@ class OgameHelper {
 
     getLifeformLevelBonus(planet){
         let level;
-        switch(planet.lifeforms.lifeformClass){
+        switch(planet.lifeforms?.lifeformClass){
             case LIFEFORM_CLASS_MENSEN:
                 level = this.json.player.lifeformLevels?.mensen ?? 0;
                 break;
@@ -2694,6 +2700,9 @@ class OgameHelper {
                 break;
             case LIFEFORM_CLASS_KAELESH:
                 level = this.json.player.lifeformLevels?.kaelesh ?? 0;
+                break;
+            default:
+                level = 0;
                 break;
         }
         return level * 0.001;
