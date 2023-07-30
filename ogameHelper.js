@@ -360,7 +360,7 @@ class OgameHelper {
         }
     
         for (const [building, level] of Object.entries(requiredUpgrades)) {
-            const currentLevel = this.getLevel(planet.lifeforms.buildings[building]);
+            const currentLevel = this.getLevel(this.json.player[building] || planet.lifeforms.buildings[building]);
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalCost += this.getMSECosts(planet, building, l);
@@ -1107,8 +1107,11 @@ class OgameHelper {
         let mseProd = this.getMSEProduction(planet, upgradeType, startingLevel);
         const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
         let mseCosts = this.getMSECosts(planet, upgradeType, startingLevel) + preMseCosts;
-      
+        console.log(mseCosts);
+        console.log(mseProd);
+
         let amortization = mseCosts / mseProd;
+        console.log(amortization);
         let newLevel = startingLevel + 1;
         let x = 1;
         while (this.getMSECosts(planet, upgradeType, startingLevel + x) / this.getMSEProduction(planet, upgradeType, startingLevel + x) < amortization) {
@@ -1123,8 +1126,8 @@ class OgameHelper {
         }
       
         return {
-            coords: planet.coords,
-            name: planet.name,
+            coords: planet?.coords ?? "account",
+            name: planet?.name ?? "account",
             technology: upgradeType,
             level: newLevel,
             amortization: amortization / 24,
@@ -1318,7 +1321,6 @@ class OgameHelper {
                 tableBody.appendChild(tr);
             }
         } else {
-          
             let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
             //Every unit once
             for(let r = 0; r < totalAmortization.length + 1; r++){
@@ -1415,7 +1417,6 @@ class OgameHelper {
                 totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, "productionbuilding", amorColor));
                 totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, "productionbuilding", amorColor));
 
-                console.log("olla");
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
                     let amorColorBuilding = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
@@ -1566,16 +1567,7 @@ class OgameHelper {
         });
 
         amorColor = this.getAmortizationColor("account", "research", blocked);
-        totalAmortization.push({
-            coords: "account",
-            name: "account",
-            technology: "plasma",
-            level: (this.getLevel(this.json.player.plasma) + 1),
-            amortization: this.calculateAmortization(undefined, "plasma", this.getLevel(this.json.player.plasma)),
-            msecost: this.getMSECosts(undefined, "plasma", this.getLevel(this.json.player.plasma)),
-            type: "plasma",
-            color: amorColor
-        });
+        totalAmortization.push(this.createAmortizationWithPrerequisite(undefined, "plasma", this.getLevel(this.json.player.plasma), "plasma", amorColor));
 
         totalAmortization.push(this.createAstroAmortizationObject(blocked));
 
