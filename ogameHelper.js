@@ -1973,7 +1973,7 @@ class OgameHelper {
             case LIFEFORM_CLASS_MENSEN:
                 popCapacityBase = 210;
                 popCapacityFactor = 1.21;
-                foodConsBase = 5;
+                foodConsBase = 9;
                 foodConsFactor = 1.15;
                 foodProdBase = 10;
                 foodProdFactor = 1.14;
@@ -1989,9 +1989,9 @@ class OgameHelper {
             case LIFEFORM_CLASS_MECHA:
                 popCapacityBase = 500;
                 popCapacityFactor = 1.205;
-                foodConsBase = 5;
+                foodConsBase = 22;
                 foodConsFactor = 1.15;
-                foodProdBase = 6;
+                foodProdBase = 23;
                 foodProdFactor = 1.12;
                 quartersLevel = this.getLevel(planet.lifeforms.buildings.assemblyLine);
                 quartersName = "assemblyLine";
@@ -2019,8 +2019,21 @@ class OgameHelper {
                 t3popBuildingName = "oriktorium";
                 break;
             default:
-                console.warn("Lifeform '" + planet.lifeforms.lifeformClass + "' not found.");
-                return 0;
+                popCapacityBase = 250;
+                popCapacityFactor = 1.21;
+                foodConsBase = 11;
+                foodConsFactor = 1.15;
+                foodProdBase = 12;
+                foodProdFactor = 1.14;
+                quartersLevel = this.getLevel(planet.lifeforms.buildings.sanctuary);
+                quartersName = "sanctuary";
+                foodLevel = this.getLevel(planet.lifeforms.buildings.antimatterCondenser);
+                foodName = "antimatterCondenser";
+                t2popBuildingLevel = this.getLevel(planet.lifeforms.buildings.hallsOfRealisation);
+                t2popBuildingName = "hallsOfRealisation";
+                t3popBuildingLevel = this.getLevel(planet.lifeforms.buildings.forumOfTranscendence);
+                t3popBuildingName = "forumOfTranscendence";
+                break;
         }
 
         let traderFactor = this.json.player.allyClass == ALLY_CLASS_TRADER ? 1.1 : 1;
