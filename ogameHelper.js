@@ -273,6 +273,10 @@ class OgameHelper {
 
     getPrerequisites(upgradeType){
         const upgradeRequirements = {
+            'nanite': {
+                'roboticsFactory': 10,
+                'computer': 10,
+            },
             'plasma': {
                 'ion': 5,
                 'laser': 10,
@@ -280,7 +284,7 @@ class OgameHelper {
             },
             'astro': {
                 'impuls': 3,
-                'spy': 4,
+                'spy': 4 - (this.json.player.technocrat ? (this.json.player.legerleiding ? 3 : 2) : 0),
                 'energy': 1,
             },
             //human            
@@ -354,13 +358,14 @@ class OgameHelper {
         let metalCost = 0;
 
         const requiredUpgrades = this.getPrerequisites(upgradeType);
-    
+
         if (!requiredUpgrades) {
             return 0;
         }
-    
+        
         for (const [building, level] of Object.entries(requiredUpgrades)) {
             const currentLevel = this.getLevel(this.json.player[building] || planet.lifeforms.buildings[building]);
+            console.log(building + "-" + level + " - "+ currentLevel);
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalCost += this.getMSECosts(planet, building, l);
@@ -400,7 +405,7 @@ class OgameHelper {
      * @param {number} level The level the building is before upgrading.
      * @return {number} the cost calculated in MSE.
      */
-    getMSECosts(planet, upgradeType, level){
+        getMSECosts(planet, upgradeType, level){
         level = this.getLevel(level);
         let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalCost = 0;
@@ -419,6 +424,14 @@ class OgameHelper {
             metalCost = 225 * Math.pow(1.5, level);
             crystalCost = 75 * Math.pow(1.5, level);
             resProdBuild = true;
+        } else if (upgradeType === "roboticsFactory"){
+            metalCost = 400 * Math.pow(2, level);
+            metalCost = 120 * Math.pow(2, level);
+            metalCost = 200 * Math.pow(2, level);
+        } else if (upgradeType === "nanite"){
+            metalCost = 1000000 * Math.pow(2, level);
+            metalCost = 500000 * Math.pow(2, level);
+            metalCost = 100000 * Math.pow(2, level);
         } else if (upgradeType === "ion"){
             metalCost = 1000 * Math.pow(2, level);
             crystalCost = 300 * Math.pow(2, level);
@@ -429,6 +442,9 @@ class OgameHelper {
         } else if (upgradeType === "energy"){
             crystalCost = 800 * Math.pow(2, level);
             deutCost = 400 * Math.pow(2, level);
+        } else if (upgradeType === "computer"){
+            crystalCost = 400 * Math.pow(2, level);
+            deutCost = 600 * Math.pow(2, level);
         } else if (upgradeType === "impuls"){
             metalCost = 2000 * Math.pow(2, level);
             crystalCost = 4000 * Math.pow(2, level);
@@ -746,12 +762,14 @@ class OgameHelper {
             let planets = this.copyArray(this.json.player.planets);
             planets.push(planet);
 
+            //upgrade previous planets with lifeforms boni
             this.json.player.planets.forEach(p => {
                 metalProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "metal", planets) - this.getBonus(p, "metal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
                 crystalProd += this.getRawProduction(p, "crystal", p.crystal) * (this.getBonus(p, "crystal", planets) - this.getBonus(p, "crystal", this.json.player.planets))  * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
                 deutProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "deut", planets) - this.getBonus(p, "deut", this.json.player.planets)) * this.json.settings.economySpeed;
             });
 
+            //new planet mines with new boni
             metalProd += (30 + this.getRawProduction(planet, "metal", planet.metal) * (1 + this.getBonus(planet, "metal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
             crystalProd += (15 + this.getRawProduction(planet, "crystal", planet.crystal) * (1 + this.getBonus(planet, "crystal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
             deutProd += (this.getRawProduction(planet, "deut", planet.deut) * (1 + this.getBonus(planet, "deut", planets))) * this.json.settings.economySpeed;
@@ -1260,12 +1278,11 @@ class OgameHelper {
 
         let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
         if(this.json.settings.lifeforms){
-            let costLoweringUpgrades = this.getIndirectProductionUpgrades();
-            if(this.json.player.includeIndirectProductionBuildings == "true")
-                absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, costLoweringUpgrades, blocked);
+            if(this.json.player.includeIndirectProductionBuildings == "true"){
+                let indirectProductionUpgrades = this.getIndirectProductionUpgrades();
+                absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, indirectProductionUpgrades, blocked);
+            }
         }
-
-
 
         if(listType == "recursive"){
             //TODO: trim list for planet sided list
@@ -1725,6 +1742,8 @@ class OgameHelper {
 
     createAstroAmortizationObject(blocked){
         //astro
+        let preRequisiteAstroCosts = this.getPrerequisiteMSECosts(undefined, "astro");
+        console.log(preRequisiteAstroCosts);
         let totalMSECostsAstroNewPlanet = 0;
         let totalMSECostsAstroNewExpo = 0;
         let totalMSEProdAstroNewPlanet = 0;
@@ -1746,6 +1765,7 @@ class OgameHelper {
         }
 
         const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
+        console.log(newExpoSlotProduction);
 
         const astro = this.getLevel(this.json.player.astro);
 
@@ -1814,6 +1834,8 @@ class OgameHelper {
         totalMSECostsAstroNewExpo += newPlanets * newPlanetMSECost;
         totalMSEProdAstroNewExpo += newPlanets * newPlanetProduction;
         totalMSEProdAstroNewExpo += newExpoSlotProduction;
+        console.log(totalMSECostsAstroNewExpo);
+        console.log(totalMSECostsAstroNewPlanet);
 
         let astroLevelStringNewExpo = (parseInt(astro) + 1);
         if(parseInt(astro) + 1 < nextAstro){
@@ -2250,26 +2272,39 @@ class OgameHelper {
     }
 
     getIndirectProductionUpgrades(){
-        let costLoweringUpgrades = [];
+        let indirectProductionUpgrades = [];
 
-        if(this.json.settings.lifeforms){
-            this.json.player.planets.forEach(planet => {
+        this.json.player.planets.forEach(planet => {
+            indirectProductionUpgrades.push({
+                coords: planet.coords,
+                upgrade: "roboticsFactory",
+                priority: 1,
+                affected: "productionbuilding",         
+            });
+            indirectProductionUpgrades.push({
+                coords: planet.coords,
+                upgrade: "nanite",
+                priority: 1,
+                affected: "productionbuilding",         
+            });
+
+            if(this.json.settings.lifeforms){
                 if(planet.lifeforms.lifeformClass === "rocktal"){
-                    costLoweringUpgrades.push({
+                    indirectProductionUpgrades.push({
                         coords: planet.coords,
                         upgrade: "mineralResearchCentre",
                         priority: 1,
                         affected: "productionbuilding",
                     });
                     if(planet.lifeforms.techs?.length > 0){
-                        costLoweringUpgrades.push({
+                        indirectProductionUpgrades.push({
                             coords: planet.coords,
                             upgrade: "runeTechnologium",
                             priority: 3,
                             affected: "lifeformtech",
                         });
                     }
-                    costLoweringUpgrades.push({
+                    indirectProductionUpgrades.push({
                         coords: planet.coords,
                         upgrade: "megalith",
                         priority: 4,
@@ -2280,7 +2315,7 @@ class OgameHelper {
                 if(planet.lifeforms?.techs?.length > 0){
                     planet.lifeforms.techs.forEach(tech => {
                         if(tech.name === "Verbeterde Stellarator" || tech.name === "Concentratore astrale"){
-                            costLoweringUpgrades.push({
+                            indirectProductionUpgrades.push({
                                 coords: planet.coords,
                                 upgrade: tech.name,
                                 priority: 2,
@@ -2289,23 +2324,14 @@ class OgameHelper {
                         }
                     });    
                 }
-            });
-        }
+            }
+        });
 
-        // this.json.player.planets.forEach(planet => {
-        //     costLoweringUpgrades.push({
-        //         coords: planet.coords,
-        //         upgrade: "nano",
-        //         priority: 5,
-        //         affected: "productionbuilding",
-        //     })
-        // });
-
-        costLoweringUpgrades = costLoweringUpgrades.sort((a,b) => a.priority - b.priority);
-        return costLoweringUpgrades;
+        indirectProductionUpgrades = indirectProductionUpgrades.sort((a,b) => a.priority - b.priority);
+        return indirectProductionUpgrades;
     }
 
-    addIndirectProductionUpgradesToAmortization(amortizationList, costLoweringUpgrades, blocked){
+    addIndirectProductionUpgradesToAmortization(amortizationList, indirectProductionUpgrades, blocked){
         let totalHourlyMseProd = this.calcTotalMseProduction();
         let maxMseProd = parseFloat(amortizationList[amortizationList.length - 1].amortization) * totalHourlyMseProd * 24;
 
@@ -2316,7 +2342,7 @@ class OgameHelper {
             maxMseProd = 0;
         }
 
-        costLoweringUpgrades.forEach(upgrade => {
+        indirectProductionUpgrades.forEach(upgrade => {
             let testAmortizationList = this.copyArray(amortizationList);
             let planet = this.getPlanetByCoords(upgrade.coords);
             let totalMseCost = 0;
@@ -2325,10 +2351,25 @@ class OgameHelper {
             let upgradePercent;
             let amorType;
             let amorColor;
+            let timeShortagePercent;
 
             let buildings = planet.lifeforms.buildings;
 
-            if(upgrade.upgrade == "runeTechnologium"){
+            if(upgrade.upgrade == "roboticsFactory"){
+                curLevel = this.getLevel(buildings.roboticsFactory);
+                timeShortagePercent = (curLevel + 1) / (curLevel + 2);
+                upgradePercent = 0;
+                amorType = "facility";
+                amorColor = this.getAmortizationColor(upgrade.coords, "building", blocked)      
+            }
+            else if(upgrade.upgrade == "nanite"){
+                curLevel = this.getLevel(buildings.nanite);
+                timeShortagePercent = 0.5;
+                upgradePercent = 0;
+                amorType = "facility";
+                amorColor = this.getAmortizationColor(upgrade.coords, "building", blocked)      
+            }
+            else if(upgrade.upgrade == "runeTechnologium"){
                 curLevel = this.getLevel(buildings.runeTechnologium);
                 upgradePercent = 0.25;
                 amorType = "rocktalbuilding";
@@ -2351,11 +2392,21 @@ class OgameHelper {
                 amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
             }
 
-            let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
-            let mseProd = this.getPrerequisiteMSEProd(planet, upgrade.upgrade, curLevel);
             let mseCost = this.getPrerequisiteMSECosts(planet, upgrade.upgrade, curLevel);
             mseCost += this.getMSECosts(planet, upgrade.upgrade, curLevel);
-            let mseToSpend = mseCost / savePercent;
+            let mseToSpend;
+            let mseProd;
+
+            if(upgrade.upgrade === "nanite"){
+                let prerequisiteTimeShortage = (1 - (this.getLevel(buildings.roboticsFactory) + 1) / 11)
+                let totalTimeShortage = prerequisiteTimeShortage * 0.5;
+            } else if (upgrade.upgrade === "roboticsFactory"){
+                let totalTimeShortage = (1 - (this.getLevel(buildings.roboticsFactory) + 1) / (this.getLevel(buildings.roboticsFactory) + 2))
+            } else {
+                let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
+                mseProd = this.getPrerequisiteMSEProd(planet, upgrade.upgrade, curLevel);
+                mseToSpend = mseCost / savePercent;    
+            }
 
             let maxMseSpend = maxMseProd;
             while(mseToSpend > 0 && maxMseSpend > 0){
@@ -2779,6 +2830,15 @@ class OgameHelper {
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if(page === OVERVIEW){
             this.checkPlanets();
+            if (document.querySelector("#characterclass .explorer")) {
+                this.json.player.playerClass = PLAYER_CLASS_EXPLORER;
+            } else if (document.querySelector("#characterclass .warrior")) {
+                this.json.player.playerClass = PLAYER_CLASS_GENERAL;
+            } else if (document.querySelector("#characterclass .miner")) {
+                this.json.player.playerClass = PLAYER_CLASS_COLLECTOR;
+            } else {
+                this.json.player.playerClass = PLAYER_CLASS_NONE;
+            }
             if(!currentIsMoon){
                 console.log(textContent);
                 console.log(currentCoords);
