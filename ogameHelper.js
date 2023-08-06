@@ -397,6 +397,20 @@ class OgameHelper {
         return metalProd;
     }
 
+    getUpgradeTime(planet, upgradeType, level){
+        if(planet == undefined){
+            //astro
+            //plasma
+        } else {
+            let buildSpeed = (this.getLevel(planet.roboticsFactory) + 1) * Math.pow(2, this.getLevel(planet.nanite)) * this.json.settings.economySpeed;
+            let buildingTime = 0;
+            switch(upgradeType){
+                case "metal":
+                    return 
+            }
+        }
+    }
+
     /**
      * Returns the cost calculated in metal of the given upgrade.
      *
@@ -2394,18 +2408,22 @@ class OgameHelper {
 
             let mseCost = this.getPrerequisiteMSECosts(planet, upgrade.upgrade, curLevel);
             mseCost += this.getMSECosts(planet, upgrade.upgrade, curLevel);
-            let mseToSpend;
+            let mseToSpend = mseCost;
             let mseProd;
+            let timeDiscount = 0;
+            let resourceDiscount = 0;
 
             if(upgrade.upgrade === "nanite"){
-                let prerequisiteTimeShortage = (1 - (this.getLevel(buildings.roboticsFactory) + 1) / 11)
-                let totalTimeShortage = prerequisiteTimeShortage * 0.5;
+                let prerequisiteTimeShortage = 0;
+                if(this.getLevel(buildings.roboticsFactory) < 10){
+                    prerequisiteTimeShortage = (1 - (this.getLevel(buildings.roboticsFactory) + 1) / 11)
+                }
+                timeDiscount = 1 - (1 - prerequisiteTimeShortage) * 0.5;
             } else if (upgrade.upgrade === "roboticsFactory"){
-                let totalTimeShortage = (1 - (this.getLevel(buildings.roboticsFactory) + 1) / (this.getLevel(buildings.roboticsFactory) + 2))
+                timeDiscount = (1 - (this.getLevel(buildings.roboticsFactory) + 1) / (this.getLevel(buildings.roboticsFactory) + 2))
             } else {
-                let savePercent = upgradePercent / (100 - upgradePercent * curLevel);
+                let resourceDiscount = upgradePercent / (100 - upgradePercent * curLevel);
                 mseProd = this.getPrerequisiteMSEProd(planet, upgrade.upgrade, curLevel);
-                mseToSpend = mseCost / savePercent;    
             }
 
             let maxMseSpend = maxMseProd;
@@ -2413,7 +2431,12 @@ class OgameHelper {
                 let item = testAmortizationList[0];
 //                console.log(item);
                 if(item.type == upgrade.affected && (item.coords == "account" || item.coords == upgrade.coords)){
-                    mseToSpend -= item.msecost;
+                    if(resourceDiscount > 0){
+                        mseToSpend -= item.msecost * resourceDiscount;
+                    }
+                    if(timeDiscount > 0){
+                        mseToSpend -= 0;// HourlyProdOfUpgrade * HoursOfUpgrade * timeDiscount
+                    }
                 }
                 maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
