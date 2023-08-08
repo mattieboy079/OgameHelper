@@ -502,14 +502,30 @@ class OgameHelper {
             metalCost = 5000 * Math.pow(1.7, level) * (level + 1);
             crystalCost = 3200 * Math.pow(1.7, level) * (level + 1);
             deutCost = 1500 * Math.pow(1.7, level) * (level + 1);
+        } else if (upgradeType === "neuroCalibrationCentre") {
+            metalCost = 50000 * Math.pow(1.7, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.7, level) * (level + 1);
+            deutCost = 50000 * Math.pow(1.7, level) * (level + 1);
         } else if (upgradeType === "highEnergySmelting") {
             metalCost = 9000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 6000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 3000 * Math.pow(1.5, level) * (level + 1);
+        } else if (upgradeType === "foodSilo"){
+            metalCost = 25000 * Math.pow(1.09, level) * (level + 1);
+            crystalCost = 13000 * Math.pow(1.09, level) * (level + 1);
+            deutCost = 7000 * Math.pow(1.09, level) * (level + 1);
         } else if (upgradeType === "fusionPoweredProduction") {
             metalCost = 50000 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 25000 * Math.pow(1.2, level) * (level + 1);
             deutCost = 25000 * Math.pow(1.2, level) * (level + 1);
+        } else if (upgradeType === "skyscraper"){
+            metalCost = 75000 * Math.pow(1.09, level) * (level + 1);
+            crystalCost = 20000 * Math.pow(1.09, level) * (level + 1);
+            deutCost = 25000 * Math.pow(1.09, level) * (level + 1);
+        } else if (upgradeType === "biotechLab"){
+            metalCost = 150000 * Math.pow(1.12, level) * (level + 1);
+            crystalCost = 30000 * Math.pow(1.12, level) * (level + 1);
+            deutCost = 15000 * Math.pow(1.12, level) * (level + 1);
         } 
         //ROCK'TAL
         else if (upgradeType === "meditationEnclave") {
@@ -567,19 +583,70 @@ class OgameHelper {
         else if (upgradeType === "assemblyLine") {
             metalCost = 6 * Math.pow(1.21, level) * (level + 1);
             crystalCost = 2 * Math.pow(1.21, level) * (level + 1);
+        } else if (upgradeType === "fusionCellFactory") {
+            metalCost = 5 * Math.pow(1.18, level) * (level + 1);
+            crystalCost = 2 * Math.pow(1.18, level) * (level + 1);
+        } else if (upgradeType === "roboticsResearchCentre") {
+            metalCost = 30000 * Math.pow(1.3, level) * (level + 1);
+            crystalCost = 20000 * Math.pow(1.3, level) * (level + 1);
+            deutCost = 10000 * Math.pow(1.3, level) * (level + 1);
         } else if (upgradeType === "updateNetwork") {
             metalCost = 5000 * Math.pow(1.8, level) * (level + 1);
             crystalCost = 3800 * Math.pow(1.8, level) * (level + 1);
             deutCost = 1000 * Math.pow(1.8, level) * (level + 1);
+        } else if (upgradeType === "quantumComputerCentre") {
+            metalCost = 50000 * Math.pow(1.8, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.8, level) * (level + 1);
+            deutCost = 50000 * Math.pow(1.8, level) * (level + 1);
+        } else if (upgradeType === "highPerformanceTransformer") {
+            metalCost = 35000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 15000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
         } else if (upgradeType === "microchipAssemblyLine") {
+            metalCost = 100000 * Math.pow(1.2, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.2, level) * (level + 1);
+            deutCost = 20000 * Math.pow(1.2, level) * (level + 1);
+        } else if (upgradeType === "productionAssemblyHall") {
             metalCost = 50000 * Math.pow(1.07, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.07, level) * (level + 1);
             deutCost = 30000 * Math.pow(1.07, level) * (level + 1);
         } else if (upgradeType === "highPerformanceSynthesizer") {
-            metalCost = 100000 * Math.pow(1.2, level) * (level + 1);
-            crystalCost = 40000 * Math.pow(1.2, level) * (level + 1);
-            deutCost = 20000 * Math.pow(1.2, level) * (level + 1);
+            metalCost = 100000 * Math.pow(1.14, level) * (level + 1);
+            crystalCost = 10000 * Math.pow(1.14, level) * (level + 1);
+            deutCost = 3000 * Math.pow(1.14, level) * (level + 1);
         } 
+        //Kaelesh
+        else if (upgradeType === "sanctuary") {
+            metalCost = 4 * Math.pow(1.21, level) * (level + 1);
+            crystalCost = 3 * Math.pow(1.21, level) * (level + 1);
+        } else if (upgradeType === "antimatterCondenser") {
+            metalCost = 6 * Math.pow(1.21, level) * (level + 1);
+            crystalCost = 3 * Math.pow(1.21, level) * (level + 1);
+        } else if (upgradeType === "vortexChamber") {
+            metalCost = 20000 * Math.pow(1.3, level) * (level + 1);
+            crystalCost = 20000 * Math.pow(1.3, level) * (level + 1);
+            deutCost = 30000 * Math.pow(1.3, level) * (level + 1);
+        } else if (upgradeType === "hallsOfRealisation") {
+            metalCost = 7500 * Math.pow(1.8, level) * (level + 1);
+            crystalCost = 5000 * Math.pow(1.8, level) * (level + 1);
+            deutCost = 800 * Math.pow(1.8, level) * (level + 1);
+        } else if (upgradeType === "forumOfTranscendence") {
+            metalCost = 60000 * Math.pow(1.8, level) * (level + 1);
+            crystalCost = 30000 * Math.pow(1.8, level) * (level + 1);
+            deutCost = 50000 * Math.pow(1.8, level) * (level + 1);
+        } else if (upgradeType === "antimatterConvector") {
+            metalCost = 8500 * Math.pow(1.25, level) * (level + 1);
+            crystalCost = 5000 * Math.pow(1.25, level) * (level + 1);
+            deutCost = 3000 * Math.pow(1.25, level) * (level + 1);
+        } else if (upgradeType === "chrysalisAccelerator") {
+            metalCost = 75000 * Math.pow(1.05, level) * (level + 1);
+            crystalCost = 25000 * Math.pow(1.05, level) * (level + 1);
+            deutCost = 30000 * Math.pow(1.05, level) * (level + 1);
+        } else if (upgradeType === "psionicModulator") {
+            metalCost = 150000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 30000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
+        }
 
         //LIFEFORM TECHS
         else if (upgradeType === "High-Performance Extractors" || upgradeType === "Hoogwaardige Extractoren" || upgradeType == "Estrattori ad alto rendimento") {
@@ -2081,7 +2148,18 @@ class OgameHelper {
         if(slot < 6){
             let quartersLevelNeeded = quartersLevel;
             let foodLevelNeeded = foodLevel;
-            let t1cap = popCapacityBase * Math.pow(popCapacityFactor, quartersLevel) * (quartersLevel + 1)  * traderFactor;
+            
+            let popBonusFactor = 1;
+            if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
+                popBonusFactor = (1 + this.getLevel(planet.lifeforms.buildings.skyscraper) * 0.015);
+            } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA){
+                popBonusFactor = (1 + this.getLevel(planet.lifeforms.buildings.productionAssemblyHall) * 0.02);
+            } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH){
+                popBonusFactor = (1 + this.getLevel(planet.lifeforms.buildings.chrysalisAccelerator) * 0.02);
+                popNeeded = (1 - this.getLevel(planet.lifeforms.buildings.psionicModulator) * 0.01)
+            }
+            
+            let t1cap = popCapacityBase * Math.pow(popCapacityFactor, quartersLevel) * (quartersLevel + 1) * popBonusFactor * traderFactor;
             while(t1cap < popNeeded){
                 quartersLevelNeeded++;
                 t1cap = popCapacityBase * Math.pow(popCapacityFactor, quartersLevelNeeded) * (quartersLevelNeeded + 1)  * traderFactor;
@@ -2089,6 +2167,15 @@ class OgameHelper {
 
             let foodCons = foodConsBase * Math.pow(foodConsFactor, quartersLevelNeeded) * (quartersLevelNeeded + 1);
             let foodProd = foodProdBase * Math.pow(foodProdFactor, foodLevel) * (foodLevel + 1);
+
+            if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
+                foodCons *= (1 - this.getLevel(planet.lifeforms.buildings.foodSilo) * 0.01);
+                foodProd *= (1 + this.getLevel(planet.lifeforms.buildings.biotechLab) * 0.05);
+            } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA){
+                foodProd *= (1 + this.getLevel(planet.lifeforms.buildings.microchipAssemblyLine) * 0.02);
+            } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH){
+                foodCons *= (1 - this.getLevel(planet.lifeforms.buildings.antimatterConvector) * 0.01);
+            }
 
             while(t1cap / foodCons * foodProd < popNeeded){
                 foodLevelNeeded++;
