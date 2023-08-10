@@ -3080,8 +3080,6 @@ class OgameHelper {
         } else if (page === LIFEFORM_RESEARCH){
             let planetIndex = this.json.player.planets.findIndex(p => p.coords == currentCoords);
             let planet = this.checkCurrentLifeform(this.json.player.planets[planetIndex]);
-            console.log("lifeform techs");
-            console.log(document.querySelectorAll(".technology"));
             let techs = [];
             for(let s = 1; s <= 18; s++){
                 let tech = this.getTechnologyFromSlot(s);
@@ -3505,6 +3503,7 @@ class OgameHelper {
         for(let i = 1; i <= 4; i++){
             if(document.querySelector(".technology.lifeformTech1" + i + "2" + slot)){
                 return {
+                    id: "1" + i + "2" + slot,
                     name: document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("title").split("<br/>")[0].replace("\n", ""),
                     level: this.getTechnologyLevel("lifeformTech1" + i + "2" + slot)
                 }
