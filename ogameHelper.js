@@ -2386,13 +2386,22 @@ class OgameHelper {
                     let skyscraperLevelNeeded = 0;
                     switch(slot){
                         case 6:
-                            quartersLevelNeeded = 41;
-                            foodLevelNeeded = 41;
-                            t2popBuildingLevelNeeded = 6;
-                            foodSiloLevelNeeded = 1;
-                            biotechLabLevelNeeded = 1;
-                            skyscraperLevelNeeded = 1;
-                        break;
+                            if(this.json.player.allyClass == ALLY_CLASS_TRADER){
+                                quartersLevelNeeded = 41;
+                                foodLevelNeeded = 41;
+                                t2popBuildingLevelNeeded = 6;
+                                foodSiloLevelNeeded = 1;
+                                biotechLabLevelNeeded = 1;
+                                skyscraperLevelNeeded = 1;
+                            } else {
+                                quartersLevelNeeded = 42;
+                                foodLevelNeeded = 42;
+                                t2popBuildingLevelNeeded = 6;
+                                foodSiloLevelNeeded = 1;
+                                biotechLabLevelNeeded = 1;
+                                skyscraperLevelNeeded = 1;
+                            }
+                            break;
                         case 7:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 45;
@@ -2403,8 +2412,11 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 46;
-                                foodLevelNeeded = 47;
+                                foodLevelNeeded = 46;
                                 t2popBuildingLevelNeeded = 6;
+                                foodSiloLevelNeeded = 6;
+                                biotechLabLevelNeeded = 2;
+                                skyscraperLevelNeeded = 1;
                             }
                             break;
                         case 8:
@@ -2416,9 +2428,12 @@ class OgameHelper {
                                 biotechLabLevelNeeded = 4;
                                 skyscraperLevelNeeded = 1;
                             } else {
-                                quartersLevelNeeded = 47;
-                                foodLevelNeeded = 48;
-                                t2popBuildingLevelNeeded = 8;
+                                quartersLevelNeeded = 48;
+                                foodLevelNeeded = 47;
+                                t2popBuildingLevelNeeded = 7;
+                                foodSiloLevelNeeded = 7;
+                                biotechLabLevelNeeded = 4;
+                                skyscraperLevelNeeded = 1;
                             }
                             break;
                         case 9:
@@ -2431,8 +2446,11 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 48;
-                                foodLevelNeeded = 50;
+                                foodLevelNeeded = 48;
                                 t2popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 8;
+                                biotechLabLevelNeeded = 5;
+                                skyscraperLevelNeeded = 1;
                             }
                             break;
                         case 10:
@@ -2445,8 +2463,11 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 50;
-                                foodLevelNeeded = 51;
+                                foodLevelNeeded = 49;
                                 t2popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 8;
+                                biotechLabLevelNeeded = 5;
+                                skyscraperLevelNeeded = 1;
                             }
                             break;
                         case 11:
@@ -2459,8 +2480,11 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 51;
-                                foodLevelNeeded = 52;
+                                foodLevelNeeded = 50;
                                 t2popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 8;
+                                biotechLabLevelNeeded = 5;
+                                skyscraperLevelNeeded = 1;
                             }
                             break;
                         case 12:
@@ -2474,9 +2498,12 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 6;
                             } else {
                                 quartersLevelNeeded = 62;
-                                foodLevelNeeded = 64;
-                                t2popBuildingLevelNeeded = 12;
+                                foodLevelNeeded = 59;
+                                t2popBuildingLevelNeeded = 11;
                                 t3popBuildingLevelNeeded = 7;
+                                foodSiloLevelNeeded = 24;
+                                biotechLabLevelNeeded = 15;
+                                skyscraperLevelNeeded = 6;
                             }
                             break;
                         case 13:
@@ -2490,9 +2517,12 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 6;
                             } else {
                                 quartersLevelNeeded = 65;
-                                foodLevelNeeded = 67;
+                                foodLevelNeeded = 61;
                                 t2popBuildingLevelNeeded = 12;
                                 t3popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 24;
+                                biotechLabLevelNeeded = 16;
+                                skyscraperLevelNeeded = 6;
                             }
                             break;
                         case 14:
@@ -2505,10 +2535,13 @@ class OgameHelper {
                                 biotechLabLevelNeeded = 20;
                                 skyscraperLevelNeeded = 6;
 k                            } else {
-                                quartersLevelNeeded = 67;
-                                foodLevelNeeded = 69;
-                                t2popBuildingLevelNeeded = 14;
-                                t3popBuildingLevelNeeded = 9;
+                                quartersLevelNeeded = 68;
+                                foodLevelNeeded = 64;
+                                t2popBuildingLevelNeeded = 12;
+                                t3popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 29;
+                                biotechLabLevelNeeded = 20;
+                                skyscraperLevelNeeded = 6;
                             }
                             break;
                         case 15:
@@ -2522,9 +2555,12 @@ k                            } else {
                                 skyscraperLevelNeeded = 8;
                             } else {
                                 quartersLevelNeeded = 70;
-                                foodLevelNeeded = 72;
+                                foodLevelNeeded = 65;
                                 t2popBuildingLevelNeeded = 14;
-                                t3popBuildingLevelNeeded = 10;
+                                t3popBuildingLevelNeeded = 9;
+                                foodSiloLevelNeeded = 37;
+                                biotechLabLevelNeeded = 21;
+                                skyscraperLevelNeeded = 8;
                             }
                             break;
                         case 16:
@@ -2537,10 +2573,13 @@ k                            } else {
                                 biotechLabLevelNeeded = 24;
                                 skyscraperLevelNeeded = 8;
                             } else {
-                                quartersLevelNeeded = 72;
-                                foodLevelNeeded = 75;
-                                t2popBuildingLevelNeeded = 15;
-                                t3popBuildingLevelNeeded = 11;
+                                quartersLevelNeeded = 73;
+                                foodLevelNeeded = 67;
+                                t2popBuildingLevelNeeded = 14;
+                                t3popBuildingLevelNeeded = 10;
+                                foodSiloLevelNeeded = 40;
+                                biotechLabLevelNeeded = 24;
+                                skyscraperLevelNeeded = 8;
                             }
                             break;
                         case 17:
