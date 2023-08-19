@@ -2357,22 +2357,22 @@ class OgameHelper {
                     }
                     return [
                         {
-                            'name': quartersName,
+                            'name': 'meditationEnclave',
                             'level': quartersLevel,
                             'levelNeeded': quartersLevelNeeded,
                         },
                         {
-                            'name': foodName,
+                            'name': 'crystalFarm',
                             'level': foodLevel,
                             'levelNeeded': foodLevelNeeded,
                         },
                         {
-                            'name': t2popBuildingName,
+                            'name': 'runeForge',
                             'level': t2popBuildingLevel,
                             'levelNeeded': t2popBuildingLevelNeeded,
                         },
                         {
-                            'name': t3popBuildingName,
+                            'name': 'oriktorium',
                             'level': t3popBuildingLevel,
                             'levelNeeded': t3popBuildingLevelNeeded,
                         },
@@ -2386,15 +2386,21 @@ class OgameHelper {
                     let skyscraperLevelNeeded = 0;
                     switch(slot){
                         case 6:
-                            quartersLevelNeeded = 43;
-                            foodLevelNeeded = 43;
-                            t2popBuildingLevelNeeded = 5;
-                            break;
+                            quartersLevelNeeded = 41;
+                            foodLevelNeeded = 41;
+                            t2popBuildingLevelNeeded = 6;
+                            foodSiloLevelNeeded = 1;
+                            biotechLabLevelNeeded = 1;
+                            skyscraperLevelNeeded = 1;
+                        break;
                         case 7:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
-                                quartersLevelNeeded = 46;
-                                foodLevelNeeded = 46;
+                                quartersLevelNeeded = 45;
+                                foodLevelNeeded = 45;
                                 t2popBuildingLevelNeeded = 6;
+                                foodSiloLevelNeeded = 6;
+                                biotechLabLevelNeeded = 2;
+                                skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 46;
                                 foodLevelNeeded = 47;
@@ -2404,8 +2410,11 @@ class OgameHelper {
                         case 8:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 47;
-                                foodLevelNeeded = 48;
+                                foodLevelNeeded = 46;
                                 t2popBuildingLevelNeeded = 7;
+                                foodSiloLevelNeeded = 7;
+                                biotechLabLevelNeeded = 4;
+                                skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 47;
                                 foodLevelNeeded = 48;
@@ -2414,9 +2423,12 @@ class OgameHelper {
                             break;
                         case 9:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
-                                quartersLevelNeeded = 48;
-                                foodLevelNeeded = 49;
+                                quartersLevelNeeded = 47;
+                                foodLevelNeeded = 47;
                                 t2popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 8;
+                                biotechLabLevelNeeded = 5;
+                                skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 48;
                                 foodLevelNeeded = 50;
@@ -2426,8 +2438,11 @@ class OgameHelper {
                         case 10:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 49;
-                                foodLevelNeeded = 51;
+                                foodLevelNeeded = 48;
                                 t2popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 8;
+                                biotechLabLevelNeeded = 5;
+                                skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 50;
                                 foodLevelNeeded = 51;
@@ -2437,8 +2452,11 @@ class OgameHelper {
                         case 11:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 50;
-                                foodLevelNeeded = 52;
+                                foodLevelNeeded = 49;
                                 t2popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 8;
+                                biotechLabLevelNeeded = 5;
+                                skyscraperLevelNeeded = 1;
                             } else {
                                 quartersLevelNeeded = 51;
                                 foodLevelNeeded = 52;
@@ -2448,9 +2466,12 @@ class OgameHelper {
                         case 12:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 61;
-                                foodLevelNeeded = 64;
-                                t2popBuildingLevelNeeded = 12;
+                                foodLevelNeeded = 58;
+                                t2popBuildingLevelNeeded = 11;
                                 t3popBuildingLevelNeeded = 7;
+                                foodSiloLevelNeeded = 24;
+                                biotechLabLevelNeeded = 15;
+                                skyscraperLevelNeeded = 6;
                             } else {
                                 quartersLevelNeeded = 62;
                                 foodLevelNeeded = 64;
@@ -2461,9 +2482,12 @@ class OgameHelper {
                         case 13:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 64;
-                                foodLevelNeeded = 67;
+                                foodLevelNeeded = 60;
                                 t2popBuildingLevelNeeded = 12;
                                 t3popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 24;
+                                biotechLabLevelNeeded = 16;
+                                skyscraperLevelNeeded = 6;
                             } else {
                                 quartersLevelNeeded = 65;
                                 foodLevelNeeded = 67;
@@ -2474,10 +2498,13 @@ class OgameHelper {
                         case 14:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 67;
-                                foodLevelNeeded = 69;
-                                t2popBuildingLevelNeeded = 13;
-                                t3popBuildingLevelNeeded = 9;
-                            } else {
+                                foodLevelNeeded = 63;
+                                t2popBuildingLevelNeeded = 12;
+                                t3popBuildingLevelNeeded = 8;
+                                foodSiloLevelNeeded = 29;
+                                biotechLabLevelNeeded = 20;
+                                skyscraperLevelNeeded = 6;
+k                            } else {
                                 quartersLevelNeeded = 67;
                                 foodLevelNeeded = 69;
                                 t2popBuildingLevelNeeded = 14;
@@ -2487,9 +2514,12 @@ class OgameHelper {
                         case 15:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 69;
-                                foodLevelNeeded = 72;
+                                foodLevelNeeded = 64;
                                 t2popBuildingLevelNeeded = 14;
-                                t3popBuildingLevelNeeded = 10;
+                                t3popBuildingLevelNeeded = 9;
+                                foodSiloLevelNeeded = 37;
+                                biotechLabLevelNeeded = 21;
+                                skyscraperLevelNeeded = 8;
                             } else {
                                 quartersLevelNeeded = 70;
                                 foodLevelNeeded = 72;
@@ -2500,9 +2530,12 @@ class OgameHelper {
                         case 16:
                             if(this.json.player.allyClass == ALLY_CLASS_TRADER){
                                 quartersLevelNeeded = 72;
-                                foodLevelNeeded = 75;
-                                t2popBuildingLevelNeeded = 15;
+                                foodLevelNeeded = 66;
+                                t2popBuildingLevelNeeded = 14;
                                 t3popBuildingLevelNeeded = 10;
+                                foodSiloLevelNeeded = 40;
+                                biotechLabLevelNeeded = 24;
+                                skyscraperLevelNeeded = 8;
                             } else {
                                 quartersLevelNeeded = 72;
                                 foodLevelNeeded = 75;
@@ -2521,30 +2554,33 @@ class OgameHelper {
                                 skyscraperLevelNeeded = 12;
                             } else {
                                 quartersLevelNeeded = 75;
-                                foodLevelNeeded = 78;
-                                t2popBuildingLevelNeeded = 16;
+                                foodLevelNeeded = 68;
+                                t2popBuildingLevelNeeded = 15;
                                 t3popBuildingLevelNeeded = 11;
+                                foodSiloLevelNeeded = 42;
+                                biotechLabLevelNeeded = 24;
+                                skyscraperLevelNeeded = 10;
                             }
                             break;
                     }
                     return [
                         {
-                            'name': quartersName,
+                            'name': 'residentialSector',
                             'level': quartersLevel,
                             'levelNeeded': quartersLevelNeeded,
                         },
                         {
-                            'name': foodName,
+                            'name': 'biosphereFarm',
                             'level': foodLevel,
                             'levelNeeded': foodLevelNeeded,
                         },
                         {
-                            'name': t2popBuildingName,
+                            'name': 'academyOfSciences',
                             'level': t2popBuildingLevel,
                             'levelNeeded': t2popBuildingLevelNeeded,
                         },
                         {
-                            'name': t3popBuildingName,
+                            'name': 'neuroCalibrationCentre',
                             'level': t3popBuildingLevel,
                             'levelNeeded': t3popBuildingLevelNeeded,
                         },
