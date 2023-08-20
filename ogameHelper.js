@@ -290,12 +290,13 @@ class OgameHelper {
             //human            
             'highEnergySmelting': {
                 'researchCentre': 5,
-                'residentialSector': 12,
-                'biosphereFarm': 13,
+                'residentialSector': 21,
+                'biosphereFarm': 22,
             }, 
             'fusionPoweredProduction': {
                 'academyOfSciences': 1,
-                'residentialSector': 40,
+                'residentialSector': 41,
+                'biosphereFarm': 42,
             },
             //rocktal
             'runeTechnologium': {
@@ -402,11 +403,13 @@ class OgameHelper {
             //plasma
         } else {
             let buildSpeed = (this.getLevel(planet.roboticsFactory) + 1) * Math.pow(2, this.getLevel(planet.nanite)) * this.json.settings.economySpeed;
-            let buildingTime = 0;
-            switch(upgradeType){
-                case "metal":
-                    return 
-            }
+            let baseUpgradeTime;
+            if(upgradeType == "metal") baseUpgradeTime = 75 * Math.pow(1.5, level);
+            if(upgradeType == "crystal") baseUpgradeTime = 72 * Math.pow(1.6, level);
+            if(upgradeType == "deut") baseUpgradeTime = 300 * Math.pow(1.5, level);
+
+
+            return baseUpgradeTime / buildSpeed * (2 / (7 - Math.max(5, level)));
         }
     }
 
