@@ -1363,7 +1363,7 @@ class OgameHelper {
         research.push(this.json.player.spy);
 
         research.forEach(r => {
-            if(r.timeFinished) blocked.push({coords: "account", type: "research", timeFinished: r.timeFinished})
+            if(r.timeFinished) blocked.push({coords: "account", type: ["research"], timeFinished: r.timeFinished})
         });
 
         player.planets.forEach(planet => {
@@ -1373,22 +1373,38 @@ class OgameHelper {
             builds.push(planet.deut);
             builds.push(planet.solar);
             builds.push(planet.fusion);
+            builds.push(planet.researchlab);
+            builds.push(planet.missileSilo);
+            builds.push(planet.shipyard);
 
             builds.forEach(b => {
-                if(b.timeFinished) blocked.push({coords: planet.coords, type: "building", timeFinished: b.timeFinished});
+                if(b.timeFinished) blocked.push({coords: planet.coords, type: ["building", "lifeformbuilding"], timeFinished: b.timeFinished});
             });
 
+            const robotbuilds = [];
+            robotbuilds.push(planet.roboticsFactory);
+            robotbuilds.push(planet.nanite);
+            
+            robotbuilds.forEach(b => {
+                if(b.timeFinished) blocked.push({coords: planet.coords, type: ["building", "lifeformbuilding"], timeFinished: b.timeFinished});
+            });
             
             if(planet.lifeforms){
                 if(planet.lifeforms.buildings){
                     Object.entries(planet.lifeforms.buildings)?.forEach(([key, value]) => {
-                        if(value.timeFinished) blocked.push({coords: planet.coords, type: "lifeformbuilding", timeFinished: value.timeFinished});                    
+                        if(value.timeFinished){
+                            if(["researchCentre", "runeTechnologium", "vortexChamber", "roboticsResearchCentre"].includes(key)){
+                                blocked.push({coords: planet.coords, type: ["lifeformbuilding", "lifeformtech"], timeFinished: value.timeFinished});                    
+                            } else {
+                                blocked.push({coords: planet.coords, type: ["lifeformbuilding"], timeFinished: value.timeFinished});                    
+                            }                        
+                        }
                     })    
                 }
 
                 if(planet.lifeforms.techs?.length > 0){
                     planet.lifeforms.techs.forEach(t => {
-                        if(t.level.timeFinished) blocked.push({coords: planet.coords, type: "lifeformtech", timeFinished: t.level.timeFinished});
+                        if(t.level.timeFinished) blocked.push({coords: planet.coords, type: ["lifeformtech"], timeFinished: t.level.timeFinished});
                     })    
                 }
             }
@@ -1595,13 +1611,22 @@ class OgameHelper {
     }
 
     getAmortizationColor(coords, type, blocked){
-        const block = blocked.find(x => x.coords == coords && x.type == type);
+        const block = blocked.find(x => x.coords == coords && this.checkTypeBlocked(x.type, type));
         if(!block) return "#00ff00";
 
         const timeLeft = block.timeFinished - Date.now() / 1000;
         if(timeLeft > 3600 * 24) return "#ff0000";            
         if(timeLeft > 0) return "#ffff00";
         return "#00ff00"
+    }
+
+    checkTypeBlocked(array1, array2){
+        console.log(array1);
+        console.log(array2);
+        array1.forEach(type => {
+            if(array2.includes(type)) { return true; }
+        });
+        return false;
     }
 
     /**
@@ -1612,13 +1637,13 @@ class OgameHelper {
         let amorColor;
         this.json.player.planets.forEach((planet) => {
             if(!coords || planet.coords == coords){
-                amorColor = this.getAmortizationColor(planet.coords, "building", blocked);
-                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal, "productionbuilding", amorColor));
-                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, "productionbuilding", amorColor));
-                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, "productionbuilding", amorColor));
+                amorColor = this.getAmortizationColor(planet.coords, ["building"], blocked);
+                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal, ["mine", "productionbuilding"], amorColor));
+                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, ["mine", "productionbuilding"], amorColor));
+                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, ["mine", "productionbuilding"], amorColor));
 
                 if(this.json.settings.lifeforms && planet.lifeforms.lifeformClass){
-                    let amorColorBuilding = this.getAmortizationColor(planet.coords, "lifeformbuilding", blocked);
+                    let amorColorBuilding = this.getAmortizationColor(planet.coords, ["lifeformbuilding"], blocked);
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "productionbuilding", amorColorBuilding));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "productionbuilding", amorColorBuilding));
@@ -1633,7 +1658,9 @@ class OgameHelper {
                         console.warn("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
     
-                    let amorColorTech = this.getAmortizationColor(planet.coords, "lifeformtech", blocked);
+                    let amorColorTech = this.getAmortizationColor(planet.coords, ["lifeformtech"], blocked);
+                    console.log(blocked);
+                    console.log(planet.coords + " / " + amorColorTech);
                     
                     for(let s = 0; s < 18; s++){
                         const tech = planet.lifeforms.techs[s];
@@ -1661,12 +1688,12 @@ class OgameHelper {
                                 const unlockPrerequisites = this.getUnlockPrerequisitesForTechSlot(s, planet);
                                 const unlockCosts = this.getUnlockCostsForPrerequisites(planet, unlockPrerequisites);
                                 possibleTechs.forEach(tech => {
-                                    let level = 1;
+                                    let level = 0;
                                     let gainMse = this.getMSEProduction(planet, tech, level);
                                     if(gainMse > 0){
                                         let totalCost = unlockCosts + this.getMSECosts(planet, tech, level);
                                         let currentROI = totalCost / gainMse;
-                                        while(this.getMSECosts(planet, tech, level + 1) / this.getMSEProduction(planet, tech, level + 1) < currentROI){
+                                        while(this.getMSECosts(planet, tech, level + 1) / this.getMSEProduction(planet, tech, level + 1) < currentROI) {
                                             level++;
                                             gainMse += this.getMSEProduction(planet, tech, level);
                                             totalCost += this.getMSECosts(planet, tech, level);
@@ -1677,7 +1704,7 @@ class OgameHelper {
                                             coords: planet.coords, 
                                             name: planet.name, 
                                             technology: tech, 
-                                            level: "1-" + (level + 1), 
+                                            level: level == 0 ? "1" : "1-" + (level + 1), 
                                             amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, level + 1)) / 24, 
                                             msecost: totalCost,
                                             type: "lifeformtech",
@@ -1686,8 +1713,6 @@ class OgameHelper {
                                     }
                                 });
 
-                                console.log(planet.coords + " / " + s);
-                                console.log(possibleTechs);
                                 possibleTechsAmortizations.sort((a,b) => a.amortization - b.amortization);
                                 if(possibleTechsAmortizations.length > 0){
                                     if(unlockCosts > 0){
@@ -1719,7 +1744,7 @@ class OgameHelper {
             }
         });
 
-        amorColor = this.getAmortizationColor("account", "research", blocked);
+        amorColor = this.getAmortizationColor("account", ["research"], blocked);
         totalAmortization.push(this.createAmortizationWithPrerequisite(undefined, "plasma", this.getLevel(this.json.player.plasma), "plasma", amorColor));
 
         totalAmortization.push(this.createAstroAmortizationObject(blocked));
@@ -1998,11 +2023,9 @@ class OgameHelper {
         let newPlanets = 0;
         
         for(let a = parseInt(astro) + 1; a <= nextAstro; a++){
-            console.log(a);
             if(a % 2 == 1){
                 newPlanets++;
             }
-            console.log(newPlanets);
             totalMSECostsAstroNewExpo += this.getMSECosts(undefined, "astro", a);
         }
 
@@ -2028,7 +2051,7 @@ class OgameHelper {
             astroLevelStringNewExpo += " - " + nextAstro;
         }
 
-        let amorColor = this.getAmortizationColor("account", "research", blocked);
+        let amorColor = this.getAmortizationColor("account", ["research"], blocked);
         if(totalMSECostsAstroNewExpo / totalMSEProdAstroNewExpo < totalMSECostsAstroNewPlanet / totalMSEProdAstroNewPlanet){
             return {
                 coords: "account",
@@ -2125,40 +2148,58 @@ class OgameHelper {
         switch(slot){
             case 0:
                 popNeeded = 200000;
+                break;
             case 1:
                 popNeeded = 300000;
+                break;
             case 2:
                 popNeeded = 400000;
+                break;
             case 3:
                 popNeeded = 500000;
+                break;
             case 4:
                 popNeeded = 750000;
+                break;
             case 5: 
                 popNeeded = 1000000;
+                break;
             case 6:
                 popNeeded = 1200000;
+                break;
             case 7:
                 popNeeded = 3000000;
+                break;
             case 8: 
                 popNeeded = 5000000;
+                break;
             case 9:
                 popNeeded = 7000000;
+                break;
             case 10:
                 popNeeded = 9000000;
+                break;
             case 11:
                 popNeeded = 11000000;
+                break;
             case 12:
                 popNeeded = 13000000;
+                break;
             case 13: 
                 popNeeded = 26000000;
+                break;
             case 14: 
                 popNeeded = 56000000;
+                break;
             case 15: 
                 popNeeded = 112000000;
+                break;
             case 16: 
                 popNeeded = 224000000;
+                break;
             case 17: 
                 popNeeded = 448000000;
+                break;
         }
 
         let popCapacityBase;
@@ -2876,13 +2917,13 @@ k                            } else {
                 timeShortagePercent = (curLevel + 1) / (curLevel + 2);
                 upgradePercent = 0;
                 amorType = "facility";
-                amorColor = this.getAmortizationColor(upgrade.coords, "building", blocked)      
+                amorColor = this.getAmortizationColor(upgrade.coords, ["building", "lifeformbuilding"], blocked)      
             } else if(upgrade.upgrade == "nanite"){
                 curLevel = this.getLevel(planet.nanite);
                 timeShortagePercent = 0.5;
                 upgradePercent = 0;
                 amorType = "facility";
-                amorColor = this.getAmortizationColor(upgrade.coords, "building", blocked)      
+                amorColor = this.getAmortizationColor(upgrade.coords, ["building", "lifeformbuilding"], blocked)      
             } else if(this.json.settings.lifeforms) {
                 let buildings = planet.lifeforms.buildings;
 
@@ -2891,40 +2932,40 @@ k                            } else {
                     upgradePercent = 0.25;
                     timeShortagePercent = 0.5;
                     amorType = "humanbuilding";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if(upgrade.upgrade == "runeTechnologium"){
                     curLevel = this.getLevel(buildings.runeTechnologium);
                     upgradePercent = 0.25;
                     amorType = "rocktalbuilding";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)    
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "roboticsResearchCentre"){
                     curLevel = this.getLevel(buildings.roboticsResearchCentre);
                     upgradePercent = 0.25;
                     timeShortagePercent = 0.5;
                     amorType = "mechabuilding";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)    
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "vortexChamber"){
                     curLevel = this.getLevel(buildings.vortexChamber);
                     upgradePercent = 0.25;
                     timeShortagePercent = 0.5;
                     amorType = "kaeleshbuilding";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "12209"){
                     let index = planet.lifeforms.techs.findIndex(t => t.id == "12209");
                     curLevel = this.getLevel(planet.lifeforms.techs[index].level);
                     upgradePercent = 0.15;
                     amorType = "lifeformtech";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformtech", blocked)
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "mineralResearchCentre"){
                     curLevel = this.getLevel(buildings.mineralResearchCentre);
                     upgradePercent = 0.5;
                     amorType = "rocktalbuilding";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding"], blocked)
                 } else if (upgrade.upgrade == "megalith"){
                     curLevel = this.getLevel(buildings.megalith);
                     upgradePercent = 1;
                     amorType = "rocktalbuilding";
-                    amorColor = this.getAmortizationColor(upgrade.coords, "lifeformbuilding", blocked)
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding"], blocked)
                 }    
             } else {
                 return;
