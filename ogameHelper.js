@@ -1038,22 +1038,13 @@ class OgameHelper {
             return 0;
         } else if (productionType === "14218"){
             if(this.json.player.playerClass === PLAYER_CLASS_EXPLORER){
-                metalProd = 0.002 * (this.calcExpoShipProd() + this.calcExpoResProd());
-                return metalProd;
+                metalProd = 0.002 * (this.calcExpoResBonus() * this.calcBaseExpoResProd() + this.calcExpoShipBonus() * this.calcBaseExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24;
             }
-            return 0;           
         } else if (productionType === "12218"){
             if(this.json.player.playerClass === PLAYER_CLASS_COLLECTOR){
                 metalProd = 0;
-                return metalProd;
             }
-            return 0;           
-        }
-        
-        
-        
-        
-        else {
+        } else {
             return 0;
         }  
 
@@ -1687,7 +1678,7 @@ class OgameHelper {
                                             name: planet.name, 
                                             technology: tech, 
                                             level: "1-" + (level + 1), 
-                                            amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, parseInt(level) + 1)) / 24, 
+                                            amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, level + 1)) / 24, 
                                             msecost: totalCost,
                                             type: "lifeformtech",
                                             color: amorColorTech,
@@ -1695,6 +1686,8 @@ class OgameHelper {
                                     }
                                 });
 
+                                console.log(planet.coords + " / " + s);
+                                console.log(possibleTechs);
                                 possibleTechsAmortizations.sort((a,b) => a.amortization - b.amortization);
                                 if(possibleTechsAmortizations.length > 0){
                                     if(unlockCosts > 0){
@@ -2878,8 +2871,6 @@ k                            } else {
             let amorColor;
             let timeShortagePercent;
 
-            console.log(upgrade);
-
             if(upgrade.upgrade == "roboticsFactory"){
                 curLevel = this.getLevel(planet.roboticsFactory);
                 timeShortagePercent = (curLevel + 1) / (curLevel + 2);
@@ -2963,14 +2954,12 @@ k                            } else {
             let maxMseSpend = maxMseProd;
             while(mseToSpend > 0 && maxMseSpend > 0){
                 let item = testAmortizationList[0];
-                console.log(item);
                 if((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)){
                     if(resourceDiscount > 0){
                         mseToSpend -= item.msecost * resourceDiscount;
                     }
                     if(timeDiscount > 0){
                         let upgradePlanet = this.getPlanetByCoords(item.coords);
-                        console.log(item);
                         let level;
                         if(item.level.toString().includes("-")){
                             level = parseInt(item.level.split("-")[1]);
@@ -2984,16 +2973,11 @@ k                            } else {
                             hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
                         else
                             hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level)
-                        console.log(upgradeTime);
-                        console.log(hourlyMseProd);
-                        console.log(timeDiscount);
                         mseToSpend -= upgradeTime * timeDiscount * hourlyMseProd;
                     }
-                    console.log(this.getBigNumber(mseToSpend));
                 }
                 maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
-                console.log(this.getBigNumber(mseToSpend) + " / " + this.getBigNumber(maxMseSpend) + " / " + this.getBigNumber(totalMseCost));
                 testAmortizationList[0] = this.upgradeAmortizationItem(item);
                 testAmortizationList.sort((a,b) => a.amortization - b.amortization);
             }
@@ -3300,12 +3284,12 @@ k                            } else {
 
     calcExpoResBonus(){
         if(this.json.settings.lifeforms){
-            let bonus = 0;
+            let bonus = 0.0;
             this.json.player.planets.forEach(p => {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms?.techs?.forEach(t => {
-                        if(t.name == "14205" || t.name == "14211"){
+                        if(t.id == "14205" || t.id == "14211"){
                             bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
                         }
                     });
@@ -3318,7 +3302,7 @@ k                            } else {
     }
 
     getLifeformLevelBonus(planet){
-        let level;
+        let level = 0;
         switch(planet.lifeforms?.lifeformClass){
             case LIFEFORM_CLASS_MENSEN:
                 level = this.json.player.lifeformLevels?.mensen ?? 0;
@@ -3362,7 +3346,7 @@ k                            } else {
                 const lifeformBonus = this.getLifeformLevelBonus(p);
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms.techs.forEach(t => {
-                        if(t.name == "14204"){
+                        if(t.id == "14204"){
                             bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
                         }
                     });    
