@@ -367,7 +367,7 @@ class OgameHelper {
         }
         
         for (const [building, level] of Object.entries(requiredUpgrades)) {
-            const currentLevel = this.getLevel(this.json.player[building] || planet.lifeforms?.buildings[building]);
+            const currentLevel = this.getLevel(this.json.player[building] || planet[building] || planet.lifeforms?.buildings[building]);
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalCost += this.getMSECosts(planet, building, l);
@@ -436,11 +436,17 @@ class OgameHelper {
                 if(upgradeType == "magmaForge") { base = 2000; incFactor = 1.3; }
                 else if(upgradeType == "crystalRefinery") { base = 40000; incFactor = 1.2; }
                 else if(upgradeType == "deuteriumSynthesizer") { base = 52000; incFactor = 1.2; }
+                else if(upgradeType == "mineralResearchCentre") { base = 90000; incFactor = 1.3; }
+                else if(upgradeType == "runeTechnologium") { base = 16000; incFactor = 1.25; }
 
+                else if(upgradeType == "researchCentre") { base = 16000; incFactor = 1.25; }
                 else if(upgradeType == "highEnergySmelting") { base = 2000; incFactor = 1.3; }
                 else if(upgradeType == "fusionPoweredProduction") { base = 28000; incFactor = 1.2; }
 
+                else if(upgradeType == "roboticsResearchCentre") { base = 16000; incFactor = 1.25; }
                 else if(upgradeType == "highPerformanceSynthesizer") { base = 52000; incFactor = 1.2; }
+
+                else if(upgradeType == "vortexChamber") { base = 16000; incFactor = 1.25; }
 
                 else if(upgradeType == "11202") { base = 2000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
                 else if(upgradeType == "11208") { base = 6000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
@@ -937,17 +943,6 @@ class OgameHelper {
             crystalProd = 0.02 * this.getRawProduction(planet, "crystal", planet.crystal) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
         } else if (productionType === "deuteriumSynthesizer") {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
-        } else if (productionType === "mineralResearchCentre") {
-            let perc = 0.005 / (1 - 0.005 * parseInt(level))
-            this.json.player.planets.forEach(p => {
-                metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
-                crystalProd += (15 + this.getRawProduction(p, "crystal", p.crystal) * (1 + this.getBonus(p, "crystal"))) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
-                deutProd += (this.getRawProduction(p, "deut", p.deut) * (1 + this.getBonus(p, "deut"))) * this.json.settings.economySpeed;
-            });
-
-            metalProd *= perc / this.json.player.planets.length;
-            crystalProd *= perc / this.json.player.planets.length;
-            deutProd *= perc / this.json.player.planets.length;
         } else if (productionType === "highPerformanceSynthesizer") {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
         } 
@@ -1378,7 +1373,7 @@ class OgameHelper {
             builds.push(planet.shipyard);
 
             builds.forEach(b => {
-                if(b.timeFinished) blocked.push({coords: planet.coords, type: ["building", "lifeformbuilding"], timeFinished: b.timeFinished});
+                if(b.timeFinished) blocked.push({coords: planet.coords, type: ["building"], timeFinished: b.timeFinished});
             });
 
             const robotbuilds = [];
@@ -1621,11 +1616,9 @@ class OgameHelper {
     }
 
     checkTypeBlocked(array1, array2){
-        console.log(array1);
-        console.log(array2);
-        array1.forEach(type => {
+        for (const type of array1) {
             if(array2.includes(type)) { return true; }
-        });
+        }
         return false;
     }
 
@@ -2930,30 +2923,32 @@ k                            } else {
                 if(upgrade.upgrade == "researchCentre"){
                     curLevel = this.getLevel(buildings.researchCentre);
                     upgradePercent = 0.25;
-                    timeShortagePercent = 0.5;
+                    timeShortagePercent = 0.005;
                     amorType = "humanbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if(upgrade.upgrade == "runeTechnologium"){
                     curLevel = this.getLevel(buildings.runeTechnologium);
                     upgradePercent = 0.25;
+                    timeShortagePercent = 0.005;
                     amorType = "rocktalbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "roboticsResearchCentre"){
                     curLevel = this.getLevel(buildings.roboticsResearchCentre);
                     upgradePercent = 0.25;
-                    timeShortagePercent = 0.5;
+                    timeShortagePercent = 0.005;
                     amorType = "mechabuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "vortexChamber"){
                     curLevel = this.getLevel(buildings.vortexChamber);
                     upgradePercent = 0.25;
-                    timeShortagePercent = 0.5;
+                    timeShortagePercent = 0.005;
                     amorType = "kaeleshbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "12209"){
                     let index = planet.lifeforms.techs.findIndex(t => t.id == "12209");
                     curLevel = this.getLevel(planet.lifeforms.techs[index].level);
                     upgradePercent = 0.15;
+                    timeShortagePercent = 0.003;
                     amorType = "lifeformtech";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "mineralResearchCentre"){
@@ -2964,6 +2959,7 @@ k                            } else {
                 } else if (upgrade.upgrade == "megalith"){
                     curLevel = this.getLevel(buildings.megalith);
                     upgradePercent = 1;
+                    timeShortagePercent = 0.01
                     amorType = "rocktalbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding"], blocked)
                 }    
@@ -3013,7 +3009,7 @@ k                            } else {
                         if(item.technology == "metal" || item.technology == "crystal" || item.technology == "deut")
                             hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
                         else
-                            hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level)
+                            hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level);
                         mseToSpend -= upgradeTime * timeDiscount * hourlyMseProd;
                     }
                 }
