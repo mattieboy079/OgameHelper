@@ -1709,7 +1709,7 @@ class OgameHelper {
                                                 
                                                 let prerequisiteType;
                                                 if(prerequisite.name == "meditationEnclave" || prerequisite.name == "crystalFarm"){
-                                                    prerequisiteType = ["lifeformbuilding", "rocktalbuilding", "productionbuilding"];
+                                                    prerequisiteType = ["lifeformbuilding", "rocktalbuilding", "mine"];
                                                 } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL){
                                                     prerequisiteType = ["lifeformbuilding", "rocktalbuilding"];
                                                 } else {
@@ -2818,7 +2818,7 @@ k                            } else {
                             coords: planet.coords,
                             upgrade: "mineralResearchCentre",
                             priority: 1,
-                            affected: "productionbuilding",
+                            affected: "mine",
                         });
                         if(planet.lifeforms.techs?.length > 0){
                             indirectProductionUpgrades.push({
@@ -2903,7 +2903,7 @@ k                            } else {
             let totalMseCost = 0;
 
             let curLevel;
-            let upgradePercent;
+            let resourceDiscount;
             let amorType;
             let amorColor;
             let timeShortagePercent;
@@ -2911,13 +2911,13 @@ k                            } else {
             if(upgrade.upgrade == "roboticsFactory"){
                 curLevel = this.getLevel(planet.roboticsFactory);
                 timeShortagePercent = (curLevel + 1) / (curLevel + 2);
-                upgradePercent = 0;
+                resourceDiscount = 0;
                 amorType = "facility";
                 amorColor = this.getAmortizationColor(upgrade.coords, ["building", "lifeformbuilding"], blocked)      
             } else if(upgrade.upgrade == "nanite"){
                 curLevel = this.getLevel(planet.nanite);
                 timeShortagePercent = 0.5;
-                upgradePercent = 0;
+                resourceDiscount = 0;
                 amorType = "facility";
                 amorColor = this.getAmortizationColor(upgrade.coords, ["building", "lifeformbuilding"], blocked)      
             } else if(this.json.settings.lifeforms) {
@@ -2925,44 +2925,44 @@ k                            } else {
 
                 if(upgrade.upgrade == "researchCentre"){
                     curLevel = this.getLevel(buildings.researchCentre);
-                    upgradePercent = 0.25;
+                    resourceDiscount = 0.0025;
                     timeShortagePercent = 0.005;
                     amorType = "humanbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if(upgrade.upgrade == "runeTechnologium"){
                     curLevel = this.getLevel(buildings.runeTechnologium);
-                    upgradePercent = 0.25;
+                    resourceDiscount = 0.0025;
                     timeShortagePercent = 0.005;
                     amorType = "rocktalbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "roboticsResearchCentre"){
                     curLevel = this.getLevel(buildings.roboticsResearchCentre);
-                    upgradePercent = 0.25;
+                    resourceDiscount = 0.0025;
                     timeShortagePercent = 0.005;
                     amorType = "mechabuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "vortexChamber"){
                     curLevel = this.getLevel(buildings.vortexChamber);
-                    upgradePercent = 0.25;
+                    resourceDiscount = 0.0025;
                     timeShortagePercent = 0.005;
                     amorType = "kaeleshbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "12209"){
                     let index = planet.lifeforms.techs.findIndex(t => t.id == "12209");
                     curLevel = this.getLevel(planet.lifeforms.techs[index].level);
-                    upgradePercent = 0.15;
+                    resourceDiscount = 0.0015;
                     timeShortagePercent = 0.003;
                     amorType = "lifeformtech";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "mineralResearchCentre"){
                     curLevel = this.getLevel(buildings.mineralResearchCentre);
-                    upgradePercent = 0.5;
+                    resourceDiscount = 0.005;
                     amorType = "rocktalbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding"], blocked)
                 } else if (upgrade.upgrade == "megalith"){
                     curLevel = this.getLevel(buildings.megalith);
-                    upgradePercent = 1;
-                    timeShortagePercent = 0.01
+                    resourceDiscount = 0.01;
+                    timeShortagePercent = 0.01;
                     amorType = "rocktalbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding"], blocked)
                 }    
@@ -2975,7 +2975,6 @@ k                            } else {
             let mseToSpend = mseCost;
             let mseProd;
             let timeDiscount = 0;
-            let resourceDiscount = 0;
 
             if(upgrade.upgrade === "nanite"){
                 let prerequisiteTimeShortage = 0;
@@ -2986,23 +2985,26 @@ k                            } else {
             } else if (upgrade.upgrade === "roboticsFactory"){
                 timeDiscount = (1 - (this.getLevel(planet.roboticsFactory) + 1) / (this.getLevel(planet.roboticsFactory) + 2))
             } else {
-                resourceDiscount = upgradePercent / (100 - upgradePercent * curLevel);
                 timeDiscount = timeShortagePercent;
                 mseProd = this.getPrerequisiteMSEProd(planet, upgrade.upgrade, curLevel);
             }
 
             let maxMseSpend = maxMseProd;
-            // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8") console.log(upgrade);
+            if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8") console.log(upgrade);
             while(mseToSpend > 0 && maxMseSpend > 0){
-                // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
+                if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                 let item = testAmortizationList[0];
-                // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(item);
+                if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(item);
                 if((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)){
                     if(resourceDiscount > 0){
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(item.msecost));
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(resourceDiscount);
-                        mseToSpend -= item.msecost * resourceDiscount;
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(item.msecost));
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(resourceDiscount);
+                        let currentDiscount = this.getCurrentDiscount(planet, item.type);
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(currentDiscount);
+                        let relativeDiscount = resourceDiscount / (1 - currentDiscount);
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(relativeDiscount);
+                        mseToSpend -= item.msecost * relativeDiscount;
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                     }
                     if(timeDiscount > 0){
                         let upgradePlanet = this.getPlanetByCoords(item.coords);
@@ -3019,11 +3021,11 @@ k                            } else {
                             hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
                         else
                             hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level);
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(hourlyMseProd));
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(upgradeTime);
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(timeDiscount);
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(hourlyMseProd));
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(upgradeTime);
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(timeDiscount);
                         mseToSpend -= upgradeTime * timeDiscount * hourlyMseProd;
-                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
+                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                     }
                 }
                 maxMseSpend -= item.msecost;
@@ -3047,6 +3049,26 @@ k                            } else {
         });
 
         return amortizationList;
+    }
+
+    getCurrentDiscount(planet, upgradeType){
+        let buildings = planet.lifeforms?.buildings;
+        if(!buildings) return 0;
+
+        let totalDiscount = 0;
+        if(upgradeType.includes("lifeformtech")){
+            let researchLevel = this.getLevel(buildings.roboticsResearchCentre || buildings.researchCentre || buildings.runeTechnologium || buildings.vortexChamber);
+            totalDiscount += 0.0025 * researchLevel;
+        }
+        if(upgradeType.includes("rocktalbuilding")){
+            let buildingLevel = this.getLevel(buildings.megalith);
+            totalDiscount += 0.01 * buildingLevel;
+        }
+        if(upgradeType.includes("mine")){
+            let buildingLevel = this.getLevel(buildings.mineralResearchCentre);
+            totalDiscount += 0.005 * buildingLevel;
+        }
+        return totalDiscount;
     }
 
     upgradeAmortizationItem(item){
