@@ -420,7 +420,7 @@ class OgameHelper {
             return base * Math.pow(incFactor, level) / (1000 * researchSpeed) 
         } else {
             let buildSpeed = (this.getLevel(planet.roboticsFactory) + 1) * Math.pow(2, this.getLevel(planet.nanite)) * this.json.settings.economySpeed;
-            let base, incFactor, factor;
+            let base = 0, incFactor = 0, factor = 0;
 
             if(upgradeType == "metal") { base = 75; incFactor = 1.5; factor = 2 / (7 - Math.min(5, level)); }
             else if(upgradeType == "crystal") { base = 72; incFactor = 1.6; factor = 2 / (7 - Math.min(5, level)); }
@@ -914,7 +914,6 @@ class OgameHelper {
             for(let x = 0; x < amountNewPlanets; x++){
                 planets.push(planet);
             }
-            console.log(planets);
 
             //upgrade previous planets with lifeforms boni
             this.json.player.planets.forEach(p => {
@@ -927,8 +926,6 @@ class OgameHelper {
             });
 
             //new planet mines with new boni
-            console.log(planet);
-            console.log(this.getBonus(planet, "metal", planets));
             metalProd += amountNewPlanets * (30 + this.getRawProduction(planet, "metal", planet.metal) * (1 + this.getBonus(planet, "metal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
             crystalProd += amountNewPlanets * (15 + this.getRawProduction(planet, "crystal", planet.crystal) * (1 + this.getBonus(planet, "crystal", planets))) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
             deutProd += amountNewPlanets * (this.getRawProduction(planet, "deut", planet.deut) * (1 + this.getBonus(planet, "deut", planets))) * this.json.settings.economySpeed;
@@ -1409,9 +1406,6 @@ class OgameHelper {
     }
 
     createAmortizationTable(coords = undefined, listType){
-        let expoProfit = this.calcExpoProfit();
-        console.log("expo: " + this.getBigNumber(expoProfit));
-
         const blocked = this.checkPlanetBlocks();
 
         console.log(blocked);
@@ -1652,8 +1646,6 @@ class OgameHelper {
                     }
     
                     let amorColorTech = this.getAmortizationColor(planet.coords, ["lifeformtech"], blocked);
-                    console.log(blocked);
-                    console.log(planet.coords + " / " + amorColorTech);
                     
                     for(let s = 0; s < 18; s++){
                         const tech = planet.lifeforms.techs[s];
@@ -1698,7 +1690,7 @@ class OgameHelper {
                                             name: planet.name, 
                                             technology: tech, 
                                             level: level == 0 ? "1" : "1-" + (level + 1), 
-                                            amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, level + 1)) / 24, 
+                                            amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, level)) / 24, 
                                             msecost: totalCost,
                                             type: "lifeformtech",
                                             color: amorColorTech,
@@ -1713,15 +1705,30 @@ class OgameHelper {
                                             if(prerequisite.level < prerequisite.levelNeeded){
                                                 let levelString = parseInt(prerequisite.level) + 1 == prerequisite.levelNeeded 
                                                 ? prerequisite.levelNeeded 
-                                                : (parseInt(prerequisite.level) + 1) + "-" + prerequisite.levelNeeded
+                                                : (parseInt(prerequisite.level) + 1) + "-" + prerequisite.levelNeeded;
+                                                
+                                                let prerequisiteType;
+                                                if(prerequisite.name == "meditationEnclave" || prerequisite.name == "crystalFarm"){
+                                                    prerequisiteType = ["lifeformbuilding", "rocktalbuilding", "productionbuilding"];
+                                                } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL){
+                                                    prerequisiteType = ["lifeformbuilding", "rocktalbuilding"];
+                                                } else {
+                                                    prerequisiteType = ["lifeformbuilding"];
+                                                }
+
+                                                let prerequisiteCost = 0;
+                                                for(let l = prerequisite.level; l < prerequisite.levelNeeded; l++){
+                                                    prerequisiteCost += this.getMSECosts(planet, prerequisite.name, l);
+                                                }
+
                                                 totalAmortization.push({
                                                     coords: planet.coords, 
                                                     name: planet.name, 
                                                     technology: /*possibleTechsAmortizations[0].technology + " => " + */ prerequisite.name, 
                                                     level: levelString, 
                                                     amortization: possibleTechsAmortizations[0].amortization, 
-                                                    msecost: possibleTechsAmortizations[0].msecost,
-                                                    type: "lifeformbuilding",
+                                                    msecost: prerequisiteCost,
+                                                    type: prerequisiteType,
                                                     color: amorColorBuilding,
                                                 });
                                             }
@@ -1896,10 +1903,9 @@ class OgameHelper {
 
     createAstroAmortizationObject(blocked){
         //astro
-        let preRequisiteAstroCosts = this.getPrerequisiteMSECosts(undefined, "astro");
-        console.log(preRequisiteAstroCosts);
-        let totalMSECostsAstroNewPlanet = 0;
-        let totalMSECostsAstroNewExpo = 0;
+        const preRequisiteAstroCosts = this.getPrerequisiteMSECosts(undefined, "astro");
+        let totalMSECostsAstroNewPlanet = preRequisiteAstroCosts;
+        let totalMSECostsAstroNewExpo = preRequisiteAstroCosts;
         let totalMSEProdAstroNewPlanet = 0;
         let totalMSEProdAstroNewExpo = 0;
         let newPlanetExpoBoostProduction = 0;
@@ -2024,9 +2030,6 @@ class OgameHelper {
 
         const newPlanetProductionNewPlanet = this.getMSEProduction(avgPlanet, "astro", 1);
         const newPlanetsProductionNewExpo = this.getMSEProduction(avgPlanet, "astro", newPlanets);
-        console.log(this.getBigNumber(newPlanetProductionNewPlanet));
-        console.log(this.getBigNumber(newPlanetsProductionNewExpo));
-
 
         totalMSECostsAstroNewPlanet += newPlanetMSECost;
         totalMSECostsAstroNewExpo += newPlanets * newPlanetMSECost;
@@ -2034,10 +2037,10 @@ class OgameHelper {
         totalMSEProdAstroNewPlanet += newPlanetProductionNewPlanet + newPlanetExpoBoostProduction;
         totalMSEProdAstroNewExpo += newPlanetsProductionNewExpo + newExpoSlotProduction + newPlanets * newPlanetExpoBoostProduction;
         
-        console.log(this.getBigNumber(totalMSECostsAstroNewExpo));
-        console.log(this.getBigNumber(totalMSECostsAstroNewPlanet));
-        console.log(this.getBigNumber(totalMSEProdAstroNewExpo));
-        console.log(this.getBigNumber(totalMSEProdAstroNewPlanet));
+        console.log("astro expo unlock cost: " + this.getBigNumber(totalMSECostsAstroNewExpo));
+        console.log("astro expo unlock prod: " + this.getBigNumber(totalMSEProdAstroNewExpo));
+        console.log("astro planet unlock cost: " + this.getBigNumber(totalMSECostsAstroNewPlanet));
+        console.log("astro planet unlock prod: " + this.getBigNumber(totalMSEProdAstroNewPlanet));
 
         let astroLevelStringNewExpo = (parseInt(astro) + 1);
         if(parseInt(astro) + 1 < nextAstro){
@@ -2799,13 +2802,13 @@ k                            } else {
                 coords: planet.coords,
                 upgrade: "roboticsFactory",
                 priority: 1,
-                affected: "productionbuilding",         
+                affected: "productionbuilding",
             });
             indirectProductionUpgrades.push({
                 coords: planet.coords,
                 upgrade: "nanite",
                 priority: 1,
-                affected: "productionbuilding",         
+                affected: "productionbuilding",
             });
 
             if(this.json.settings.lifeforms){
@@ -2989,11 +2992,17 @@ k                            } else {
             }
 
             let maxMseSpend = maxMseProd;
+            // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8") console.log(upgrade);
             while(mseToSpend > 0 && maxMseSpend > 0){
+                // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                 let item = testAmortizationList[0];
+                // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(item);
                 if((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)){
                     if(resourceDiscount > 0){
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(item.msecost));
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(resourceDiscount);
                         mseToSpend -= item.msecost * resourceDiscount;
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                     }
                     if(timeDiscount > 0){
                         let upgradePlanet = this.getPlanetByCoords(item.coords);
@@ -3010,7 +3019,11 @@ k                            } else {
                             hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
                         else
                             hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level);
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(hourlyMseProd));
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(upgradeTime);
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(timeDiscount);
                         mseToSpend -= upgradeTime * timeDiscount * hourlyMseProd;
+                        // if(upgrade.upgrade == "roboticsFactory" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                     }
                 }
                 maxMseSpend -= item.msecost;
