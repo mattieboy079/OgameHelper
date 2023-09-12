@@ -584,9 +584,9 @@ class OgameHelper {
             crystalCost = 13000 * Math.pow(1.09, level) * (level + 1);
             deutCost = 7000 * Math.pow(1.09, level) * (level + 1);
         } else if (upgradeType === "fusionPoweredProduction") {
-            metalCost = 50000 * Math.pow(1.2, level) * (level + 1);
-            crystalCost = 25000 * Math.pow(1.2, level) * (level + 1);
-            deutCost = 25000 * Math.pow(1.2, level) * (level + 1);
+            metalCost = 50000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 25000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 15000 * Math.pow(1.5, level) * (level + 1);
         } else if (upgradeType === "skyscraper"){
             metalCost = 75000 * Math.pow(1.09, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.09, level) * (level + 1);
@@ -1275,6 +1275,18 @@ class OgameHelper {
         if(level.level) level = level.level;
         const startingLevel = parseInt(level);
         let mseProd = this.getMSEProduction(planet, upgradeType, startingLevel);
+        if(mseProd <= 0){
+            return {
+                coords: planet?.coords ?? "account",
+                name: planet?.name ?? "account",
+                technology: upgradeType,
+                level: startingLevel + 1,
+                amortization: Infinity,
+                msecost: Infinity,
+                type: amorType,
+                color: amorColor
+            };
+        }
         const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
         let mseCosts = this.getMSECosts(planet, upgradeType, startingLevel) + preMseCosts;
 
@@ -2021,8 +2033,8 @@ class OgameHelper {
         let nextAstro = l*l;
         let newPlanets = 0;
         
-        for(let a = parseInt(astro) + 1; a <= nextAstro; a++){
-            if(a % 2 == 1){
+        for(let a = parseInt(astro); a < nextAstro; a++){
+            if((a + 1) % 2 == 1){
                 newPlanets++;
             }
             totalMSECostsAstroNewExpo += this.getMSECosts(undefined, "astro", a);
@@ -2888,7 +2900,12 @@ k                            } else {
 
     addIndirectProductionUpgradesToAmortization(amortizationList, indirectProductionUpgrades, blocked){
         let totalHourlyMseProd = this.calcTotalMseProduction();
-        let maxMseProd = parseFloat(amortizationList[amortizationList.length - 1].amortization) * totalHourlyMseProd * 24;
+        let maxMseProd;
+        let l = 0;
+        do{
+            l++
+            maxMseProd = parseFloat(amortizationList[amortizationList.length - l].amortization) * totalHourlyMseProd * 24;
+        } while (maxMseProd == Infinity)
 
         if(maxMseProd == Infinity){
             console.log(amortizationList);
@@ -2908,15 +2925,15 @@ k                            } else {
             let amorColor;
             let timeShortagePercent;
 
-            if(upgrade.upgrade == "roboticsFactory"){
-                curLevel = this.getLevel(planet.roboticsFactory);
-                timeShortagePercent = (curLevel + 1) / (curLevel + 2);
+            if(upgrade.upgrade == "nanite"){
+                curLevel = this.getLevel(planet.nanite);
+                timeShortagePercent = 0.5;
                 resourceDiscount = 0;
                 amorType = "facility";
                 amorColor = this.getAmortizationColor(upgrade.coords, ["building", "lifeformbuilding"], blocked)      
-            } else if(upgrade.upgrade == "nanite"){
-                curLevel = this.getLevel(planet.nanite);
-                timeShortagePercent = 0.5;
+            } else if(upgrade.upgrade == "roboticsFactory"){
+                curLevel = this.getLevel(planet.roboticsFactory);
+                timeShortagePercent = (curLevel + 1) / (curLevel + 2);
                 resourceDiscount = 0;
                 amorType = "facility";
                 amorColor = this.getAmortizationColor(upgrade.coords, ["building", "lifeformbuilding"], blocked)      
@@ -2990,21 +3007,13 @@ k                            } else {
             }
 
             let maxMseSpend = maxMseProd;
-            if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8") console.log(upgrade);
             while(mseToSpend > 0 && maxMseSpend > 0){
-                if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                 let item = testAmortizationList[0];
-                if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(item);
                 if((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)){
                     if(resourceDiscount > 0){
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(item.msecost));
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(resourceDiscount);
                         let currentDiscount = this.getCurrentDiscount(planet, item.type);
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(currentDiscount);
                         let relativeDiscount = resourceDiscount / (1 - currentDiscount);
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(relativeDiscount);
                         mseToSpend -= item.msecost * relativeDiscount;
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                     }
                     if(timeDiscount > 0){
                         let upgradePlanet = this.getPlanetByCoords(item.coords);
@@ -3021,11 +3030,7 @@ k                            } else {
                             hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
                         else
                             hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level);
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(hourlyMseProd));
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(upgradeTime);
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(timeDiscount);
                         mseToSpend -= upgradeTime * timeDiscount * hourlyMseProd;
-                        if(upgrade.upgrade == "mineralResearchCentre" && upgrade.coords == "1:499:8" && item.coords == "1:499:8") console.log(this.getBigNumber(mseToSpend));
                     }
                 }
                 maxMseSpend -= item.msecost;
