@@ -262,7 +262,7 @@ class OgameHelper {
                     if(MagmaAangedrevenPompsystemen) lifeformTechBonus += 0.0008 * this.getLevel(MagmaAangedrevenPompsystemen.level);
                 }
             });
-            lifeformTechBonus *= (1 + this.getLifeformLevelBonus(planet));
+            lifeformTechBonus *= (1 + this.getLifeformBonus(planet));
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
             //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBuildingBonus + " - " + lifeformTechBonus);
         }
@@ -299,6 +299,14 @@ class OgameHelper {
                 'academyOfSciences': 1,
                 'residentialSector': 41,
                 'biosphereFarm': 42,
+            },
+            'metropolis': {
+                'academyOfSciences': 1,
+                'residentialSector': 41,
+                'biosphereFarm': 42,
+                'fusionPoweredProduction': 1,
+                'skyscraper': 6,
+                'neuroCalibrationCentre': 1,
             },
             //rocktal
             'runeTechnologium': {
@@ -542,7 +550,7 @@ class OgameHelper {
                 let verbeterdeStellaratorKorting = 0;
                 this.json.player.planets.forEach(planet => {
                     let tech = planet.lifeforms.techs?.find(t => t.id == "12209");
-                    if(tech) verbeterdeStellaratorKorting += this.getLevel(tech.level) * .0015 * (1 + this.getLifeformLevelBonus(planet));
+                    if(tech) verbeterdeStellaratorKorting += this.getLevel(tech.level) * .0015 * (1 + this.getLifeformBonus(planet));
                 });
                 factor -= Math.min(verbeterdeStellaratorKorting, 0.5);
             }
@@ -595,6 +603,10 @@ class OgameHelper {
             metalCost = 150000 * Math.pow(1.12, level) * (level + 1);
             crystalCost = 30000 * Math.pow(1.12, level) * (level + 1);
             deutCost = 15000 * Math.pow(1.12, level) * (level + 1);
+        } else if (upgradeType === "metropolis"){
+            metalCost = 80000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 35000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 60000 * Math.pow(1.5, level) * (level + 1);
         } 
         //ROCK'TAL
         else if (upgradeType === "meditationEnclave") {
@@ -683,6 +695,10 @@ class OgameHelper {
             metalCost = 100000 * Math.pow(1.14, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.14, level) * (level + 1);
             deutCost = 3000 * Math.pow(1.14, level) * (level + 1);
+        } else if (upgradeType === "chipMassProduction") {
+            metalCost = 55000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 50000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 30000 * Math.pow(1.5, level) * (level + 1);
         } 
         //Kaelesh
         else if (upgradeType === "sanctuary") {
@@ -942,95 +958,100 @@ class OgameHelper {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
         } else if (productionType === "highPerformanceSynthesizer") {
             deutProd = 0.02 * this.getRawProduction(planet, "deut", planet.deut) * this.json.settings.economySpeed;
+        } else if (productionType === "metropolis") {
+            metalProd = 0.005 * this.getPlanetaryLifeformTechMSEProduction(planet);
+        } else if (productionType === "chipMassProduction") {
+            metalProd = 0.003 * this.getPlanetaryLifeformTechMSEProduction(planet);
+        } else if (productionType === "highPerformanceTransformer") {
+            metalProd = 0.003 * this.getPlanetaryLifeformTechMSEProduction(planet);
         } 
-        
         //LIFEFORM TECHS
         else if (productionType == "11202") {
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
-                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
-                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "12202") {
             this.json.player.planets.forEach(p => {
-                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
+                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "12203") {
             this.json.player.planets.forEach(p => {
-                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "12205") {
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
-                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
-                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
+                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
+                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
        } else if (productionType == "13201") {
             this.json.player.planets.forEach(p => {
-                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "13206") {
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
-                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
-                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "14202") {
             this.json.player.planets.forEach(p => {
-                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "14204") {
-            metalProd = 0.002 * this.calcBaseExpoShipProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformLevelBonus(planet));
+            metalProd = 0.002 * this.calcBaseExpoShipProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
         } else if (productionType == "14205") {
-            metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformLevelBonus(planet));
+            metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
         } 
         
         //LIFEFORMTECHS T2
         else if (productionType === "12207"){
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType === "12210"){
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0008 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType === "11208"){
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
-                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
-                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType === "14211"){
-            metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformLevelBonus(planet));
+            metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
         } else if (productionType === "12211"){
             this.json.player.planets.forEach(p => {
-                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
+                crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType === "14212"){
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
-                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
-                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType === "12212"){
             this.json.player.planets.forEach(p => {
-                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } 
         
         //LIFEFORMTECHS T3
         else if (productionType === "13213"){
             this.json.player.planets.forEach(p => {
-                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformLevelBonus(planet));
-                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformLevelBonus(planet));
-                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformLevelBonus(planet));
+                metalProd += 0.0006 * (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal") * (1 + this.getLifeformBonus(planet));
+                crystalProd += 0.0006 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
+                deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });           
         } else if (productionType === "12213"){
             //TODO
             return 0;
         } else if (productionType === "14218"){
             if(this.json.player.playerClass === PLAYER_CLASS_EXPLORER){
-                metalProd = 0.002 * (this.calcExpoResBonus() * this.calcBaseExpoResProd() + this.calcExpoShipBonus() * this.calcBaseExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24;
+                metalProd = 0.002  * (this.calcExpoResBonus() * this.calcBaseExpoResProd() + this.calcExpoShipBonus() * this.calcBaseExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24;
             }
         } else if (productionType === "12218"){
             if(this.json.player.playerClass === PLAYER_CLASS_COLLECTOR){
@@ -1041,6 +1062,17 @@ class OgameHelper {
         }  
 
         return (metalProd + crystalProd * ratio[0] / ratio[1] + deutProd * ratio[0] / ratio[2]);
+    }
+
+    getPlanetaryLifeformTechMSEProduction(planet){
+        let prod = 0;
+        let lfLevelBonus = 1 + this.getLifeformBonus(planet);
+        planet.lifeforms.techs.forEach(tech => {
+            let level = this.getLevel(tech.level);
+            prod += this.getMSEProduction(planet, tech.id, level) / lfLevelBonus * level;
+        });
+        console.log(planet.coords + " / " + this.getBigNumber(prod));
+        return prod;
     }
 
     getAmountOfExpeditionsPerDay(){
@@ -1646,12 +1678,15 @@ class OgameHelper {
                     if(planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN){
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "productionbuilding", amorColorBuilding));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "productionbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "metropolis", this.getLevel(planet.lifeforms.buildings.metropolis), "productionbuilding", amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), ["rocktalbuilding", "productionbuilding"], amorColorBuilding));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), ["rocktalbuilding", "productionbuilding"], amorColorBuilding));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", this.getLevel(planet.lifeforms.buildings.deuteriumSynthesizer), ["rocktalbuilding", "productionbuilding"], amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "productionbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceTransformer", this.getLevel(planet.lifeforms.buildings.highPerformanceTransformer), "productionbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "chipMassProduction", this.getLevel(planet.lifeforms.buildings.chipMassProduction), "productionbuilding", amorColorBuilding));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.warn("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -3363,7 +3398,7 @@ k                            } else {
         if(this.json.settings.lifeforms){
             let bonus = 0.0;
             this.json.player.planets.forEach(p => {
-                const lifeformBonus = this.getLifeformLevelBonus(p);
+                const lifeformBonus = this.getLifeformBonus(p);
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms?.techs?.forEach(t => {
                         if(t.id == "14205" || t.id == "14211"){
@@ -3378,17 +3413,21 @@ k                            } else {
         }
     }
 
-    getLifeformLevelBonus(planet){
+    getLifeformBonus(planet){
         let level = 0;
+        let bonus = 0;
         switch(planet.lifeforms?.lifeformClass){
             case LIFEFORM_CLASS_MENSEN:
                 level = this.json.player.lifeformLevels?.mensen ?? 0;
+                bonus += 0.005 * this.getLevel(planet.lifeforms.buildings.metropolis);
                 break;
             case LIFEFORM_CLASS_ROCKTAL:
                 level = this.json.player.lifeformLevels?.rocktal ?? 0;
                 break;
             case LIFEFORM_CLASS_MECHA:
                 level = this.json.player.lifeformLevels?.mecha ?? 0;
+                bonus += 0.003 * this.getLevel(planet.lifeforms.buildings.chipMassProduction);
+                bonus += 0.003 * this.getLevel(planet.lifeforms.buildings.highPerformanceTransformer);
                 break;
             case LIFEFORM_CLASS_KAELESH:
                 level = this.json.player.lifeformLevels?.kaelesh ?? 0;
@@ -3397,7 +3436,7 @@ k                            } else {
                 level = 0;
                 break;
         }
-        return level * 0.001;
+        return bonus + level * 0.001;
     }
 
     calcBaseExpoShipProd(){
@@ -3420,7 +3459,7 @@ k                            } else {
         if(this.json.settings.lifeforms){
             let bonus = 0;
             this.json.player.planets.forEach(p => {
-                const lifeformBonus = this.getLifeformLevelBonus(p);
+                const lifeformBonus = this.getLifeformBonus(p);
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms.techs.forEach(t => {
                         if(t.id == "14204"){
