@@ -2978,25 +2978,25 @@ k                            } else {
                 if(upgrade.upgrade == "researchCentre"){
                     curLevel = this.getLevel(buildings.researchCentre);
                     resourceDiscount = 0.0025;
-                    timeShortagePercent = 0.005;
+                    timeShortagePercent = 0.02;
                     amorType = "humanbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if(upgrade.upgrade == "runeTechnologium"){
                     curLevel = this.getLevel(buildings.runeTechnologium);
                     resourceDiscount = 0.0025;
-                    timeShortagePercent = 0.005;
+                    timeShortagePercent = 0.02;
                     amorType = "rocktalbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "roboticsResearchCentre"){
                     curLevel = this.getLevel(buildings.roboticsResearchCentre);
                     resourceDiscount = 0.0025;
-                    timeShortagePercent = 0.005;
+                    timeShortagePercent = 0.02;
                     amorType = "mechabuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)    
                 } else if(upgrade.upgrade == "vortexChamber"){
                     curLevel = this.getLevel(buildings.vortexChamber);
                     resourceDiscount = 0.0025;
-                    timeShortagePercent = 0.005;
+                    timeShortagePercent = 0.02;
                     amorType = "kaeleshbuilding";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformbuilding", "lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "12209"){
