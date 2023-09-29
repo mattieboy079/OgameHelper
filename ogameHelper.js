@@ -1071,7 +1071,6 @@ class OgameHelper {
             let level = this.getLevel(tech.level);
             prod += this.getMSEProduction(planet, tech.id, level) / lfLevelBonus * level;
         });
-        console.log(planet.coords + " / " + this.getBigNumber(prod));
         return prod;
     }
 
@@ -1970,7 +1969,7 @@ class OgameHelper {
             if(zesdeZintuig) newPlanetExpoBoostProduction += zesdeZintuig.level * this.getMSEProduction(avgPlanet, "14211", zesdeZintuig.level);
         }
 
-        const newExpoSlotProduction = this.calcExpoProfit() * this.getAmountOfExpeditionsPerDay() / 24;
+        const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
 
         const astro = this.getLevel(this.json.player.astro);
 

@@ -2,3 +2,4 @@
 - Bugfix: Amortization van mineral research centre wordt niet langer beinvloed door magma forge, crystal refinery en deuterium synthesizer.
 - Bugfix: Level 0 mines zullen niet langer de amortization table laten crashen.
 - Bugfix: Kosten en productie van nieuwe planeten worden nu ook meegerekend in astro tot nieuw expo slot berekening.
+- Bugfix: Nieuwe exposlot van astro ROI telt nu alleen nog maar het nieuwe exposlot als opbrengst, in plaats van alle exposlots
