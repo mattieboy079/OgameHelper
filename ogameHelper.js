@@ -683,15 +683,15 @@ class OgameHelper {
             metalCost = 35000 * Math.pow(1.5, level) * (level + 1);
             crystalCost = 15000 * Math.pow(1.5, level) * (level + 1);
             deutCost = 10000 * Math.pow(1.5, level) * (level + 1);
+        } else if (upgradeType === "highPerformanceSynthesizer") {
+            metalCost = 100000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 40000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 20000 * Math.pow(1.5, level) * (level + 1);
         } else if (upgradeType === "microchipAssemblyLine") {
-            metalCost = 100000 * Math.pow(1.2, level) * (level + 1);
-            crystalCost = 40000 * Math.pow(1.2, level) * (level + 1);
-            deutCost = 20000 * Math.pow(1.2, level) * (level + 1);
-        } else if (upgradeType === "productionAssemblyHall") {
             metalCost = 50000 * Math.pow(1.07, level) * (level + 1);
             crystalCost = 20000 * Math.pow(1.07, level) * (level + 1);
             deutCost = 30000 * Math.pow(1.07, level) * (level + 1);
-        } else if (upgradeType === "highPerformanceSynthesizer") {
+        } else if (upgradeType === "productionAssemblyHall") {
             metalCost = 100000 * Math.pow(1.14, level) * (level + 1);
             crystalCost = 10000 * Math.pow(1.14, level) * (level + 1);
             deutCost = 3000 * Math.pow(1.14, level) * (level + 1);
