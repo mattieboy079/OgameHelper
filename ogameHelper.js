@@ -1001,9 +1001,9 @@ class OgameHelper {
                 deutProd += 0.0008 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType == "14204") {
-            metalProd = 0.002 * this.calcBaseExpoShipProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
+            metalProd = 0.002 * (1 + this.calcExpoClassBoosterBonus()) * this.calcBaseExpoShipProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
         } else if (productionType == "14205") {
-            metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
+            metalProd = 0.002 * (1 + this.calcExpoClassBoosterBonus()) * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
         } 
         
         //LIFEFORMTECHS T2
@@ -1022,7 +1022,7 @@ class OgameHelper {
                 deutProd += 0.0006 * (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed * (1 + this.getLifeformBonus(planet));
             });
         } else if (productionType === "14211"){
-            metalProd = 0.002 * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
+            metalProd = 0.002 * (1 + this.calcExpoClassBoosterBonus()) * this.calcBaseExpoResProd() * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
         } else if (productionType === "12211"){
             this.json.player.planets.forEach(p => {
                 crystalProd += 0.0008 * (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal") * (1 + this.getLifeformBonus(planet));
@@ -1051,7 +1051,7 @@ class OgameHelper {
             return 0;
         } else if (productionType === "14218"){
             if(this.json.player.playerClass === PLAYER_CLASS_EXPLORER){
-                metalProd = 0.002  * (this.calcExpoResBonus() * this.calcBaseExpoResProd() + this.calcExpoShipBonus() * this.calcBaseExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24;
+                metalProd = 0.002 * (1 + this.getLifeformBonus(planet)) * (this.calcExpoResBonus() * this.calcBaseExpoResProd() + this.calcExpoShipBonus() * this.calcBaseExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24;
             }
         } else if (productionType === "12218"){
             if(this.json.player.playerClass === PLAYER_CLASS_COLLECTOR){
@@ -3402,6 +3402,25 @@ k                            } else {
                 if(p.lifeforms?.techs?.length > 0){
                     p.lifeforms?.techs?.forEach(t => {
                         if(t.id == "14205" || t.id == "14211"){
+                            bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
+                        }
+                    });
+                }
+            });
+            return bonus;
+        } else {
+            return 0;
+        }
+    }
+
+    calcExpoClassBoosterBonus(){
+        if(this.json.settings.lifeforms){
+            let bonus = 0.0;
+            this.json.player.planets.forEach(p => {
+                const lifeformBonus = this.getLifeformBonus(p);
+                if(p.lifeforms?.techs?.length > 0){
+                    p.lifeforms?.techs?.forEach(t => {
+                        if(t.id == "14218"){
                             bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
                         }
                     });
