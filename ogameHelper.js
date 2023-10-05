@@ -1445,7 +1445,7 @@ class OgameHelper {
             }
         });
 
-        return blocked;
+        return blocked.filter(b => parseInt(b.timeFinished) * 1000 > Date.now());
     }
 
     createAmortizationTable(coords = undefined, listType){
