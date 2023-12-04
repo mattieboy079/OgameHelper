@@ -172,7 +172,7 @@ class OgameHelper {
         .then((xml) => {
             this.json.settings = {};
             this.json.settings.universe = universe,
-            this.json.settings.lifeforms = xml.querySelector("lifeformSettings") ? true : false;
+            this.json.settings.lifeforms = true;
             this.json.settings.version = xml.querySelector("version").innerHTML,
             this.json.settings.economySpeed = xml.querySelector("speed").innerHTML,
             this.json.settings.globalResearchSpeedFactor = xml.querySelector("researchDurationDivisor").innerHTML,
@@ -1051,7 +1051,7 @@ class OgameHelper {
             return 0;
         } else if (productionType === "14218"){
             if(this.json.player.playerClass === PLAYER_CLASS_EXPLORER){
-                metalProd = 0.002 * (1 + this.getLifeformBonus(planet)) * (this.calcExpoResBonus() * this.calcBaseExpoResProd() + this.calcExpoShipBonus() * this.calcBaseExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24;
+                metalProd = 0.002 * (this.calcExpoResProd() + this.calcExpoShipProd()) * this.getAmountOfExpeditionsPerDay() / 24 * (1 + this.getLifeformBonus(planet));
             }
         } else if (productionType === "12218"){
             if(this.json.player.playerClass === PLAYER_CLASS_COLLECTOR){
@@ -1510,7 +1510,7 @@ class OgameHelper {
                     color = totalAmortization[r - 1].color;
                     
                     amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
-                    if(technology == "14204" || technology == "14205" || technology == "14211")
+                    if(technology == "14204" || technology == "14205" || technology == "14211" || technology == "14218")
                         amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
                 }
     
@@ -1561,7 +1561,7 @@ class OgameHelper {
                     color = totalAmortization[r - 1].color;
                     
                     amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
-                    if(["14204", "14205", "14211"].includes(totalAmortization[r - 1].technology))
+                    if(["14204", "14205", "14211", "14218"].includes(totalAmortization[r - 1].technology))
                         amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
                 }
     
