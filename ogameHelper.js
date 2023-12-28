@@ -1055,13 +1055,25 @@ class OgameHelper {
             }
         } else if (productionType === "12218"){
             if(this.json.player.playerClass === PLAYER_CLASS_COLLECTOR){
-                metalProd = 0;
+                metalProd = 0.002 * 0.25 * this.getTotalHourlyRawMseMineIncome;
             }
         } else {
             return 0;
         }  
 
         return (metalProd + crystalProd * ratio[0] / ratio[1] + deutProd * ratio[0] / ratio[2]);
+    }
+
+    getTotalHourlyRawMseMineIncome(){
+        let metalProd = 0, crystalProd = 0, deutProd = 0;
+        this.json.player.planets.forEach(p => {
+            metalProd += (this.getRawProduction(p, "metal", p.metal)) * this.json.settings.economySpeed * this.getFactor(p, "metal");
+            crystalProd += (this.getRawProduction(p, "crystal", p.crystal)) * this.json.settings.economySpeed * this.getFactor(p, "crystal");
+            deutProd += (this.getRawProduction(p, "deut", p.deut)) * this.json.settings.economySpeed;
+        });
+
+        let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
+        return metalProd + crystalProd / ratio[1] * ratio[0] + deutProd / ratio[2] * ratio[0];
     }
 
     getPlanetaryLifeformTechMSEProduction(planet){
@@ -2745,7 +2757,7 @@ class OgameHelper {
     }
 
     addIndirectProductionUpgradesToAmortization(amortizationList, indirectProductionUpgrades, blocked){
-        let totalHourlyMseProd = this.calcTotalMseProduction();
+        let totalHourlyMseProd = this.getTotalHourlyMseProduction();
         let maxMseProd;
         let l = 0;
         do{
@@ -3109,7 +3121,7 @@ class OgameHelper {
     /**
      * @returns the total production per hour calculated in metal
      */
-    calcTotalMseProduction(){
+    getTotalHourlyMseProduction(){
         let metalProd = 0, crystalProd = 0, deutProd = 0;
         this.json.player.planets.forEach(p => {
             metalProd += (30 + this.getRawProduction(p, "metal", p.metal) * (1 + this.getBonus(p, "metal"))) * this.json.settings.economySpeed * this.getFactor(p, "metal");
