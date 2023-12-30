@@ -15,7 +15,7 @@
     ],
 
     "web_accessible_resources": [{
-        "resources": ["ogameHelper.js", "resources/*"],
+        "resources": ["ogameHelper.js", "resources/*", "messageAnalyzer.js", "functions.js"],
         "matches": ["<all_urls>"]
     }],
 

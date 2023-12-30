@@ -1,4 +1,6 @@
 //import { Player } from './logic/player.js';
+import { MessageAnalyzer } from './messageAnalyzer.js';
+import { GetAverageTemp, GetExpeditionData } from './functions.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_GENERAL = "generaal";
@@ -25,63 +27,10 @@ const RESEARCH = "research";
 const ALLIANCE = "alliance";
 const MESSAGES = "messages";
 
-let SavedInactives;
-
-async function getXMLDoc(xml){
-    const xmlText = await xml.text();
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-   
-    return xmlDoc;
-}
-
-function getObjectsFromXmlDoc(xmlDoc, objectName){
-    const elements = xmlDoc.getElementsByTagName(objectName);
-    const objects = [];
-
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i];
-
-      const attributes = {};
-      for (let i = 0; i < element.attributes.length; i++) {
-        const attribute = element.attributes[i];
-        attributes[attribute.name] = attribute.value;
-      }
-
-      objects.push(attributes);
-    }
-
-    return objects;
-}
-
-function getServerSettingsURL(universe){
-    return `https://${universe}.ogame.gameforge.com/api/serverData.xml`;
-}
-
-async function getPlayers(universe){
-    const xmlDoc = await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/players.xml`));
-    return getObjectsFromXmlDoc(xmlDoc, 'player')
-}
-
-async function getAlliances(universe){
-    return await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/alliances.xml`));
-}
-
-async function getHighscore(universe, category, type){
-    const xmlDoc = await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/highscore.xml?category=${category}&type=${type}`));
-    return getObjectsFromXmlDoc(xmlDoc, 'player');
-}
-
-async function getUniverse(universe){    
-    const xmlDoc = await getXMLDoc(await fetch(`https://${universe}.ogame.gameforge.com/api/universe.xml`));
-    return getObjectsFromXmlDoc(xmlDoc, 'planet');
-}
-
 const UNIVERSE = window.location.host.split(".")[0];
 const CULTURE = UNIVERSE.split("-")[1];
 
-
-
+let ExposPerDay;
 
 function getLanguage(){
     fetch(`https://${UNIVERSE}.ogame.gameforge.com/api/localization.xml`)
@@ -160,7 +109,7 @@ class OgameHelper {
     }
 
     async getServerSettings(universe){
-        let url = getServerSettingsURL(universe);
+        let url = `https://${universe}.ogame.gameforge.com/api/serverData.xml`;
         console.log(url);
         fetch(url)
         .then((rep) => rep.text())
@@ -185,14 +134,6 @@ class OgameHelper {
         console.log("data to save:");
         console.log(this.json);
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
-    }
-
-    getInactiveData(){
-        return JSON.parse(localStorage.getItem("ogh-" + UNIVERSE + "-inactives"));
-    }
-
-    saveInactiveData(inactiveList){
-        localStorage.setItem("ogh-" + UNIVERSE + "-inactives", JSON.stringify(inactiveList));
     }
 
     getBonus(planet, resource, totalPlanets = this.json.player.planets){
@@ -1071,7 +1012,16 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionsPerDay(){
-        return this.json.player.exporounds * this.getAmountOfExpeditionSlots();
+        if(!ExposPerDay){
+            let data = GetExpeditionData(UNIVERSE);
+            let amount = data.Expos.length;
+            let time = new Date().getTime() - new Date(data.Startdate).getTime();
+            const millisecondsPerDay = 24 * 60 * 60 * 1000;
+            let days = time / millisecondsPerDay;
+            ExposPerDay = Math.round(amount / days);
+        }
+        return ExposPerDay;
+        //return this.json.player.exporounds * this.getAmountOfExpeditionSlots();
     }
 
     getAmountOfExpeditionSlots(){
@@ -1084,23 +1034,6 @@ class OgameHelper {
 
     getFactor(planet, productionType) {
         const pos = parseInt(planet.coords.split(":")[2], 10);
-        switch (productionType) {
-            case "metal":
-                if (pos === 8) return 1.35;
-                if (pos === 7 || pos === 9) return 1.23;
-                if (pos === 6 || pos === 10) return 1.1;
-                return 1;
-            case "crystal":
-                if (pos === 1) return 1.4;
-                if (pos === 2) return 1.3;
-                if (pos === 3) return 1.2;
-                return 1;
-            default:
-                return 1;
-        }
-    }
-
-    getFactorForPos(pos, productionType) {
         switch (productionType) {
             case "metal":
                 if (pos === 8) return 1.35;
@@ -1182,7 +1115,7 @@ class OgameHelper {
             shipyard: 0,
             researchlab: 0,
             missileSilo: 0,
-            maxTemp: this.getAverageTemp(coords)
+            maxTemp: GetAverageTemp(coords)
         };
       
         if (this.json.settings.lifeforms) {
@@ -1208,7 +1141,7 @@ class OgameHelper {
             shipyard: planet.shipyard || 0,
             researchlab: planet.researchlab || 0,
             missileSilo: planet.missileSilo || 0,
-            maxTemp: planet.maxTemp || this.getAverageTemp(planet.coords)
+            maxTemp: planet.maxTemp || GetAverageTemp(planet.coords)
         };
       
         if (this.json.settings.lifeforms) {
@@ -1216,27 +1149,6 @@ class OgameHelper {
         }
       
         return newPlanet;
-    }
-
-    getAverageTemp(coords){
-        const averageTemperatures = {
-            1: 240,
-            2: 190,
-            3: 140,
-            4: 90,
-            5: 80,
-            6: 70,
-            7: 60,
-            8: 50,
-            9: 40,
-            10: 30,
-            11: 20,
-            12: 10,
-            13: -30,
-            14: -70,
-            15: -110
-        };
-        return averageTemperatures[parseInt(coords.split(":")[2])];
     }
 
     checkPlanets(){
@@ -3540,247 +3452,9 @@ class OgameHelper {
                 this.saveData();
             }, 50);
         } else if (page === MESSAGES) {
-            doMessagePage();
+            let messageAnalyzer = new MessageAnalyzer(UNIVERSE, this.json.player.ratio);
+            messageAnalyzer.doMessagesPage();
         }
-    }
-
-    doMessagePage(){
-        if (document.querySelector("li[id=subtabs-nfFleet20].ui-state-active")){
-            doSpyTable();
-        }
-
-        if (document.querySelector("li[id=subtabs-nfFleet20].ui-state-active")){
-            //fights tab
-        }
-
-        if (document.querySelector("li[id=subtabs-nfFleet20].ui-state-active")){
-            //expeditions tab
-        }
-
-        if (document.querySelector("li[id=subtabs-nfFleet20].ui-state-active")){
-            //transport tab
-        }
-
-        if (document.querySelector("li[id=subtabs-nfFleet20].ui-state-active")){
-            //other tab
-        }
-
-
-
-        setTimeout(() => {
-            if(SavedInactives == undefined) SavedInactives = this.getInactiveData();
-            console.log(SavedInactives);
-
-            let messageElements = document.querySelectorAll('.msg');
-            if(messageElements){
-                console.log(messageElements);
-                messageElements.forEach(message => {
-                    let isInactive = message.querySelector('.status_abbr_inactive') || message.querySelector('.status_abbr_longinactive');
-                    if(!isInactive) return;
-
-                    let title = message.querySelector('.msg_title.blue_txt a')
-                    let href = title.getAttribute('href');
-                    let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
-                    let x = coordinates[1];
-                    let y = coordinates[2];
-                    let z = coordinates[3];
-                    let coords = x + ':' + y + ':' + z;
-
-                    let timestamp = message.querySelector('.msg_date').textContent;
-                    let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
-                    // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
-                    let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
-                    let unixTimestamp = dateObject.getTime() / 1000;
-
-
-                    if(savedInactives == null) savedInactives = [];
-                    let savedSpyIndex = savedInactives?.findIndex(s => s.coords === coords);
-                    let savedSpyReport = savedInactives[savedSpyIndex];
-
-                    if (savedSpyIndex != -1 && unixTimestamp <= savedSpyReport.timestamp) {
-                        if(savedSpyReport.Plasmatechniek == undefined || savedSpyReport.Plasmatechniek == "-1"){
-                            let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                            button.addEventListener('click', () => { this.readSpyReportContent(savedSpyReport) });    
-                        }    
-                        return;
-                    };
-
-                    console.log(message.innerText);
-                    let res = message.innerText.split('\n')[13].split(': ');
-                    let metal = res[1].replace('Kristal', '');
-                    let crystal = res[2].replace('Deuterium', '');
-                    let deut = res[3];
-
-                    if(metal.includes('M')) metal = parseFloat(metal.replace('M', '').replace(',', '.')) * 1000000; else metal = parseFloat(metal.replace('.', ''));
-                    if(crystal.includes('M')) crystal = parseFloat(crystal.replace('M', '').replace(',', '.')) * 1000000; else crystal = parseFloat(crystal.replace('.', ''));
-                    if(deut.includes('M')) deut = parseFloat(deut.replace('M', '').replace(',', '.')) * 1000000; else deut = parseFloat(deut.replace('.', ''));                        
-                    
-                    let spyReport = {
-                        msgId: message.dataset.msgId,
-                        timestamp: unixTimestamp,
-                        coords: coords,
-                        metal: metal,
-                        crystal: crystal,
-                        deut: deut,
-                    }
-
-                    if(savedSpyIndex == -1){
-                        savedInactives.push(spyReport);
-                        savedSpyIndex = savedInactives.length - 1;
-                    } else {
-                        savedInactives[savedSpyIndex].msgId = spyReport.msgId;
-                        savedInactives[savedSpyIndex].timestamp = spyReport.timestamp;
-                        savedInactives[savedSpyIndex].metal = spyReport.metal;
-                        savedInactives[savedSpyIndex].crystal = spyReport.crystal;
-                        savedInactives[savedSpyIndex].deut = spyReport.deut;          
-                    }
-
-                    let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                    console.log(button);
-                    button.addEventListener('click', () => { this.readSpyReportContent(savedInactives[savedSpyIndex]) });
-                });
-                console.log(savedInactives);    
-            }
-
-            this.getInactivePlanets().then(planets => {
-                console.log(planets);
-                if(savedInactives?.length > 0){
-                    savedInactives = savedInactives.filter(i => planets.some(p => p.coords === i.coords));
-                    this.saveInactiveData(savedInactives);
-                    const unixNow = Math.floor(Date.now() / 1000);
-                    let SpyTableObjects = [];
-                    savedInactives.forEach(inactive => {
-                        let hoursPast = unixNow - inactive.timestamp;
-                        let spyTableObject = {};
-                        spyTableObject.coords = inactive.coords;
-                        let metal = parseInt(inactive.Metaalmijn ?? 0);
-                        let crystal = parseInt(inactive.Kristalmijn ?? 0);
-                        let deut = parseInt(inactive.Deuteriumfabriek ?? 0);
-                        let plasma = parseInt(inactive.Plasmatechniek ?? 0);
-                        spyTableObject.data = inactive.Plasmatechniek ? "complete" : "incomplete";
-                        let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", metal >= 0 ? metal : 0, plasma >= 0 ? plasma : 0, 0);
-                        spyTableObject.metal = inactive.metal + metalHourlyProd / 3600 * hoursPast;
-                        let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", crystal >= 0 ? crystal : 0, plasma >= 0 ? plasma : 0, 0);
-                        spyTableObject.crystal = inactive.crystal + crystalHourlyProd / 3600 * hoursPast;
-                        let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", deut >= 0 ? deut : 0, plasma >= 0 ? plasma : 0, 0);
-                        spyTableObject.deut = inactive.deut + deutHourlyProd / 3600 * hoursPast;
-                        SpyTableObjects.push(spyTableObject);
-                    });
-                    SpyTableObjects.sort((a,b) => this.getMseValue(this.json.player.ratio, b.metal, b.crystal, b.deut) - this.getMseValue(this.json.player.ratio, a.metal, a.crystal, a.deut));
-                    console.log(SpyTableObjects);
-                }
-            });
-        }, 1500);
-    }
-
-    doSpyTable(){
-        
-    }
-
-    getMseValue(ratio, metal, crystal, deut){
-        return parseFloat(metal) + ratio[0] / ratio[1] * parseFloat(crystal) + ratio[0] / ratio[2] * parseFloat(deut);
-    }
-
-    readSpyReportContent(spyReport){
-        setTimeout(() => {
-            console.log("try reading spy report");
-
-            let detailMsg = document.querySelector('.detail_msg');
-            if(!detailMsg) return;
-
-            let details = document.querySelectorAll('.detail_txt');
-            details.forEach(detail => {
-                if(detail.innerText.slice(0, 6) === "Klasse") spyReport.Klasse = detail.innerText.split(':')[1];
-                if(detail.innerText.slice(0, 16) === "Alliantie Klasse") spyReport.AlliantieKlasse = detail.innerText.split(':')[1];
-            });
-
-            let detailLists = document.querySelectorAll('.detail_list');
-            
-            let information = [];
-            detailLists.forEach(detail => {
-                let elements = detail.innerText.split("\n");
-
-                for (var i = 0; i < elements.length; i += 2) {
-                  var name = elements[i];
-                  var level = elements[i + 1];
-                  information.push({ name: name, level: level });
-                }
-            });
-
-            console.log(information);
-            if(information[3] == '' && information[4] == '' && information[5] == '') return;
-            spyReport.Metaalmijn = information.find(x => x.name == "Metaalmijn")?.level ?? "0";
-            spyReport.Kristalmijn = information.find(x => x.name == "Kristalmijn")?.level ?? "0";
-            spyReport.Deuteriumfabriek = information.find(x => x.name == "Deuteriumfabriek")?.level ?? "0";
-            spyReport.Metaalopslag = information.find(x => x.name == "Metaalopslag")?.level ?? "0";
-            spyReport.Kristalopslag = information.find(x => x.name == "Kristalopslag")?.level ?? "0";
-            spyReport.Deuteriumtank = information.find(x => x.name == "Deuteriumtank")?.level ?? "0";
-            spyReport.Plasmatechniek = information.find(x => x.name == "Plasmatechniek")?.level ?? "0";
-
-            console.log(spyReport);
-
-            let savedInactives = this.getInactiveData();
-            let savedSpyIndex = savedInactives?.findIndex(s => s.coords === spyReport.coords);
-            if (savedSpyIndex == -1) return;
-
-            savedInactives[savedSpyIndex].Metaalmijn = spyReport.Metaalmijn;
-            savedInactives[savedSpyIndex].Kristalmijn = spyReport.Kristalmijn;
-            savedInactives[savedSpyIndex].Deuteriumfabriek = spyReport.Deuteriumfabriek;
-            savedInactives[savedSpyIndex].Metaalopslag = spyReport.Metaalopslag;
-            savedInactives[savedSpyIndex].Kristalopslag = spyReport.Kristalopslag;
-            savedInactives[savedSpyIndex].Deuteriumtank = spyReport.Deuteriumtank;
-            savedInactives[savedSpyIndex].Plasmatechniek = spyReport.Plasmatechniek;
-
-            console.log(savedInactives);
-            this.saveInactiveData(savedInactives);
-        }, 1000);
-    }
-
-    async getInactivePlanets(){
-        let players = await getPlayers(UNIVERSE);
-        let highscore = await getHighscore(UNIVERSE, 1, 0);
-        let inactives = players.filter(p => p.status?.toLowerCase() == 'i');
-        inactives.forEach(player => {
-            console.log(player);
-            player.points = parseInt(highscore.find(p => p.id == player.id)?.score ?? -1);
-        });
-        inactives = inactives.filter(p => p.points > 100);
-        console.log(inactives.sort((a,b) => b.points - a.points));
-        let inactivePlanets = await this.getPlanetsByFilter(inactives);
-        return inactivePlanets;
-    }
-
-    async getPlanetsByFilter(playerFilter){
-        let planets = await getUniverse(UNIVERSE);
-        return planets.filter(planet => playerFilter.map(player => player.id).includes(planet.player));
-    }
-
-    getProductionForInactive(coords, type, level, plasma, bonus){
-        let pos = coords.split(':')[2];
-        let prod;
-        let factor = this.getFactorForPos(pos, type);
-
-        switch(type){
-            case "metal":
-                prod = 30 * level * Math.pow(1.1, level);
-                bonus += plasma * 0.01;
-                break;
-            case "crystal":
-                prod = 20 * level * Math.pow(1.1, level);
-                bonus += plasma * 0.066;
-                break;
-            case "deut":
-                prod = 30 * level * Math.pow(1.1, level) * (1.36 - 0.004 * (this.getAverageTemp(coords) - 20));
-                bonus += plasma * 0.033;
-                break;
-        }
-
-        prod *= factor * (1 + bonus);
-        return prod;
-    }
-
-    createSpyTable(){
-
     }
 
     createButtons(coords = undefined){
