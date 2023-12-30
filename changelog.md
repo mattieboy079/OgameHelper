@@ -1,1 +1,2 @@
 - Enhancement: Expedities worden nu uitgelezen, en gebruikt voor de calculaties hoeveel expedities er gedaan worden op een dag.
+- Bugfix: Inactive tracker berekent inkomsten nu goed.
