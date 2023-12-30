@@ -1605,8 +1605,6 @@ class OgameHelper {
                         console.warn("lifeform not found: " + planet.lifeforms.lifeformClass);
                     }
     
-                    let amorColorTech = this.getAmortizationColor(planet.coords, ["lifeformtech"], blocked);
-                    
                     for(let s = 0; s < 18; s++){
                         const tech = planet.lifeforms.techs[s];
                         if(tech){
@@ -1623,7 +1621,7 @@ class OgameHelper {
                                     amortization: (mseCost / extraMSE + this.getUpgradeTime(planet, tech.id, parseInt(level))) / 24, 
                                     msecost: mseCost,
                                     type: "lifeformtech",
-                                    color: amorColorTech,
+                                    color: this.getAmortizationColor(planet.coords, ["lifeformtech"], blocked),
                                 });
                             }
                         } else {
@@ -1653,7 +1651,7 @@ class OgameHelper {
                                             amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, level)) / 24, 
                                             msecost: totalCost,
                                             type: "lifeformtech",
-                                            color: amorColorTech,
+                                            color: "#ffa500",
                                         });
                                     }
                                 });
