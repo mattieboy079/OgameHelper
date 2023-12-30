@@ -1014,7 +1014,13 @@ class OgameHelper {
     getAmountOfExpeditionsPerDay(){
         if(!ExposPerDay){
             let data = GetExpeditionData(UNIVERSE);
-            let amount = data.Expos.length;
+            let amount = 0;
+            let slots = this.getAmountOfExpeditionSlots();
+            for (var key in data.Expos) {
+                var value = data.Expos[key];
+                console.log(key + ": " + value.length);
+                amount += value.length / parseInt(key) * slots;
+            }
             let time = new Date().getTime() - new Date(data.Startdate).getTime();
             const millisecondsPerDay = 24 * 60 * 60 * 1000;
             let days = time / millisecondsPerDay;
@@ -3452,7 +3458,7 @@ class OgameHelper {
                 this.saveData();
             }, 50);
         } else if (page === MESSAGES) {
-            let messageAnalyzer = new MessageAnalyzer(UNIVERSE, this.json.player.ratio);
+            let messageAnalyzer = new MessageAnalyzer(UNIVERSE, this.json.player.ratio, this.getAmountOfExpeditionSlots());
             messageAnalyzer.doMessagesPage();
         }
     }

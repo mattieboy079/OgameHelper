@@ -5,12 +5,13 @@ let SavedInactives;
 let InactivePlanets;
 let Ratio;
 let ExpeditionData;
+let Exposlots;
 
 export class MessageAnalyzer {
-
-    constructor(universe, ratio){
+    constructor(universe, ratio, exposlots){
         Universe = universe;
         Ratio = ratio;
+        Exposlots = exposlots;
     }
 
     getInactiveData(){
@@ -263,15 +264,17 @@ export class MessageAnalyzer {
             if (!ExpeditionData) ExpeditionData = GetExpeditionData(Universe);
             if (!ExpeditionData) ExpeditionData = {
                 Startdate: new Date(),
-                Expos: []
+                Expos: {}
             };
-      
+
+            if(!ExpeditionData.Expos[Exposlots]) ExpeditionData.Expos[Exposlots] = [];
+
             let saving = false;
             messageElements.forEach(message => {
                 let expoType = message.querySelector('.msg_title').innerText.split(' ')[0];
                 if(expoType == "Expeditieresultaat"){
                     let msgId = message.getAttribute('data-msg-id');
-                    if(!ExpeditionData.Expos.some(expo => expo.MsgId === msgId)){
+                    if(!ExpeditionData.Expos[Exposlots].some(expo => expo.MsgId === msgId)){
                         let dateTime = message.querySelector('.fright').innerText;
                         let date = dateTime.split(' ')[0];
                         let dateObjects = date.split('.');
@@ -286,7 +289,7 @@ export class MessageAnalyzer {
                         }
                         
                         console.log(newExpo);
-                        ExpeditionData.Expos.push(newExpo);
+                        ExpeditionData.Expos[Exposlots].push(newExpo);
                         saving = true;
                     }
                 }
