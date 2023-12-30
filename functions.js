@@ -47,14 +47,14 @@ async function getXMLDoc(xml){
 export function GetFactorForPos(pos, productionType) {
     switch (productionType) {
         case "metal":
-            if (pos === 8) return 1.35;
-            if (pos === 7 || pos === 9) return 1.23;
-            if (pos === 6 || pos === 10) return 1.1;
+            if (pos == 8) return 1.35;
+            if (pos == 7 || pos == 9) return 1.23;
+            if (pos == 6 || pos == 10) return 1.1;
             return 1;
         case "crystal":
-            if (pos === 1) return 1.4;
-            if (pos === 2) return 1.3;
-            if (pos === 3) return 1.2;
+            if (pos == 1) return 1.4;
+            if (pos == 2) return 1.3;
+            if (pos == 3) return 1.2;
             return 1;
         default:
             return 1;

@@ -1,4 +1,1 @@
-- Bugfix: Afgeronde upgrades zullen niet meer bouwende upgrades overschrijven voor wat betreft de kleuren in de amortization table.
-- Bugfix: Ontdekker tech 18 amortization gefixed
-- Enhancement: Verdwijning van de trader bonus in de voedsel productie verwerkt
-- Enhancement: Indirecte Productie Upgrades die langer duren dan de langste amortizations krijgen hebben nu een '+' achter de amortization om de berekening niet onnodig lang te maken.
+- Enhancement: Expedities worden nu uitgelezen, en gebruikt voor de calculaties hoeveel expedities er gedaan worden op een dag.

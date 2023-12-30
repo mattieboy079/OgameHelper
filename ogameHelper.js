@@ -3458,7 +3458,7 @@ class OgameHelper {
                 this.saveData();
             }, 50);
         } else if (page === MESSAGES) {
-            let messageAnalyzer = new MessageAnalyzer(UNIVERSE, this.json.player.ratio, this.getAmountOfExpeditionSlots());
+            let messageAnalyzer = new MessageAnalyzer(UNIVERSE, this.json.player.ratio, this.getAmountOfExpeditionSlots(), this.json.settings.economySpeed);
             messageAnalyzer.doMessagesPage();
         }
     }
