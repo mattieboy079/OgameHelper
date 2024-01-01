@@ -2960,7 +2960,7 @@ class OgameHelper {
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
-        tr.appendChild(document.createTextNode("Total Production:"));
+        tr.appendChild(document.createTextNode("Total passive income:"));
         tableBody.appendChild(tr);
 
         tr = document.createElement('tr');
@@ -2980,37 +2980,101 @@ class OgameHelper {
             tr = document.createElement('tr');
             tr.appendChild(document.createTextNode("------"));
             tableBody.appendChild(tr);
-            
-            const minerProdPerHour = this.calcMinerProdHour();
-            
+
+            const dailyExpos = this.getAmountOfExpeditionsPerDay();
+
             tr = document.createElement('tr');
-            tr.appendChild(document.createTextNode("Total Production as " + PLAYER_CLASS_COLLECTOR + ":"));
+            tr.appendChild(document.createTextNode("Total expected average expedition income with " + dailyExpos + " per day as " + PLAYER_CLASS_EXPLORER + ":"));
+            tableBody.appendChild(tr);
+
+            const expoMetal = this.calcExpoResProdPerType("metal");
+            const expoCrystal = this.calcExpoResProdPerType("crystal");
+            const expoDeut = this.calcExpoResProdPerType("deut");
+            const expoFleetMetal = this.calcExpoShipResProdPerType("metal");
+            const expoFleetCrystal = this.calcExpoShipResProdPerType("crystal");
+            const expoFleetDeut = this.calcExpoShipResProdPerType("deut");
+
+            tr = document.createElement('tr');
+            let td = document.createElement('td');
+            td.innerHTML = '&nbsp';
+            tr.appendChild(td);
+            tableBody.appendChild(tr);
+
+            const expoFleetValue = this.json.player.expofleetValue ? this.json.player.expofleetValue / 100 : 1;
+
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Avg resource per expo: " + this.getBigNumber(expoMetal) + " metal, " + this.getBigNumber(expoCrystal) + " crystal, " + this.getBigNumber(expoDeut) + " deut"));
+            tableBody.appendChild(tr);
+    
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Avg fleet per expo (valued at " + expoFleetValue * 100 + "%): " + this.getBigNumber(expoFleetMetal) + " metal, " + this.getBigNumber(expoFleetCrystal) + " crystal, " + this.getBigNumber(expoFleetDeut) + " deut"));
             tableBody.appendChild(tr);
 
             tr = document.createElement('tr');
-            tr.appendChild(document.createTextNode("Per hour: " + this.getBigNumber(minerProdPerHour[0]) + " metal, " + this.getBigNumber(minerProdPerHour[1]) + " crystal, " + this.getBigNumber(minerProdPerHour[2]) + " deut"));
+            td = document.createElement('td');
+            td.innerHTML = '&nbsp';
+            tr.appendChild(td);
+            tableBody.appendChild(tr);
+
+            const totalMetal = expoMetal + expoFleetMetal * expoFleetValue;
+            const totalCrystal = expoCrystal + expoFleetCrystal * expoFleetValue;
+            const totalDeut = expoDeut + expoFleetDeut * expoFleetValue;
+
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Per expo: " + this.getBigNumber(totalMetal) + " metal, " + this.getBigNumber(totalCrystal) + " crystal, " + this.getBigNumber(totalDeut) + " deut"));
             tableBody.appendChild(tr);
     
             tr = document.createElement('tr');
-            tr.appendChild(document.createTextNode("Per day: " + this.getBigNumber(minerProdPerHour[0] * 24) + " metal, " + this.getBigNumber(minerProdPerHour[1] * 24) + " crystal, " + this.getBigNumber(minerProdPerHour[2] * 24) + " deut"));
+            tr.appendChild(document.createTextNode("Per day: " + this.getBigNumber(totalMetal * dailyExpos) + " metal, " + this.getBigNumber(totalCrystal * dailyExpos) + " crystal, " + this.getBigNumber(totalDeut * dailyExpos) + " deut"));
             tableBody.appendChild(tr);
     
             tr = document.createElement('tr');
-            tr.appendChild(document.createTextNode("Per week: " + this.getBigNumber(minerProdPerHour[0] * 24 * 7) + " metal, " + this.getBigNumber(minerProdPerHour[1] * 24 * 7) + " crystal, " + this.getBigNumber(minerProdPerHour[2] * 24 * 7) + " deut"));
+            tr.appendChild(document.createTextNode("Per week: " + this.getBigNumber(totalMetal * dailyExpos * 7) + " metal, " + this.getBigNumber(totalCrystal * dailyExpos * 7) + " crystal, " + this.getBigNumber(totalDeut * dailyExpos * 7) + " deut"));
+            tableBody.appendChild(tr);
+
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("------"));
+            tableBody.appendChild(tr);
+            
+            const minerProdPerHour = this.calcMinerProdHour();
+            const extraMetal = minerProdPerHour[0] - metalProd;
+            const extraCrystal = minerProdPerHour[1] - crystalProd;
+            const extraDeut = minerProdPerHour[2] - deutProd;
+            
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Total extra passive income as " + PLAYER_CLASS_COLLECTOR + ":"));
+            tableBody.appendChild(tr);
+
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Per hour: " + this.getBigNumber(extraMetal) + " metal, " + this.getBigNumber(extraCrystal) + " crystal, " + this.getBigNumber(extraDeut) + " deut"));
+            tableBody.appendChild(tr);
+    
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Per day: " + this.getBigNumber(extraMetal * 24) + " metal, " + this.getBigNumber(extraCrystal * 24) + " crystal, " + this.getBigNumber(extraDeut * 24) + " deut"));
+            tableBody.appendChild(tr);
+    
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("Per week: " + this.getBigNumber(extraMetal * 24 * 7) + " metal, " + this.getBigNumber(extraCrystal * 24 * 7) + " crystal, " + this.getBigNumber(extraDeut * 24 * 7) + " deut"));
             tableBody.appendChild(tr);
 
             tr = document.createElement('tr');
             tr.appendChild(document.createTextNode("------"));
             tableBody.appendChild(tr);
 
-            const expoProfit = this.calcExpoProfit();
+            const expoProfitExplorer = this.calcExpoProfit(PLAYER_CLASS_EXPLORER);
             const minerMseBonus = this.calcMinerMseBonusProfitHour()
-            console.log("expoprofit: " + this.getBigNumber(expoProfit));
+            console.log("expoprofit: " + this.getBigNumber(expoProfitExplorer));
             console.log("miner per hour: " + this.getBigNumber(minerMseBonus));
-            console.log("expoprofit per hour: " + this.getBigNumber(expoProfit * this.getAmountOfExpeditionsPerDay() / 24));
+            console.log("Explorer expoProfit per hour: " + this.getBigNumber(expoProfitExplorer * this.getAmountOfExpeditionsPerDay() / 24));
+            const expoProfitMiner = this.calcExpoProfit(PLAYER_CLASS_COLLECTOR);
+            console.log("Miner expoProfit per hour: " + this.getBigNumber(expoProfitMiner * this.getAmountOfExpeditionsPerDay() / 24));
 
             tr = document.createElement('tr');
-            tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_COLLECTOR + " when doing less then " + this.getBigNumber(minerMseBonus * 24 * 7 / expoProfit) + " expeditions per week."));
+            tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_COLLECTOR + " when doing less then " + this.getBigNumber(minerMseBonus * 24 * 7 / expoProfitExplorer) + " expeditions per week."));
+            tableBody.appendChild(tr);    
+
+            tr = document.createElement('tr');
+            tr.appendChild(document.createTextNode("You should switch to " + PLAYER_CLASS_COLLECTOR + " when doing less then " + this.getBigNumber(minerMseBonus * 24 * 7 / (expoProfitExplorer - expoProfitMiner)) + " expeditions per week when keep doing expeditions."));
             tableBody.appendChild(tr);    
         }
 
@@ -3076,20 +3140,20 @@ class OgameHelper {
      * 
      * @returns the average MSE an expedition produces
      */
-    calcExpoProfit(){
+    calcExpoProfit(playerClass){
         //TODO: calc blackhole/fuelcost
         let blackHoleMSE, fuelCostMSE;
         blackHoleMSE = 0;
         fuelCostMSE = 0;
-        let ship = this.calcExpoShipProd();
-        let res = this.calcExpoResProd()
+        let ship = this.calcExpoShipProd(playerClass);
+        let res = this.calcExpoResProd(playerClass)
         
         console.log("ship: " + this.getBigNumber(ship));
         console.log("res: " + this.getBigNumber(res));
         return ship + res - blackHoleMSE / 300 - fuelCostMSE; 
     }
 
-    GetAverageFind(){
+    GetAverageExpoFind(playerClass){
         const topscore = this.json.settings.topscore;
         let maxBase;
         if(topscore < 10000) maxBase = 40000; 
@@ -3104,22 +3168,23 @@ class OgameHelper {
 
         const naviFactor = 2;
         const explorerFactor = 1.5 * parseInt(this.json.settings.economySpeed);
-        let max = maxBase * naviFactor * (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? explorerFactor : 1);
+        let max = maxBase * naviFactor * (playerClass == PLAYER_CLASS_EXPLORER ? explorerFactor : 1);
         let averageFactor = (0.89 * (10 + 50) + 0.1 * (50 + 100) + 0.01 * (100 + 200)) / 2;
         return max * averageFactor / 200;
     }
 
-    calcBaseExpoResProd(){
+    calcBaseExpoResProd(playerClass){
         let ratio = this.json.player.ratio;
         let metalMSE, crystalMSE, deutMSE;
-        metalMSE = this.GetAverageFind();
-        crystalMSE = this.GetAverageFind() / 2 * ratio[0] / ratio[1];
-        deutMSE = this.GetAverageFind() / 3 * ratio[0] / ratio[2];
+        let averageFind = this.GetAverageExpoFind(playerClass ?? this.json.player.playerClass);
+        metalMSE = averageFind;
+        crystalMSE = averageFind / 2 * ratio[0] / ratio[1];
+        deutMSE = averageFind / 3 * ratio[0] / ratio[2];
         return 0.325 * (0.685 * metalMSE + 0.24 * crystalMSE + 0.075 * deutMSE);
     }
 
-    calcExpoResProd(){
-        return this.calcBaseExpoResProd() * (1 + this.calcExpoResBonus());
+    calcExpoResProd(playerClass){
+        return this.calcBaseExpoResProd(playerClass) * (1 + this.calcExpoResBonus());
     }
 
     calcExpoResBonus(){
@@ -3186,7 +3251,41 @@ class OgameHelper {
         return bonus + level * 0.001;
     }
 
-    calcBaseExpoShipProd(){
+    calcExpoResProdPerType(resource){
+        let factor;
+        switch(resource){
+            case "metal":
+                factor = .685;
+                break;
+            case "crystal":
+                factor = .24 / 2
+                break;
+            case "deut":
+                factor = 0.075 / 3;
+                break;
+        }
+        const resPercentage = .325;
+        return this.GetAverageExpoFind(this.json.player.playerClass) * (1 + this.calcExpoResBonus()) * resPercentage * factor;      
+    }
+
+    calcExpoShipResProdPerType(resource){
+        let factor;
+        switch(resource){
+            case "metal":
+                factor = .54;
+                break;
+            case "crystal":
+                factor = .46
+                break;
+            case "deut":
+                factor = 0.093;
+                break;
+        }
+        const shipPercentage = .22;
+        return this.GetAverageExpoFind(this.json.player.playerClass) * (1 + this.calcExpoShipBonus()) * shipPercentage * factor;
+    }
+
+    calcBaseExpoShipProd(playerClass){
         let ratio = this.json.player.ratio;
         let expofleetValue = 1;
         if(this.json.player.expofleetValue)
@@ -3194,12 +3293,12 @@ class OgameHelper {
             expofleetValue = this.json.player.expofleetValue / 100;
         }
 
-        let shipMSE = this.GetAverageFind() * (0.54 + .46 * ratio[0] / ratio[1] + 0.093 * ratio[0] / ratio[2]);
+        let shipMSE = this.GetAverageExpoFind(playerClass ?? this.json.player.playerClass) * (0.54 + .46 * ratio[0] / ratio[1] + 0.093 * ratio[0] / ratio[2]);
         return 0.22 * shipMSE * expofleetValue
     }
 
-    calcExpoShipProd(){
-        return this.calcBaseExpoShipProd() * (1 + this.calcExpoShipBonus());
+    calcExpoShipProd(playerClass){
+        return this.calcBaseExpoShipProd(playerClass) * (1 + this.calcExpoShipBonus());
     }
 
     calcExpoShipBonus(){
