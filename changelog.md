@@ -1,3 +1,3 @@
 - Enhancement: Expedities worden nu uitgelezen, en gebruikt voor de calculaties hoeveel expedities er gedaan worden op een dag.
 - Enhancement: Not yet unlocked lifeform techs are now suggested in orange, instead of the normal colors.
-- Bugfix: Inactive tracker berekent inkomsten nu goed.
+- Enhancement: Account Production Tab is uitgebreid met informatie over uitgelezen expedities.
