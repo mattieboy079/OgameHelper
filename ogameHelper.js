@@ -1026,7 +1026,7 @@ class OgameHelper {
     getAmountOfExpeditionsPerDay() {
         if (!ExposPerDay) {
             let data = GetExpeditionData(UNIVERSE);
-            if (!data.Startdate) {
+            if (!data) {
                 ExposPerDay = 0;
             } else {
                 let amount = 0;
@@ -3163,8 +3163,8 @@ class OgameHelper {
         let ship = this.calcExpoShipProd(playerClass);
         let res = this.calcExpoResProd(playerClass)
 
-        console.log("ship: " + this.getBigNumber(ship));
-        console.log("res: " + this.getBigNumber(res));
+        console.log("avg ship 1 expo: " + this.getBigNumber(ship));
+        console.log("avg res 1 expo: " + this.getBigNumber(res));
         return ship + res - blackHoleMSE / 300 - fuelCostMSE;
     }
 

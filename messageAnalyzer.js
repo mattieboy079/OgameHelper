@@ -282,8 +282,10 @@ export class MessageAnalyzer {
 
             let saving = false;
             messageElements.forEach(message => {
+                const ExpeditionTypeTranslations = ["Expeditieresultaat", "Ekspeditionsresultat"];
+
                 let expoType = message.querySelector('.msg_title').innerText.split(' ')[0];
-                if(expoType == "Expeditieresultaat"){
+                if(ExpeditionTypeTranslations.includes(expoType)){
                     let msgId = message.getAttribute('data-msg-id');
                     if(!ExpeditionData.Expos[Exposlots].some(expo => expo.MsgId === msgId)){
                         let dateTime = message.querySelector('.fright').innerText;
