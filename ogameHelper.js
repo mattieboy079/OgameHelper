@@ -1025,18 +1025,21 @@ class OgameHelper {
 
     getAmountOfExpeditionsPerDay(){
         if(!ExposPerDay){
-            let data = GetExpeditionData(UNIVERSE);
-            let amount = 0;
-            let slots = this.getAmountOfExpeditionSlots();
-            for (var key in data.Expos) {
-                var value = data.Expos[key];
-                console.log(key + ": " + value.length);
-                amount += value.length / parseInt(key) * slots;
+            if(!data.Startdate){
+                ExposPerDay = 0;
+            } else {
+                let amount = 0;
+                let slots = this.getAmountOfExpeditionSlots();
+                for (var key in data.Expos) {
+                    var value = data.Expos[key];
+                    console.log(key + ": " + value.length);
+                    amount += value.length / parseInt(key) * slots;
+                }
+                let time = new Date().getTime() - new Date(data.Startdate).getTime();
+                const millisecondsPerDay = 24 * 60 * 60 * 1000;
+                let days = time / millisecondsPerDay;
+                ExposPerDay = Math.round(amount / days);
             }
-            let time = new Date().getTime() - new Date(data.Startdate).getTime();
-            const millisecondsPerDay = 24 * 60 * 60 * 1000;
-            let days = time / millisecondsPerDay;
-            ExposPerDay = Math.round(amount / days);
         }
         return ExposPerDay;
         //return this.json.player.exporounds * this.getAmountOfExpeditionSlots();
@@ -2778,7 +2781,7 @@ class OgameHelper {
 
             let totalMseCost = 0;
             let maxMseSpend = maxMseProd;
-            // if(upgrade.coords == "1:86:8") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
+            // if(upgrade.coords == "2:410:8" && upgrade.upgrade == "researchCentre") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
             while(mseToSpend > 0 && maxMseSpend > 0){
                 let item = testAmortizationList[0];
                 if((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)){
@@ -2807,8 +2810,8 @@ class OgameHelper {
                 }
                 maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
-                // if(upgrade.coords == "1:86:8") console.log(item);
-                // if(upgrade.coords == "1:86:8") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
+                // if(upgrade.coords == "2:410:8" && upgrade.upgrade == "researchCentre" && item.coords == "2:410:8") console.log(item);
+                // if(upgrade.coords == "2:410:8" && upgrade.upgrade == "researchCentre") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
                 testAmortizationList[0] = this.upgradeAmortizationItem(item);
                 testAmortizationList.sort((a,b) => a.amortization - b.amortization);
             }

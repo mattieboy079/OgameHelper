@@ -1,3 +1,1 @@
-- Enhancement: Expedities worden nu uitgelezen, en gebruikt voor de calculaties hoeveel expedities er gedaan worden op een dag.
-- Enhancement: Not yet unlocked lifeform techs are now suggested in orange, instead of the normal colors.
-- Enhancement: Account Production Tab is uitgebreid met informatie over uitgelezen expedities.
+- Bugfix: Aantal expedities per dag is nu 0 op het moment dat er geen expedities uitgelezen zijn.
