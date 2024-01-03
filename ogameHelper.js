@@ -1025,6 +1025,7 @@ class OgameHelper {
 
     getAmountOfExpeditionsPerDay(){
         if(!ExposPerDay){
+            let data = GetExpeditionData(UNIVERSE);
             if(!data.Startdate){
                 ExposPerDay = 0;
             } else {
