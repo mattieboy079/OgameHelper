@@ -1050,7 +1050,7 @@ class OgameHelper {
         const astroSlots = Math.floor(Math.sqrt(this.getLevel(this.json.player.astro)));
         const explorerSlots = this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0;
         const admiralSlots = this.json.player.admiral ? 1 : 0;
-        const bonusSlots = parseInt(this.json.player.exposlots);
+        const bonusSlots = parseInt(this.json.player.exposlots) ?? 0;
         return astroSlots + explorerSlots + admiralSlots + bonusSlots;
     }
 

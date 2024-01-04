@@ -272,13 +272,14 @@ export class MessageAnalyzer {
     readExpeditions(){
         let messageElements = document.querySelectorAll('.msg');
         if(messageElements){
+            if (!Exposlots || Exposlots == NaN) return;
             if (!ExpeditionData) ExpeditionData = GetExpeditionData(Universe);
             if (!ExpeditionData) ExpeditionData = {
                 Startdate: new Date(),
                 Expos: {}
             };
 
-            if(!ExpeditionData.Expos[Exposlots]) ExpeditionData.Expos[Exposlots] = [];
+            if (!ExpeditionData.Expos[Exposlots]) ExpeditionData.Expos[Exposlots] = [];
 
             let saving = false;
             messageElements.forEach(message => {
@@ -308,6 +309,7 @@ export class MessageAnalyzer {
                 }
             });
 
+            ExpeditionData[NaN] = undefined;
             if (saving) this.saveExpeditionData(ExpeditionData);
         }
     }
