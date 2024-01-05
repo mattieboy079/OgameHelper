@@ -99,3 +99,7 @@ export function GetExpeditionData(universe){
     console.log(data);
     return data;
 }
+
+export function GetCurrentUnixTimeInSeconds(){
+    return Math.floor(Date.now() / 1000);
+}

@@ -1,6 +1,6 @@
 //import { Player } from './logic/player.js';
 import { MessageAnalyzer } from './messageAnalyzer.js';
-import { GetAverageTemp, GetExpeditionData } from './functions.js';
+import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds } from './functions.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_GENERAL = "generaal";
@@ -30,7 +30,7 @@ const MESSAGES = "messages";
 const UNIVERSE = window.location.host.split(".")[0];
 const CULTURE = UNIVERSE.split("-")[1];
 
-let ExposPerDay;
+let ExpoRounsPerDay;
 
 function getLanguage() {
     fetch(`https://${UNIVERSE}.ogame.gameforge.com/api/localization.xml`)
@@ -1024,34 +1024,64 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionsPerDay() {
-        if (!ExposPerDay) {
-            let data = GetExpeditionData(UNIVERSE);
-            if (!data) {
-                ExposPerDay = 0;
-            } else {
-                let amount = 0;
-                let slots = this.getAmountOfExpeditionSlots();
-                for (var key in data.Expos) {
-                    var value = data.Expos[key];
-                    console.log(key + ": " + value.length);
-                    amount += value.length / parseInt(key) * slots;
-                }
-                let time = new Date().getTime() - new Date(data.Startdate).getTime();
+        return Math.round(this.getAmountOfExpeditionSlots() * this.getExpoRoundsPerDay());
+    }
+    
+    getExpoRoundsPerDay(){
+        if(!ExpoRounsPerDay){
+            let expeditionData = GetExpeditionData(UNIVERSE);
+            if(!expeditionData) 
+                return 0;
+            else{
+                let time = new Date().getTime() - new Date(expeditionData.Startdate).getTime();
                 const millisecondsPerDay = 24 * 60 * 60 * 1000;
                 let days = time / millisecondsPerDay;
-                ExposPerDay = Math.round(amount / days);
+                let amount = 0;
+                for (var key in expeditionData.Expos) {
+                    if(key != NaN){
+                        var value = expeditionData.Expos[key];
+                        console.log(key + ": " + value.length);
+                        amount += value.length / parseInt(key) / days;    
+                    }
+                }
+                ExpoRounsPerDay = amount;
             }
         }
-        return ExposPerDay;
-        //return this.json.player.exporounds * this.getAmountOfExpeditionSlots();
+        return ExpoRounsPerDay;   
     }
 
     getAmountOfExpeditionSlots() {
         const astroSlots = Math.floor(Math.sqrt(this.getLevel(this.json.player.astro)));
         const explorerSlots = this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0;
         const admiralSlots = this.json.player.admiral ? 1 : 0;
-        const bonusSlots = parseInt(this.json.player.exposlots) ?? 0;
+        const bonusSlots = this.getAmountOfExpeditionBoosterSlots();
         return astroSlots + explorerSlots + admiralSlots + bonusSlots;
+    }
+
+    getAmountOfExpeditionBoosterSlots(){
+        let boosters = this.json.player.boosters;
+        const currentTime = GetCurrentUnixTimeInSeconds();
+        let slots = 0;
+        for(let booster in boosters){
+            if(booster.includes("Expeditievakken"))
+            if(boosters[booster] > currentTime){
+                switch (booster.toString().split(' ')[0]) {
+                    case "Bronzen":
+                        slots += 1;
+                        break;
+                    case "Zilveren":
+                        slots += 2;
+                        break;
+                    case "Gouden":
+                        slots += 3;
+                        break;
+                    default:
+                        console.error("Expeditievakken type '" + booster + "' niet gevonden.");
+                        break;
+                }
+            }
+        }
+        return slots;
     }
 
     getFactor(planet, productionType) {
@@ -1171,6 +1201,56 @@ class OgameHelper {
         }
 
         return newPlanet;
+    }
+
+    checkBoosters() {
+        console.log("Checking boosters");
+
+        const panelElement = document.querySelector('.panel.activePage');
+   
+        const boosters = panelElement.querySelectorAll('.js_duration');
+        if(!this.json.player.boosters) this.json.player.boosters = {};
+        
+        const currentTimestampInSeconds = GetCurrentUnixTimeInSeconds();
+
+        let curBoosters = this.json.player.boosters;
+
+        for (let variable in curBoosters) {
+            if(curBoosters[variable] <= currentTimestampInSeconds) delete curBoosters[variable];
+        }
+
+        boosters.forEach((durationElement, index) => {
+            const remainingTime = durationElement.innerHTML;
+            const imageName = panelElement.querySelectorAll('img')[index].getAttribute('alt');
+
+            const remainingTimeElements = remainingTime.split(' ');
+            let remainingSeconds = 0;
+            remainingTimeElements.forEach((timeElement, index2) => {
+                const timeElementChar = timeElement.charAt(timeElement.length - 1);
+                const timeNumber = timeElement.slice(0, -1);
+                switch (timeElementChar) {
+                    case 'w':
+                        remainingSeconds += timeNumber * 7 * 24 * 60 * 60;
+                        break;
+                    case 'd':
+                        remainingSeconds += timeNumber * 24 * 60 * 60;
+                        break;
+                    case 'u':
+                        remainingSeconds += timeNumber * 60 * 60;
+                        break;
+                    case 'm':
+                        remainingSeconds += timeNumber * 60;
+                        break;
+                    case 's':
+                        remainingSeconds += timeNumber;
+                        break;
+                    default:
+                        console.error("timeElementChar '" + timeElementChar + "' not recognised");
+                        break;
+                }
+                this.json.player.boosters[imageName] = currentTimestampInSeconds + remainingSeconds;
+            })
+        });
     }
 
     checkPlanets() {
@@ -1897,7 +1977,7 @@ class OgameHelper {
             if (zesdeZintuig) newPlanetExpoBoostProduction += zesdeZintuig.level * this.getMSEProduction(avgPlanet, "14211", zesdeZintuig.level);
         }
 
-        const newExpoSlotProduction = this.calcExpoProfit() * this.json.player.exporounds / 24;
+        const newExpoSlotProduction = this.calcExpoProfit() * this.getExpoRoundsPerDay() / 24;
 
         const astro = this.getLevel(this.json.player.astro);
 
@@ -3365,6 +3445,7 @@ class OgameHelper {
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if (page === OVERVIEW) {
             this.checkPlanets();
+            this.checkBoosters();
             if (document.querySelector("#characterclass .explorer")) {
                 this.json.player.playerClass = PLAYER_CLASS_EXPLORER;
             } else if (document.querySelector("#characterclass .warrior")) {
@@ -3614,14 +3695,14 @@ class OgameHelper {
                         <td><label for="Ratio">Ratio:</label></td>
                         <td><input type="text" id="Ratio" ratio="Ratio" style="width:100%" value="${ratioString}"></td>
                     </tr>
-                    <tr>    
-                        <td><label for="Exporounds">Expo rounds per day:</label></td>
-                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.json.player.exporounds ?? 0}"></td>
-                    </tr>
-                    <tr>    
-                        <td><label for="Exposlots">Bonus Expo slots:</label></td>
-                        <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
-                    </tr>
+                    // <tr>    
+                    //     <td><label for="Exporounds">Expo rounds per day:</label></td>
+                    //     <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.json.player.exporounds ?? 0}"></td>
+                    // </tr>
+                    // <tr>    
+                    //     <td><label for="Exposlots">Bonus Expo slots:</label></td>
+                    //     <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
+                    // </tr>
                     <tr>    
                         <td><label for="ExpoFleetValue">Expo fleet value (percentage):</label></td>
                         <td><input type="text" id="ExpoFleetValue" ExpoFleetValue="ExpoFleetValue" style="width:100%" value="${this.json.player.expofleetValue ?? 100}"></td>
@@ -3654,8 +3735,6 @@ class OgameHelper {
         let newRatio = document.querySelector("#Ratio").value.replaceAll(",", ".");
         newRatio = newRatio.split("/");
         this.json.player.ratio = [parseFloat(newRatio[0]), parseFloat(newRatio[1]), parseFloat(newRatio[2])];
-        this.json.player.exporounds = parseFloat(document.querySelector("#Exporounds").value.replaceAll(",", "."));
-        this.json.player.exposlots = parseInt(document.querySelector("#Exposlots").value);
         if (!this.json.player.expofleetValue) {
             this.json.player.expofleetValue = {};
         }

@@ -14,6 +14,7 @@ export class MessageAnalyzer {
         Universe = universe;
         Ratio = ratio;
         Exposlots = exposlots;
+        console.log("Slots: " + Exposlots);
         Ecospeed = ecospeed;
     }
 
@@ -279,6 +280,8 @@ export class MessageAnalyzer {
                 Expos: {}
             };
 
+            delete ExpeditionData[NaN];
+
             if (!ExpeditionData.Expos[Exposlots]) ExpeditionData.Expos[Exposlots] = [];
 
             let saving = false;
@@ -309,7 +312,6 @@ export class MessageAnalyzer {
                 }
             });
 
-            ExpeditionData[NaN] = undefined;
             if (saving) this.saveExpeditionData(ExpeditionData);
         }
     }
