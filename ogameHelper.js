@@ -312,7 +312,7 @@ class OgameHelper {
         }
 
         for (const [building, level] of Object.entries(requiredUpgrades)) {
-            const currentLevel = this.getLevel(this.json.player[building] || planet[building] || planet.lifeforms?.buildings[building]);
+            const currentLevel = this.getLevel(this.json.player[building] || planet[building] || (planet.lifeforms?.buildings && planet.lifeforms?.buildings[building]));
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
                     metalCost += this.getMSECosts(planet, building, l);
