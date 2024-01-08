@@ -73,7 +73,8 @@ export class MessageAnalyzer {
                 if(messageElements){
                     console.log(messageElements);
                     messageElements.forEach(message => {
-                        if(message.getAttribute('data-status') != 'inactive') return;
+                        let status = message.getAttribute('data-status');
+                        if(status != 'inactive' && status != 'longinactive') return;
                         if(message.getAttribute('data-is-moon') == "1") return;
     
                         let title = message.querySelector('.msg_title.blue_txt a')

@@ -64,6 +64,11 @@ class OgameHelper {
         }
     }
 
+    run() {
+        this.checkPage();
+        this.createSettingsButton();
+    }
+
     getNewPlayerJson() {
         this.json.player = {};
         if (document.querySelector("#characterclass .explorer")) {
@@ -1125,11 +1130,6 @@ class OgameHelper {
     getExtraMSEProduction(planet, productionType, level) {
         level = this.getLevel(level);
         return this.getMSEProduction(planet, productionType, level + 1) - this.getMSEProduction(planet, productionType, level);
-    }
-
-    run() {
-        this.checkPage();
-        this.createSettingsButton();
     }
 
     createSettingsButton() {
