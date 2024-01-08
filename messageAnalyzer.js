@@ -145,7 +145,8 @@ export class MessageAnalyzer {
                         InactivePlanets = planets;
                         SavedInactives = SavedInactives.filter(i => InactivePlanets.some(p => p.coords === i.coords));
                         this.saveInactiveData(SavedInactives);
-                        console.log(InactivePlanets);
+                        let notSeenInactives = InactivePlanets.filter(i => !SavedInactives.some(s => s.coords === i.coords));
+                        console.log(notSeenInactives);
                         if(SavedInactives?.length > 0){
                             const unixNow = Math.floor(Date.now() / 1000);
                             let SpyTableObjects = [];
