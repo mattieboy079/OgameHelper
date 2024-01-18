@@ -358,15 +358,15 @@ class OgameHelper {
      */
     getUpgradeTime(planet, upgradeType, level) {
         if (planet == undefined) {
-            let researchLabs = this.json.player.planets.map(p => p.researchlab).sort((a, b) => a - b);
+            let igon = parseInt(this.json.player.igon);
+            let researchLabs = this.json.player.planets.map(p => p.researchlab).sort((a, b) => b - a);
             let totalResearchLevel = 0; //TODO: Get total research level
-            for (let i = 0; i < this.json.player.igon + 1 && i < researchLabs.length; i++) totalResearchLevel += researchLabs[i];
-            let researchSpeed = (totalResearchLevel + 1) * this.json.settings.economySpeed * this.json.settings.globalResearchSpeedFactor * (1 + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? this.json.settings.explorerResearchSpeedFactor : 0));
+            for (let i = 0; i < igon + 1 && i < researchLabs.length; i++) totalResearchLevel += this.getLevel(researchLabs[i]);
+            let researchSpeed = (totalResearchLevel + 1) * parseInt(this.json.settings.globalResearchSpeedFactor) * (1 + (this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? parseFloat(this.json.settings.explorerResearchSpeedFactor) : 0));
             let base, incFactor;
 
             if (upgradeType == "plasma") base = 6000; incFactor = 2;
             if (upgradeType == "astro") base = 12000; incFactor = 1.75;
-
             return base * Math.pow(incFactor, level) / (1000 * researchSpeed)
         } else {
             let buildSpeed = (this.getLevel(planet.roboticsFactory) + 1) * Math.pow(2, this.getLevel(planet.nanite)) * this.json.settings.economySpeed;
@@ -1045,7 +1045,6 @@ class OgameHelper {
                 for (var key in expeditionData.Expos) {
                     if(key != NaN){
                         var value = expeditionData.Expos[key];
-                        console.log(key + ": " + value.length);
                         amount += value.length / parseInt(key) / days;    
                     }
                 }
@@ -1657,7 +1656,7 @@ class OgameHelper {
         if (!block) return "#00ff00";
 
         const timeLeft = block.timeFinished - Date.now() / 1000;
-        if (timeLeft > 3600 * 24) return "#ff0000";
+        if (timeLeft > 3600 * 10) return "#ff0000";
         if (timeLeft > 0) return "#ffff00";
         return "#00ff00"
     }
@@ -2862,7 +2861,7 @@ class OgameHelper {
 
             let totalMseCost = 0;
             let maxMseSpend = maxMseProd;
-            // if(upgrade.coords == "2:410:8" && upgrade.upgrade == "researchCentre") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
+            // if(upgrade.coords == "4:499:8" && upgrade.upgrade == "nanite") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
             while (mseToSpend > 0 && maxMseSpend > 0) {
                 let item = testAmortizationList[0];
                 if ((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)) {
@@ -2891,8 +2890,8 @@ class OgameHelper {
                 }
                 maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
-                // if(upgrade.coords == "2:410:8" && upgrade.upgrade == "researchCentre" && item.coords == "2:410:8") console.log(item);
-                // if(upgrade.coords == "2:410:8" && upgrade.upgrade == "researchCentre") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
+                // if(upgrade.coords == "4:499:8" && upgrade.upgrade == "nanite" && item.coords == "4:499:8") console.log(item);
+                // if(upgrade.coords == "4:499:8" && upgrade.upgrade == "nanite") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
                 testAmortizationList[0] = this.upgradeAmortizationItem(item);
                 testAmortizationList.sort((a, b) => a.amortization - b.amortization);
             }
