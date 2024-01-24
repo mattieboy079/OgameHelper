@@ -400,6 +400,7 @@ class OgameHelper {
 
                 else if (upgradeType == "11202") { base = 2000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
                 else if (upgradeType == "11208") { base = 6000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
+                else if (upgradeType == "11217") { base = 11000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
 
                 else if (upgradeType == "12202") { base = 2000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
                 else if (upgradeType == "12203") { base = 2500; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
@@ -776,6 +777,11 @@ class OgameHelper {
             metalCost = 200000 * Math.pow(1.2, level) * (level + 1);
             crystalCost = 100000 * Math.pow(1.2, level) * (level + 1);
             deutCost = 100000 * Math.pow(1.2, level) * (level + 1);
+            techUpgrade = true;
+        } else if (upgradeType === "11217") {
+            metalCost = 300000 * Math.pow(1.5, level) * (level + 1);
+            crystalCost = 180000 * Math.pow(1.5, level) * (level + 1);
+            deutCost = 120000 * Math.pow(1.5, level) * (level + 1);
             techUpgrade = true;
         } else if (upgradeType === "14218") {
             metalCost = 300000 * Math.pow(1.7, level) * (level + 1);
@@ -1625,6 +1631,7 @@ class OgameHelper {
         switch (id) {
             case "11202": return "High-Performance Extractors (2)";
             case "11208": return "Enhanced Production Technologies (8)";
+            case "11217": return "Robot Assistants (17)";
 
             case "12202": return "Acoustic Scanning (2)";
             case "12203": return "High Energy Pump Systems (3)";
@@ -2184,6 +2191,8 @@ class OgameHelper {
                 return ["12212", "14212"];
             case 12:
                 return ["13213", "12213"];
+            case 16:
+                return ["11217"];
             case 17:
                 return ["14218", "12218"];
             default:
@@ -2668,12 +2677,14 @@ class OgameHelper {
                 upgrade: "roboticsFactory",
                 priority: 1,
                 affected: "productionbuilding",
+                affectedCoords: planet.coords,
             });
             indirectProductionUpgrades.push({
                 coords: planet.coords,
                 upgrade: "nanite",
                 priority: 1,
                 affected: "productionbuilding",
+                affectedCoords: planet.coords,
             });
 
             if (this.json.settings.lifeforms) {
@@ -2684,6 +2695,7 @@ class OgameHelper {
                             upgrade: "mineralResearchCentre",
                             priority: 1,
                             affected: "mine",
+                            affectedCoords: planet.coords,
                         });
                         if (planet.lifeforms.techs?.length > 0) {
                             indirectProductionUpgrades.push({
@@ -2691,6 +2703,7 @@ class OgameHelper {
                                 upgrade: "runeTechnologium",
                                 priority: 3,
                                 affected: "lifeformtech",
+                                affectedCoords: planet.coords,
                             });
                         }
                         indirectProductionUpgrades.push({
@@ -2698,6 +2711,7 @@ class OgameHelper {
                             upgrade: "megalith",
                             priority: 4,
                             affected: "rocktalbuilding",
+                            affectedCoords: planet.coords,
                         });
                         break;
                     case LIFEFORM_CLASS_MENSEN:
@@ -2707,6 +2721,7 @@ class OgameHelper {
                                 upgrade: "researchCentre",
                                 priority: 3,
                                 affected: "lifeformtech",
+                                affectedCoords: planet.coords,
                             });
                         }
                         break;
@@ -2717,6 +2732,7 @@ class OgameHelper {
                                 upgrade: "roboticsResearchCentre",
                                 priority: 3,
                                 affected: "lifeformtech",
+                                affectedCoords: planet.coords,
                             });
                         }
                         break;
@@ -2727,6 +2743,7 @@ class OgameHelper {
                                 upgrade: "vortexChamber",
                                 priority: 3,
                                 affected: "lifeformtech",
+                                affectedCoords: planet.coords,
                             });
                         }
                         break;
@@ -2740,6 +2757,18 @@ class OgameHelper {
                                 upgrade: tech.id,
                                 priority: 2,
                                 affected: "plasma",
+                                affectedCoords: "account",
+                            })
+                        }
+                    });
+                    planet.lifeforms.techs.forEach(tech => {
+                        if (tech.id === "11217") {
+                            indirectProductionUpgrades.push({
+                                coords: planet.coords,
+                                upgrade: tech.id,
+                                priority: 2,
+                                affected: ["lifeformtech", "research"],
+                                affectedCoords: "account",
                             })
                         }
                     });
@@ -2824,6 +2853,13 @@ class OgameHelper {
                     timeShortagePercent = 0.003;
                     amorType = "lifeformtech";
                     amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformtech"], blocked)
+                } else if (upgrade.upgrade == "11217") {
+                    let index = planet.lifeforms.techs.findIndex(t => t.id == "11217");
+                    curLevel = this.getLevel(planet.lifeforms.techs[index].level);
+                    resourceDiscount = 0;
+                    timeShortagePercent = 0.002;
+                    amorType = "lifeformtech";
+                    amorColor = this.getAmortizationColor(upgrade.coords, ["lifeformtech"], blocked)
                 } else if (upgrade.upgrade == "mineralResearchCentre") {
                     curLevel = this.getLevel(buildings.mineralResearchCentre);
                     resourceDiscount = 0.005;
@@ -2861,10 +2897,10 @@ class OgameHelper {
 
             let totalMseCost = 0;
             let maxMseSpend = maxMseProd;
-            // if(upgrade.coords == "4:499:8" && upgrade.upgrade == "nanite") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
+            // if(upgrade.upgrade == "11217") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
             while (mseToSpend > 0 && maxMseSpend > 0) {
                 let item = testAmortizationList[0];
-                if ((item.type == upgrade.affected || item.type.includes(upgrade.affected)) && (item.coords == "account" || item.coords == upgrade.coords)) {
+                if (this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length > 0 && (upgrade.affectedCoords == "account" || item.coords == upgrade.coords)) {
                     if (resourceDiscount > 0) {
                         let currentDiscount = this.getCurrentDiscount(planet, item.type);
                         let relativeDiscount = resourceDiscount / (1 - currentDiscount);
@@ -2890,8 +2926,8 @@ class OgameHelper {
                 }
                 maxMseSpend -= item.msecost;
                 totalMseCost += item.msecost;
-                // if(upgrade.coords == "4:499:8" && upgrade.upgrade == "nanite" && item.coords == "4:499:8") console.log(item);
-                // if(upgrade.coords == "4:499:8" && upgrade.upgrade == "nanite") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
+                // if(upgrade.upgrade == "11217" && this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length > 0 && (upgrade.affectedCoords == "account" || item.coords == upgrade.coords)) console.log(item);
+                // if(upgrade.upgrade == "11217") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
                 testAmortizationList[0] = this.upgradeAmortizationItem(item);
                 testAmortizationList.sort((a, b) => a.amortization - b.amortization);
             }
@@ -2912,6 +2948,15 @@ class OgameHelper {
         });
 
         return amortizationList;
+    }
+
+    createArrayOfItem(item){
+        if(!Array.isArray(item)) item = [item];
+        return item;
+    }
+
+    intersectArrays(array1, array2){
+        return array1.filter(value => array2.includes(value));
     }
 
     getCurrentDiscount(planet, upgradeType) {
