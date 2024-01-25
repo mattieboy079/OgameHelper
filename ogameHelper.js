@@ -3780,6 +3780,7 @@ class OgameHelper {
         let newRatio = document.querySelector("#Ratio").value.replaceAll(",", ".");
         newRatio = newRatio.split("/");
         this.json.player.ratio = [parseFloat(newRatio[0]), parseFloat(newRatio[1]), parseFloat(newRatio[2])];
+        this.json.player.exporounds = parseInt(document.querySelector("#Exporounds").value);
         if (!this.json.player.expofleetValue) {
             this.json.player.expofleetValue = {};
         }
