@@ -1040,22 +1040,27 @@ class OgameHelper {
     
     getExpoRoundsPerDay(){
         if(!ExpoRounsPerDay){
-            let expeditionData = GetExpeditionData(UNIVERSE);
-            if(!expeditionData) 
-                return 0;
-            else{
-                let time = new Date().getTime() - new Date(expeditionData.Startdate).getTime();
-                const millisecondsPerDay = 24 * 60 * 60 * 1000;
-                let days = time / millisecondsPerDay;
-                let amount = 0;
-                for (var key in expeditionData.Expos) {
-                    if(key != NaN){
-                        var value = expeditionData.Expos[key];
-                        amount += value.length / parseInt(key) / days;    
+            if(parseInt(this.json.player.exporounds) < 0){
+                let expeditionData = GetExpeditionData(UNIVERSE);
+                if(!expeditionData) 
+                    return 0;
+                else{
+                    let time = new Date().getTime() - new Date(expeditionData.Startdate).getTime();
+                    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+                    let days = time / millisecondsPerDay;
+                    let amount = 0;
+                    for (var key in expeditionData.Expos) {
+                        if(key != NaN){
+                            var value = expeditionData.Expos[key];
+                            amount += value.length / parseInt(key) / days;    
+                        }
                     }
+                    ExpoRounsPerDay = amount;
                 }
-                ExpoRounsPerDay = amount;
+            } else {
+                ExpoRounsPerDay = parseInt(this.json.player.exporounds);
             }
+            
         }
         return ExpoRounsPerDay;   
     }
@@ -3739,14 +3744,10 @@ class OgameHelper {
                         <td><label for="Ratio">Ratio:</label></td>
                         <td><input type="text" id="Ratio" ratio="Ratio" style="width:100%" value="${ratioString}"></td>
                     </tr>
-                    // <tr>    
-                    //     <td><label for="Exporounds">Expo rounds per day:</label></td>
-                    //     <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.json.player.exporounds ?? 0}"></td>
-                    // </tr>
-                    // <tr>    
-                    //     <td><label for="Exposlots">Bonus Expo slots:</label></td>
-                    //     <td><input type="text" id="Exposlots" Exposlots="Exposlots" style="width:100%" value="${this.json.player.exposlots ?? 0}"></td>
-                    // </tr>
+                    <tr>    
+                        <td><label for="Exporounds">Override exporounds per day (set to -1 to read out expeditions messages):</label></td>
+                        <td><input type="text" id="Exporounds" Exporounds="Exporounds" style="width:100%" value="${this.json.player.exporounds ?? -1}"></td>
+                    </tr>
                     <tr>    
                         <td><label for="ExpoFleetValue">Expo fleet value (percentage):</label></td>
                         <td><input type="text" id="ExpoFleetValue" ExpoFleetValue="ExpoFleetValue" style="width:100%" value="${this.json.player.expofleetValue ?? 100}"></td>

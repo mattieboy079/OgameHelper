@@ -1,3 +1,3 @@
 - Enhancement: Boosters worden nu uitgelezen vanaf de overzichtspagina.
-- Enhancement: Exporounds en Exposlots hoeven niet meer ingevuld te worden in de settings, deze worden nu automatisch berekend aan de hand van de uitgelezen expedities;
-- Bugfix: Aantal expedities per dag is nu 0 op het moment dat er geen expedities uitgelezen zijn.
+- Enhancement: Exporounds en Exposlots hoeven niet meer ingevuld te worden in de settings, deze worden nu automatisch berekend aan de hand van de uitgelezen expedities.
+- Enhancement: Aantal expeditierondes kan overschreven worden door de nieuwe setting te vullen
