@@ -2419,7 +2419,7 @@ class OgameHelper {
                     switch (slot) {
                         case 6:
                             quartersLevelNeeded = 43;
-                            foodLevelNeeded = 43;
+                            foodLevelNeeded = 44;
                             t2popBuildingLevelNeeded = 5;
                             break;
                         case 7:
