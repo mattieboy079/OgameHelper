@@ -31,6 +31,7 @@ const UNIVERSE = window.location.host.split(".")[0];
 const CULTURE = UNIVERSE.split("-")[1];
 
 let ExpoRounsPerDay;
+let TotalLifeformTechLevelBoni = {};
 
 function getLanguage() {
     fetch(`https://${UNIVERSE}.ogame.gameforge.com/api/localization.xml`)
@@ -141,14 +142,28 @@ class OgameHelper {
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
     }
 
+    getEffectiveLifeformTechLevel(techId){
+        if(TotalLifeformTechLevelBoni[techId] || TotalLifeformTechLevelBoni[techId] == 0) return TotalLifeformTechLevelBoni[techId];
+
+        let totalBonus = 0;
+        this.json.player.planets.forEach(planet => {
+            let foundTech = planet.lifeforms?.techs?.find(tech => tech.id == techId);
+            if(foundTech) totalBonus += this.getLevel(foundTech.level) * (1 + this.getLifeformBonus(planet));
+        });
+        TotalLifeformTechLevelBoni[techId] = totalBonus;
+        console.log(TotalLifeformTechLevelBoni);
+        return totalBonus;
+    }
+
     getBonus(planet, resource, totalPlanets = this.json.player.planets) {
-        let verzamelaarBonus = this.json.player.playerClass == PLAYER_CLASS_COLLECTOR ? 0.25 : 0;
+        let verzamelaarVersterker = this.getEffectiveLifeformTechLevel("12218") * 0.002;
+        let verzamelaarBonus = this.json.player.playerClass == PLAYER_CLASS_COLLECTOR ? 0.25 * verzamelaarVersterker : 0;
         let handelaarBonus = this.json.player.allyClass == ALLY_CLASS_TRADER ? 0.05 : 0;
         let plasmaFactor = resource === "metal" ? 0.01 : (resource === "crystal" ? 0.0066 : 0.0033);
         let plasmaLevel = this.getLevel(this.json.player.plasma);
         let plasmaBonus = plasmaLevel ? plasmaLevel * plasmaFactor : 0;
         let officerBonus = this.json.player.geologist ? (this.json.player.legerleiding ? 0.12 : 0.1) : 0;
-        let processorBonus = Math.min(0.5, planet.crawlers ? Math.min(planet.crawlers, this.calcMaxCrawlers(planet)) * (this.json.player.playerClass === PLAYER_CLASS_COLLECTOR ? 0.00045 : 0.0002) : 0);
+        let processorBonus = Math.min(0.5, planet.crawlers ? Math.min(planet.crawlers, this.calcMaxCrawlers(planet)) * (this.json.player.playerClass === PLAYER_CLASS_COLLECTOR ? 0.0003 * (1 + 0.5 * (1 + verzamelaarVersterker)) : 0.0002) : 0);
         let lifeformBonus = 0;
         if (this.json.settings.lifeforms) {
             let lifeformBuildingBonus = 0;
@@ -168,43 +183,41 @@ class OgameHelper {
                 }
             }
 
-            totalPlanets.forEach(p => {
-                let HoogwaardigeExtractoren = p.lifeforms?.techs?.find(tech => tech.id == "11202")
-                if (HoogwaardigeExtractoren) lifeformTechBonus += 0.0006 * this.getLevel(HoogwaardigeExtractoren.level);
-                let MagmaPoweredProduction = p.lifeforms?.techs?.find(tech => tech.id == "12205")
-                if (MagmaPoweredProduction) lifeformTechBonus += 0.0008 * this.getLevel(MagmaPoweredProduction.level);
-                let GeautomatiseerdeTransportlijnen = p.lifeforms?.techs?.find(tech => tech.id == "13206")
-                if (GeautomatiseerdeTransportlijnen) lifeformTechBonus += 0.0006 * this.getLevel(GeautomatiseerdeTransportlijnen.level);
-                let VerbeterdeProductieTechnologien = p.lifeforms?.techs?.find(tech => tech.id == "11208")
-                if (VerbeterdeProductieTechnologien) lifeformTechBonus += 0.0006 * this.getLevel(VerbeterdeProductieTechnologien.level);
-                let Psychoharmonisator = p.lifeforms?.techs?.find(tech => tech.id == "14212")
-                if (Psychoharmonisator) lifeformTechBonus += 0.0006 * this.getLevel(Psychoharmonisator.level);
-                let ArtificialSwarmIntelligence = p.lifeforms?.techs?.find(tech => tech.id == "13213")
-                if (ArtificialSwarmIntelligence) lifeformTechBonus += 0.0006 * this.getLevel(ArtificialSwarmIntelligence.level);
+            let HoogwaardigeExtractoren = this.getEffectiveLifeformTechLevel("11202");
+            lifeformTechBonus += 0.0006 * HoogwaardigeExtractoren;
+            let MagmaPoweredProduction = this.getEffectiveLifeformTechLevel("12205")
+            lifeformTechBonus += 0.0008 * MagmaPoweredProduction;
+            let GeautomatiseerdeTransportlijnen = this.getEffectiveLifeformTechLevel("13206")
+            lifeformTechBonus += 0.0006 * GeautomatiseerdeTransportlijnen;
+            let VerbeterdeProductieTechnologien = this.getEffectiveLifeformTechLevel("11208")
+            lifeformTechBonus += 0.0006 * VerbeterdeProductieTechnologien;
+            let Psychoharmonisator = this.getEffectiveLifeformTechLevel("14212")
+            lifeformTechBonus += 0.0006 * Psychoharmonisator;
+            let ArtificialSwarmIntelligence = this.getEffectiveLifeformTechLevel("13213")
+            lifeformTechBonus += 0.0006 * ArtificialSwarmIntelligence;
 
-                if (resource == "metal") {
-                    let Dieptepeiling = p.lifeforms?.techs?.find(tech => tech.id == "12207")
-                    if (Dieptepeiling) lifeformTechBonus += 0.0008 * this.getLevel(Dieptepeiling.level);
-                    let VerhardeDiamantenBoorkoppen = p.lifeforms?.techs?.find(tech => tech.id == "12210")
-                    if (VerhardeDiamantenBoorkoppen) lifeformTechBonus += 0.0008 * this.getLevel(VerhardeDiamantenBoorkoppen.level);
-                }
-                else if (resource == "crystal") {
-                    let AkoestischScannen = p.lifeforms?.techs?.find(tech => tech.id == "12202")
-                    if (AkoestischScannen) lifeformTechBonus += 0.0008 * this.getLevel(AkoestischScannen.level);
-                    let SeismischeMijntechnologie = p.lifeforms?.techs?.find(tech => tech.id == "12211")
-                    if (SeismischeMijntechnologie) lifeformTechBonus += 0.0008 * this.getLevel(SeismischeMijntechnologie.level);
-                } else if (resource == "deut") {
-                    let HogeEnergiePompSystemen = p.lifeforms?.techs?.find(tech => tech.id == "12203")
-                    if (HogeEnergiePompSystemen) lifeformTechBonus += 0.0008 * this.getLevel(HogeEnergiePompSystemen.level);
-                    let Katalysatortechnologie = p.lifeforms?.techs?.find(tech => tech.id == "13201")
-                    if (Katalysatortechnologie) lifeformTechBonus += 0.0008 * this.getLevel(Katalysatortechnologie.level);
-                    let Sulfideproces = p.lifeforms?.techs?.find(tech => tech.id == "14202")
-                    if (Sulfideproces) lifeformTechBonus += 0.0008 * this.getLevel(Sulfideproces.level);
-                    let MagmaAangedrevenPompsystemen = p.lifeforms?.techs?.find(tech => tech.id == "12212")
-                    if (MagmaAangedrevenPompsystemen) lifeformTechBonus += 0.0008 * this.getLevel(MagmaAangedrevenPompsystemen.level);
-                }
-            });
-            lifeformTechBonus *= (1 + this.getLifeformBonus(planet));
+            if (resource == "metal") {
+                let Dieptepeiling = this.getEffectiveLifeformTechLevel("12207")
+                lifeformTechBonus += 0.0008 * Dieptepeiling;
+                let VerhardeDiamantenBoorkoppen = this.getEffectiveLifeformTechLevel("12210")
+                lifeformTechBonus += 0.0008 * VerhardeDiamantenBoorkoppen;
+            }
+            else if (resource == "crystal") {
+                let AkoestischScannen = this.getEffectiveLifeformTechLevel("12202")
+                lifeformTechBonus += 0.0008 * AkoestischScannen;
+                let SeismischeMijntechnologie = this.getEffectiveLifeformTechLevel("12211")
+                lifeformTechBonus += 0.0008 * SeismischeMijntechnologie;
+            } else if (resource == "deut") {
+                let HogeEnergiePompSystemen = this.getEffectiveLifeformTechLevel("12203")
+                lifeformTechBonus += 0.0008 * HogeEnergiePompSystemen;
+                let Katalysatortechnologie = this.getEffectiveLifeformTechLevel("13201")
+                lifeformTechBonus += 0.0008 * Katalysatortechnologie;
+                let Sulfideproces = this.getEffectiveLifeformTechLevel("14202")
+                lifeformTechBonus += 0.0008 * Sulfideproces;
+                let MagmaAangedrevenPompsystemen = this.getEffectiveLifeformTechLevel("12212")
+                lifeformTechBonus += 0.0008 * MagmaAangedrevenPompsystemen;
+            }
+
             lifeformBonus = lifeformBuildingBonus + lifeformTechBonus;
             //console.log(resource + ": " + verzamelaarBonus + " - " +  handelaarBonus + " - " + plasmaBonus + " - " + officerBonus + " - " + processorBonus + " - " + lifeformBuildingBonus + " - " + lifeformTechBonus);
         }
@@ -1003,7 +1016,7 @@ class OgameHelper {
             }
         } else if (productionType === "12218") {
             if (this.json.player.playerClass === PLAYER_CLASS_COLLECTOR) {
-                metalProd = 0.002 * 0.25 * this.getTotalHourlyRawMseMineIncome;
+                metalProd = 0.002 * 0.25 * this.getTotalHourlyRawMseMineIncome * (1 + this.getLifeformBonus(planet));
             }
         } else {
             return 0;
@@ -2811,7 +2824,7 @@ class OgameHelper {
             let amorColor;
             let timeShortagePercent;
 
-            console.log("coords: " + upgrade.coords + " / upgrade: " + upgrade.upgrade)
+            // console.log("coords: " + upgrade.coords + " / upgrade: " + upgrade.upgrade)
             if (upgrade.upgrade == "nanite") {
                 curLevel = this.getLevel(planet.nanite);
                 timeShortagePercent = 0.5;
@@ -3480,8 +3493,8 @@ class OgameHelper {
         return number;
     }
 
-    calcMaxCrawlers(planet) {
-        return (this.getLevel(planet.metal) + this.getLevel(planet.crystal) + this.getLevel(planet.deut)) * 8 * ((this.json.player.playerClass == PLAYER_CLASS_COLLECTOR && this.json.player.geologist) ? 1.1 : 1);
+    calcMaxCrawlers(planet, verzamelaarVersterker = 0) {
+        return (this.getLevel(planet.metal) + this.getLevel(planet.crystal) + this.getLevel(planet.deut)) * 8 * ((this.json.player.playerClass == PLAYER_CLASS_COLLECTOR && this.json.player.geologist) ? 1 + 0.1 * (1 + verzamelaarVersterker) : 1);
     }
 
     checkPage() {
