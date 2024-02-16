@@ -1,5 +1,0 @@
-- Enhancement: Boosters worden nu uitgelezen vanaf de overzichtspagina.
-- Enhancement: Exporounds en Exposlots hoeven niet meer ingevuld te worden in de settings, deze worden nu automatisch berekend aan de hand van de uitgelezen expedities.
-- Enhancement: Aantal expeditierondes kan overschreven worden door de nieuwe setting te vullen.
-- Enhancement: Tech 17 humans en tech 18 rocktal toegevoegd
-- Bugfix: Rock'tal gebouwen die benodigd zijn om tech slot 7 te ontgrendelen gecorrigeerd.

@@ -151,7 +151,6 @@ class OgameHelper {
             if(foundTech) totalBonus += this.getLevel(foundTech.level) * (1 + this.getLifeformBonus(planet));
         });
         TotalLifeformTechLevelBoni[techId] = totalBonus;
-        console.log(TotalLifeformTechLevelBoni);
         return totalBonus;
     }
 
@@ -3239,6 +3238,12 @@ class OgameHelper {
         accountProductionDiv.appendChild(table);
     }
 
+    
+    createUpgradesList() {
+        let blocks = this.checkPlanetBlocks();
+        console.log(blocks);
+    }
+
     /**
      * @returns the total production per hour calculated in metal
      */
@@ -3731,8 +3736,13 @@ class OgameHelper {
         if (coords == undefined) {
             div = document.querySelector('.accountproduction');
             div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "accountproduction" }));
-            div.addEventListener("click", () => this.createAccountProduction(coords));
+            div.addEventListener("click", () => this.createAccountProduction());
             div.appendChild(document.createTextNode("Account Production"));
+
+            div = document.querySelector('.upgradeslist');
+            div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "upgradeslist" }));
+            div.addEventListener("click", () => this.createUpgradesList());
+            div.appendChild(document.createTextNode("Upgrades List"));
         }
     }
 
@@ -3836,6 +3846,11 @@ class OgameHelper {
         }
 
         div = document.querySelector('.accountproduction');
+        if (div) {
+            div.remove();
+        }
+
+        div = document.querySelector('.upgradeslist');
         if (div) {
             div.remove();
         }
