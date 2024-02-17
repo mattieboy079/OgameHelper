@@ -94,6 +94,30 @@ export function GetDateString(date){
     });
 }
 
+export function GetTimeString(seconds){
+    let text = "";
+    if(seconds >= 60 * 60 * 24){
+        let fullDays = Math.floor(seconds / 60 / 60 / 24)
+        text += fullDays + "d ";
+        seconds = seconds - fullDays * 60 * 60 * 24;
+    }
+    if(seconds >= 60 * 60){
+        let fullHours = Math.floor(seconds / 60 / 60)
+        text += fullHours + "h ";
+        seconds = seconds - fullHours * 60 * 60;
+    }
+    if(seconds >= 60){
+        let fullMinutes = Math.floor(seconds / 60)
+        text += fullMinutes + "m ";
+        seconds = seconds - fullMinutes * 60;
+    }
+    if(seconds > 0){
+        text += seconds + "s";
+    }
+
+    return text;
+}
+
 export function GetExpeditionData(universe){
     let data = JSON.parse(localStorage.getItem("ogh-" + universe + "-expeditions"));
     console.log(data);
@@ -102,4 +126,8 @@ export function GetExpeditionData(universe){
 
 export function GetCurrentUnixTimeInSeconds(){
     return Math.floor(Date.now() / 1000);
+}
+
+export function GetRelativeSecondsToUnixTime(unixTime){
+    return unixTime - Math.floor(Date.now() / 1000);
 }

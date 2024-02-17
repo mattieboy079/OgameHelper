@@ -1,6 +1,6 @@
 //import { Player } from './logic/player.js';
 import { MessageAnalyzer } from './messageAnalyzer.js';
-import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds } from './functions.js';
+import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString } from './functions.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_GENERAL = "generaal";
@@ -1430,7 +1430,7 @@ class OgameHelper {
         research.push(this.json.player.spy);
 
         research.forEach(r => {
-            if (r.timeFinished) blocked.push({ coords: "account", type: ["research"], timeFinished: r.timeFinished })
+            if (r.timeFinished) blocked.push({ coords: "account", type: ["research"], timeFinished: r.timeFinished, upgradeType: "research" })
         });
 
         player.planets.forEach(planet => {
@@ -1445,7 +1445,7 @@ class OgameHelper {
             builds.push(planet.shipyard);
 
             builds.forEach(b => {
-                if (b.timeFinished) blocked.push({ coords: planet.coords, type: ["building"], timeFinished: b.timeFinished });
+                if (b.timeFinished) blocked.push({ coords: planet.coords, type: ["building"], timeFinished: b.timeFinished, upgradeType: "building" });
             });
 
             const robotbuilds = [];
@@ -1453,7 +1453,7 @@ class OgameHelper {
             robotbuilds.push(planet.nanite);
 
             robotbuilds.forEach(b => {
-                if (b.timeFinished) blocked.push({ coords: planet.coords, type: ["building", "lifeformbuilding"], timeFinished: b.timeFinished });
+                if (b.timeFinished) blocked.push({ coords: planet.coords, type: ["building", "lifeformbuilding"], timeFinished: b.timeFinished, upgradeType: "building" });
             });
 
             if (planet.lifeforms) {
@@ -1461,9 +1461,9 @@ class OgameHelper {
                     Object.entries(planet.lifeforms.buildings)?.forEach(([key, value]) => {
                         if (value.timeFinished) {
                             if (["researchCentre", "runeTechnologium", "vortexChamber", "roboticsResearchCentre"].includes(key)) {
-                                blocked.push({ coords: planet.coords, type: ["lifeformbuilding", "lifeformtech"], timeFinished: value.timeFinished });
+                                blocked.push({ coords: planet.coords, type: ["lifeformbuilding", "lifeformtech"], timeFinished: value.timeFinished, upgradeType: "lifeformbuilding" });
                             } else {
-                                blocked.push({ coords: planet.coords, type: ["lifeformbuilding"], timeFinished: value.timeFinished });
+                                blocked.push({ coords: planet.coords, type: ["lifeformbuilding"], timeFinished: value.timeFinished, upgradeType: "lifeformbuilding" });
                             }
                         }
                     })
@@ -1471,7 +1471,7 @@ class OgameHelper {
 
                 if (planet.lifeforms.techs?.length > 0) {
                     planet.lifeforms.techs.forEach(t => {
-                        if (t.level.timeFinished) blocked.push({ coords: planet.coords, type: ["lifeformtech"], timeFinished: t.level.timeFinished });
+                        if (t.level.timeFinished) blocked.push({ coords: planet.coords, type: ["lifeformtech"], timeFinished: t.level.timeFinished, upgradeType: "lifeformtech" });
                     })
                 }
             }
@@ -3240,8 +3240,83 @@ class OgameHelper {
 
     
     createUpgradesList() {
+        this.removeButtons();
+
         let blocks = this.checkPlanetBlocks();
         console.log(blocks);
+
+        let div = document.querySelector('.upgradeslist');
+        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#facilitiescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "upgradeslist" }));
+
+        let divHeader = document.createElement('div');
+        divHeader.innerHTML = `
+            <div class="popup-header">
+            <div class="title">Upgrades List</div>
+            <button settings-close-button class="close-button">&times;</button>
+            </div>
+            `
+        div.appendChild(divHeader);
+
+        let closeButton = document.querySelector(".close-button");
+        closeButton.addEventListener("click", () => {
+            let div = document.querySelector('.upgradeslist');
+            div.remove();
+            this.checkPage();
+        })
+        
+        let table = document.createElement('table');
+        table.style.width = '100%';
+        table.setAttribute('border', '1');
+        let tableBody = document.createElement('tbody');
+
+        let planets = this.json.player.planets;
+        console.log(planets);
+        for (let r = 0; r < planets.length + 1; r++) {
+            let tr = document.createElement('tr');
+            tr.style.marginLeft = 10;
+            let coords, buildingTime, lifeformBuildingTime, lifeformTechTime;        
+    
+            if (r == 0) {
+                coords = "Coords";
+                buildingTime = "Building";
+                lifeformBuildingTime = "LF Building";
+                lifeformTechTime = "LF Tech";
+            } else {
+                coords = planets[r - 1].coords;
+                buildingTime = blocks.find(b => b.upgradeType == "building" && b.coords == coords)?.timeFinished ?? "-";
+                lifeformBuildingTime = blocks.find(b => b.upgradeType == "lifeformbuilding" && b.coords == coords)?.timeFinished ?? "-";
+                lifeformTechTime = blocks.find(b => b.upgradeType == "lifeformtech" && b.coords == coords)?.timeFinished ?? "-";
+           
+                if(buildingTime != "-") buildingTime = GetTimeString(GetRelativeSecondsToUnixTime(buildingTime));
+                if(lifeformBuildingTime != "-") lifeformBuildingTime = GetTimeString(GetRelativeSecondsToUnixTime(lifeformBuildingTime));
+                if(lifeformTechTime != "-") lifeformTechTime = GetTimeString(GetRelativeSecondsToUnixTime(lifeformTechTime));
+            }
+
+            let td1 = document.createElement('td');
+            td1.appendChild(document.createTextNode(coords));
+            tr.appendChild(td1);
+
+            let td2 = document.createElement('td');
+            td2.appendChild(document.createTextNode(buildingTime == undefined ? "Unknown" : buildingTime));
+            tr.appendChild(td2);
+
+            let td3 = document.createElement('td');
+            td3.appendChild(document.createTextNode(lifeformBuildingTime));
+            tr.appendChild(td3);
+
+            let td4 = document.createElement('td');
+            td4.appendChild(document.createTextNode(lifeformTechTime));
+            tr.appendChild(td4);
+
+            tableBody.appendChild(tr);
+        }
+
+        table.appendChild(tableBody);
+
+        let divBody = document.createElement('div');
+        divBody.appendChild(table);
+
+        div.appendChild(divBody);
     }
 
     /**
