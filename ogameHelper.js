@@ -1215,7 +1215,8 @@ class OgameHelper {
             shipyard: planet.shipyard || 0,
             researchlab: planet.researchlab || 0,
             missileSilo: planet.missileSilo || 0,
-            maxTemp: planet.maxTemp || GetAverageTemp(planet.coords)
+            maxTemp: planet.maxTemp || GetAverageTemp(planet.coords),
+            resources: planet.resources || {}
         };
 
         if (this.json.settings.lifeforms) {
@@ -3582,11 +3583,22 @@ class OgameHelper {
         let currentCoords = this.trimCoords(currentPlanet.querySelector(".planet-koords"));
         let currentHasMoon = currentPlanet.querySelector(".moonlink") ? true : false;
         let currentIsMoon = currentHasMoon && currentPlanet.querySelector(".moonlink.active") ? true : false;
+     
+        this.checkPlanets();
+        
+        let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
+        
+        this.checkResources(index, currentIsMoon);
+
+        let resources = this.getTotalResourcesAvailable();
+
+        console.log(this.getBigNumber(resources[0]));
+        console.log(this.getBigNumber(resources[1]));
+        console.log(this.getBigNumber(resources[2]));
 
         let rawURL = new URL(window.location.href);
         let page = rawURL.searchParams.get("component") || rawURL.searchParams.get("page");
         if (page === OVERVIEW) {
-            this.checkPlanets();
             this.checkBoosters();
             if (document.querySelector("#characterclass .explorer")) {
                 this.json.player.playerClass = PLAYER_CLASS_EXPLORER;
@@ -3599,8 +3611,6 @@ class OgameHelper {
             }
             if (!currentIsMoon) {
                 console.log(textContent);
-                console.log(currentCoords);
-                let index = this.json.player.planets.findIndex(p => p.coords == currentCoords);
                 if (this.json.player.planets[index]) {
                     this.json.player.planets[index].maxTemp = parseInt(textContent[3].split("°C")[1].split(" ")[2]);
                 } else {
@@ -3609,9 +3619,8 @@ class OgameHelper {
                     };
                 }
 
-                this.saveData();
-
                 this.checkStaff();
+                this.saveData();
             }
             this.createButtons();
         } else if (page === RESOURCES) {
@@ -3795,6 +3804,44 @@ class OgameHelper {
             let messageAnalyzer = new MessageAnalyzer(UNIVERSE, this.json.player.ratio, this.getAmountOfExpeditionSlots(), this.json.settings.economySpeed);
             messageAnalyzer.doMessagesPage();
         }
+    }
+
+    checkResources(index, currentIsMoon){
+        let resources = {};
+
+        let metalElement = document.getElementById("resources_metal");
+        resources.metal = metalElement.getAttribute("data-raw");
+        let crystalElement = document.getElementById("resources_crystal");
+        resources.crystal = crystalElement.getAttribute("data-raw");
+        let deutElement = document.getElementById("resources_deuterium");
+        resources.deut = deutElement.getAttribute("data-raw");
+        resources.timestamp = GetCurrentUnixTimeInSeconds();
+
+        if(this.json.player.planets[index].resources == undefined) this.json.player.planets[index].resources = {};
+        
+        if(currentIsMoon){
+            this.json.player.planets[index].resources.moon = resources;
+        } else {
+            this.json.player.planets[index].resources.planet = resources;
+        }
+    }
+
+    getTotalResourcesAvailable(){
+        let metal = 0, crystal = 0, deut = 0;
+        this.json.player.planets.forEach(p => {
+            if(p.resources?.planet){
+                metal += parseInt(p.resources.planet.metal);
+                crystal += parseInt(p.resources.planet.crystal);
+                deut += parseInt(p.resources.planet.deut);
+            }
+            if(p.resources?.moon){
+                metal += parseInt(p.resources.moon.metal);
+                crystal += parseInt(p.resources.moon.crystal);
+                deut += parseInt(p.resources.moon.deut);
+            }
+        });
+
+        return [metal, crystal, deut];
     }
 
     createButtons(coords = undefined) {
