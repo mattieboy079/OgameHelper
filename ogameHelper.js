@@ -1,6 +1,6 @@
 //import { Player } from './logic/player.js';
 import { MessageAnalyzer } from './messageAnalyzer.js';
-import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString } from './functions.js';
+import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString, GetMseValue } from './functions.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_GENERAL = "generaal";
@@ -319,25 +319,54 @@ class OgameHelper {
         return upgradeRequirements[upgradeType];
     }
 
-    getPrerequisiteMSECosts(planet, upgradeType) {
-        let metalCost = 0;
-
+    getPrerequisiteCosts(planet, upgradeType) {
         const requiredUpgrades = this.getPrerequisites(upgradeType);
 
         if (!requiredUpgrades) {
-            return 0;
+            return [0, 0, 0];
         }
+
+        let costs = [0, 0, 0];
 
         for (const [building, level] of Object.entries(requiredUpgrades)) {
             const currentLevel = this.getLevel(this.json.player[building] || planet[building] || (planet.lifeforms?.buildings && planet.lifeforms?.buildings[building]));
             if (currentLevel < level) {
                 for (let l = currentLevel; l < level; l++) {
-                    metalCost += this.getMSECosts(planet, building, l);
+                    costs = this.addArrayValues(costs, this.getCosts(planet, building, l));
                 }
             }
         }
 
-        return metalCost;
+        return costs;
+    }
+
+    getPrerequisiteMSECosts(planet, upgradeType) {
+        let costs = this.getPrerequisiteCosts(planet, upgradeType);
+        return this.getMSEValue(costs);
+    }
+
+    addArrayValues(array1, array2){
+        if(array1.length != array2.length) console.error("arrays are not the same length")
+
+        let newArray = [];
+
+        for(let i = 0; i < array1.length; i++){
+            newArray.push(array1[i] + array2[i]);
+        }
+
+        return newArray;
+    }
+
+    subtractArrayValues(array1, array2){
+        if(array1.length != array2.length) console.error("arrays are not the same length")
+
+        let newArray = [];
+
+        for(let i = 0; i < array1.length; i++){
+            newArray.push(array1[i] - array2[i]);
+        }
+
+        return newArray;
     }
 
     getPrerequisiteMSEProd(planet, upgradeType) {
@@ -443,6 +472,16 @@ class OgameHelper {
         }
     }
 
+    getMSEValue(resources){
+        let ratio = this.json.player.ratio;
+        return parseFloat(resources[0]) + ratio[0] / ratio[1] * parseFloat(resources[1]) + ratio[0] / ratio[2] * parseFloat(resources[2]);
+    }
+
+    getMSECosts(planet, upgradeType, level){
+        let costs = this.getCosts(planet, upgradeType, level);
+        return this.getMSEValue(costs);
+    }
+
     /**
      * Returns the cost calculated in metal of the given upgrade.
      *
@@ -451,9 +490,8 @@ class OgameHelper {
      * @param {number} level The level the building is before upgrading.
      * @return {number} the cost calculated in MSE.
      */
-    getMSECosts(planet, upgradeType, level) {
+    getCosts(planet, upgradeType, level) {
         level = this.getLevel(level);
-        let ratio = this.json.player.ratio ? this.json.player.ratio : [3, 2, 1];
         let metalCost = 0;
         let crystalCost = 0;
         let deutCost = 0;
@@ -854,7 +892,7 @@ class OgameHelper {
             deutCost *= factor;
         }
 
-        return (metalCost + crystalCost * ratio[0] / ratio[1] + deutCost * ratio[0] / ratio[2]);
+        return [metalCost, crystalCost, deutCost];
     }
 
     /**
@@ -1335,7 +1373,7 @@ class OgameHelper {
         return e;
     }
 
-    createAmortizationWithPrerequisite(planet, upgradeType, level, amorType, amorColor) {
+    createAmortizationWithPrerequisite(planet, upgradeType, level, amorType, amorColor, id) {
         if (level.level) level = level.level;
         const startingLevel = parseInt(level);
         let mseProd = this.getMSEProduction(planet, upgradeType, startingLevel);
@@ -1346,19 +1384,27 @@ class OgameHelper {
                 technology: upgradeType,
                 level: startingLevel + 1,
                 amortization: Infinity,
+                costs: [Infinity, Infinity, Infinity],
                 msecost: Infinity,
                 type: amorType,
-                color: amorColor
+                color: amorColor,
+                id: id,
             };
         }
-        const preMseCosts = this.getPrerequisiteMSECosts(planet, upgradeType);
-        let mseCosts = this.getMSECosts(planet, upgradeType, startingLevel) + preMseCosts;
+        console.log((planet?.coords ?? "account") + " - " + upgradeType);
+        let preCosts = this.getPrerequisiteCosts(planet, upgradeType);
+        console.log(preCosts);
+        let costs = this.addArrayValues(this.getCosts(planet, upgradeType, startingLevel), preCosts);
+        console.log(costs);
+        let mseCosts = this.getMSEValue(costs);
 
         let amortization = mseCosts / mseProd;
         let newLevel = startingLevel + 1;
         let x = 1;
         while (this.getMSECosts(planet, upgradeType, startingLevel + x) / this.getMSEProduction(planet, upgradeType, startingLevel + x) < amortization) {
-            mseCosts += this.getMSECosts(planet, upgradeType, startingLevel + x);
+            costs = this.addArrayValues(costs, this.getCosts(planet, upgradeType, startingLevel + x));
+            console.log(costs);
+            mseCosts = this.getMSEValue(costs);
             mseProd += this.getMSEProduction(planet, upgradeType, startingLevel + x);
             amortization = mseCosts / mseProd;
             x++;
@@ -1374,9 +1420,11 @@ class OgameHelper {
             technology: upgradeType,
             level: newLevel,
             amortization: (amortization + this.getUpgradeTime(planet, upgradeType, startingLevel + x)) / 24,
+            costs: costs,
             msecost: mseCosts,
             type: amorType,
-            color: amorColor
+            color: amorColor,
+            id: id,
         };
     }
 
@@ -1702,24 +1750,24 @@ class OgameHelper {
         this.json.player.planets.forEach((planet) => {
             if (!coords || planet.coords == coords) {
                 amorColor = this.getAmortizationColor(planet.coords, ["building"], blocked);
-                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal, ["mine", "productionbuilding"], amorColor));
-                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, ["mine", "productionbuilding"], amorColor));
-                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, ["mine", "productionbuilding"], amorColor));
+                totalAmortization.push(this.createAmortization(planet, "metal", planet.metal, ["mine", "productionbuilding"], amorColor, totalAmortization.length));
+                totalAmortization.push(this.createAmortization(planet, "crystal", planet.crystal, ["mine", "productionbuilding"], amorColor, totalAmortization.length));
+                totalAmortization.push(this.createAmortization(planet, "deut", planet.deut, ["mine", "productionbuilding"], amorColor, totalAmortization.length));
 
                 if (this.json.settings.lifeforms && planet.lifeforms.lifeformClass) {
                     let amorColorBuilding = this.getAmortizationColor(planet.coords, ["lifeformbuilding"], blocked);
                     if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MENSEN) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "productionbuilding", amorColorBuilding));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "productionbuilding", amorColorBuilding));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "metropolis", this.getLevel(planet.lifeforms.buildings.metropolis), "productionbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "productionbuilding", amorColorBuilding, totalAmortization.length));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "productionbuilding", amorColorBuilding, totalAmortization.length));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "metropolis", this.getLevel(planet.lifeforms.buildings.metropolis), "productionbuilding", amorColorBuilding, totalAmortization.length));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), ["rocktalbuilding", "productionbuilding"], amorColorBuilding));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), ["rocktalbuilding", "productionbuilding"], amorColorBuilding));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", this.getLevel(planet.lifeforms.buildings.deuteriumSynthesizer), ["rocktalbuilding", "productionbuilding"], amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), ["rocktalbuilding", "productionbuilding"], amorColorBuilding, totalAmortization.length));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), ["rocktalbuilding", "productionbuilding"], amorColorBuilding, totalAmortization.length));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "deuteriumSynthesizer", this.getLevel(planet.lifeforms.buildings.deuteriumSynthesizer), ["rocktalbuilding", "productionbuilding"], amorColorBuilding, totalAmortization.length));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_MECHA) {
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "productionbuilding", amorColorBuilding));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceTransformer", this.getLevel(planet.lifeforms.buildings.highPerformanceTransformer), "productionbuilding", amorColorBuilding));
-                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "chipMassProduction", this.getLevel(planet.lifeforms.buildings.chipMassProduction), "productionbuilding", amorColorBuilding));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceSynthesizer", this.getLevel(planet.lifeforms.buildings.highPerformanceSynthesizer), "productionbuilding", amorColorBuilding, totalAmortization.length));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highPerformanceTransformer", this.getLevel(planet.lifeforms.buildings.highPerformanceTransformer), "productionbuilding", amorColorBuilding, totalAmortization.length));
+                        totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "chipMassProduction", this.getLevel(planet.lifeforms.buildings.chipMassProduction), "productionbuilding", amorColorBuilding, totalAmortization.length));
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_KAELESH) {
                     } else {
                         console.warn("lifeform not found: " + planet.lifeforms.lifeformClass);
@@ -1732,16 +1780,19 @@ class OgameHelper {
                             let extraMSE = this.getMSEProduction(planet, tech.id, level);
 
                             if (extraMSE > 0) {
-                                let mseCost = this.getMSECosts(planet, tech.id, level);
+                                let costs = this.getCosts(planet, tech.id, level);
+                                let mseCosts = this.getMSEValue(costs);
                                 totalAmortization.push({
                                     coords: planet.coords,
                                     name: planet.name,
                                     technology: tech.id,
                                     level: level + 1,
-                                    amortization: (mseCost / extraMSE + this.getUpgradeTime(planet, tech.id, parseInt(level))) / 24,
-                                    msecost: mseCost,
+                                    amortization: (mseCosts / extraMSE + this.getUpgradeTime(planet, tech.id, parseInt(level))) / 24,
+                                    costs: costs,
+                                    msecost: mseCosts,
                                     type: "lifeformtech",
                                     color: this.getAmortizationColor(planet.coords, ["lifeformtech"], blocked),
+                                    id: totalAmortization.length,
                                 });
                             }
                         } else {
@@ -1754,31 +1805,38 @@ class OgameHelper {
                                     let level = 0;
                                     let gainMse = this.getMSEProduction(planet, tech, level);
                                     if (gainMse > 0) {
-                                        let totalCost = unlockCosts + this.getMSECosts(planet, tech, level);
-                                        let currentROI = totalCost / gainMse;
+                                        let totalCost = this.addArrayValues(unlockCosts, this.getCosts(planet, tech, level));
+                                        let currentROI = this.getMSEValue(totalCost) / gainMse;
                                         while (this.getMSECosts(planet, tech, level + 1) / this.getMSEProduction(planet, tech, level + 1) < currentROI) {
                                             level++;
                                             gainMse += this.getMSEProduction(planet, tech, level);
-                                            totalCost += this.getMSECosts(planet, tech, level);
-                                            currentROI = totalCost / gainMse;
+                                            totalCost = this.addArrayValues(totalCost, this.getCosts(planet, tech, level));
+                                            currentROI = this.getMSEValue(totalCost) / gainMse;
                                         }
+
+                                        console.log(planet.coords + " " + tech + " " + level + " " + gainMse);
+                                        let mseCost = this.getMSEValue(totalCost);
 
                                         possibleTechsAmortizations.push({
                                             coords: planet.coords,
                                             name: planet.name,
                                             technology: tech,
                                             level: level == 0 ? "1" : "1-" + (level + 1),
-                                            amortization: (totalCost / gainMse + this.getUpgradeTime(planet, tech, level)) / 24,
-                                            msecost: totalCost,
+                                            amortization: (mseCost / gainMse + this.getUpgradeTime(planet, tech, level)) / 24,
+                                            msecost: mseCost,
+                                            costs: totalCost,
                                             type: "lifeformtech",
                                             color: "#ffa500",
+                                            id: totalAmortization.length,
                                         });
                                     }
                                 });
 
+                                const unlockMseCosts = this.getMSEValue(unlockCosts);
+
                                 possibleTechsAmortizations.sort((a, b) => a.amortization - b.amortization);
                                 if (possibleTechsAmortizations.length > 0) {
-                                    if (unlockCosts > 0) {
+                                    if (unlockMseCosts > 0) {
                                         unlockPrerequisites.forEach(prerequisite => {
                                             if (prerequisite.level < prerequisite.levelNeeded) {
                                                 let levelString = parseInt(prerequisite.level) + 1 == prerequisite.levelNeeded
@@ -1794,10 +1852,12 @@ class OgameHelper {
                                                     prerequisiteType = ["lifeformbuilding"];
                                                 }
 
-                                                let prerequisiteCost = 0;
+                                                let prerequisiteCost = [0,0,0];
                                                 for (let l = prerequisite.level; l < prerequisite.levelNeeded; l++) {
-                                                    prerequisiteCost += this.getMSECosts(planet, prerequisite.name, l);
+                                                    prerequisiteCost = this.addArrayValues(prerequisiteCost, this.getCosts(planet, prerequisite.name, l));
                                                 }
+
+                                                let mseCost = this.getMSEValue(prerequisiteCost);
 
                                                 totalAmortization.push({
                                                     coords: planet.coords,
@@ -1805,13 +1865,16 @@ class OgameHelper {
                                                     technology: /*possibleTechsAmortizations[0].technology + " => " + */ prerequisite.name,
                                                     level: levelString,
                                                     amortization: possibleTechsAmortizations[0].amortization,
-                                                    msecost: prerequisiteCost,
+                                                    costs: prerequisiteCost,
+                                                    msecost: mseCost,
                                                     type: prerequisiteType,
                                                     color: amorColorBuilding,
+                                                    id: totalAmortization.length,
                                                 });
                                             }
                                         });
                                     } else {
+                                        possibleTechsAmortizations[0].id = totalAmortization.length;
                                         totalAmortization.push(possibleTechsAmortizations[0]);
                                     }
                                 }
@@ -1823,9 +1886,9 @@ class OgameHelper {
         });
 
         amorColor = this.getAmortizationColor("account", ["research"], blocked);
-        totalAmortization.push(this.createAmortizationWithPrerequisite(undefined, "plasma", this.getLevel(this.json.player.plasma), "plasma", amorColor));
+        totalAmortization.push(this.createAmortizationWithPrerequisite(undefined, "plasma", this.getLevel(this.json.player.plasma), "plasma", amorColor, totalAmortization.length));
 
-        totalAmortization.push(this.createAstroAmortizationObject(blocked));
+        totalAmortization.push(this.createAstroAmortizationObject(blocked, totalAmortization.length));
 
         totalAmortization.sort((a, b) => a.amortization - b.amortization);
         console.log(totalAmortization);
@@ -1979,7 +2042,7 @@ class OgameHelper {
         }
     }
 
-    createAstroAmortizationObject(blocked) {
+    createAstroAmortizationObject(blocked, id) {
         //astro
         const preRequisiteAstroCosts = this.getPrerequisiteMSECosts(undefined, "astro");
         let totalMSECostsAstroNewPlanet = preRequisiteAstroCosts;
@@ -2134,8 +2197,10 @@ class OgameHelper {
                 level: astroLevelStringNewExpo,
                 amortization: totalMSECostsAstroNewExpo / totalMSEProdAstroNewExpo / 24,
                 msecost: totalMSECostsAstroNewExpo,
+                costs: this.getCosts(undefined, "astro", parseInt(astro)),
                 type: "astro",
                 color: amorColor,
+                id: id,
             };
         } else {
             return {
@@ -2145,8 +2210,10 @@ class OgameHelper {
                 level: astroLevelStringNewPlanet,
                 amortization: totalMSECostsAstroNewPlanet / totalMSEProdAstroNewPlanet / 24,
                 msecost: totalMSECostsAstroNewPlanet,
+                costs: this.getCosts(undefined, "astro", parseInt(astro)),
                 type: "astro",
                 color: amorColor,
+                id: id,
             };
         }
     }
@@ -2673,13 +2740,16 @@ class OgameHelper {
     }
 
     getUnlockCostsForPrerequisites(planet, prerequisites) {
-        let mseCosts = 0;
+        let costs = [0, 0, 0];
+        console.log(planet.coords);
+        console.log(prerequisites);
         prerequisites.forEach(prerequisite => {
             for (let i = prerequisite.level; i < prerequisite.levelNeeded; i++) {
-                mseCosts += this.getMSECosts(planet, prerequisite.name, i);
+                costs = this.addArrayValues(costs, this.getCosts(planet, prerequisite.name, i));
             }
         });
-        return mseCosts;
+        console.log(costs);
+        return costs;
     }
 
     getPlanetByCoords(coords) {
@@ -2814,8 +2884,9 @@ class OgameHelper {
             maxMseProd = 0;
         }
 
+        let upgradesToCheck = [];
+
         indirectProductionUpgrades.forEach(upgrade => {
-            let testAmortizationList = this.copyArray(amortizationList);
             let planet = this.getPlanetByCoords(upgrade.coords);
 
             let curLevel;
@@ -2894,10 +2965,7 @@ class OgameHelper {
                 return;
             }
 
-            let mseCost = this.getPrerequisiteMSECosts(planet, upgrade.upgrade, curLevel);
-            mseCost += this.getMSECosts(planet, upgrade.upgrade, curLevel);
-            let mseToSpend = mseCost;
-            let mseProd;
+            let mseProd = 0;
             let timeDiscount = 0;
 
             if (upgrade.upgrade === "nanite") {
@@ -2913,58 +2981,139 @@ class OgameHelper {
                 mseProd = this.getPrerequisiteMSEProd(planet, upgrade.upgrade, curLevel);
             }
 
-            let totalMseCost = 0;
-            let maxMseSpend = maxMseProd;
-            // if(upgrade.upgrade == "11217") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
-            while (mseToSpend > 0 && maxMseSpend > 0) {
-                let item = testAmortizationList[0];
-                if (this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length > 0 && (upgrade.affectedCoords == "account" || item.coords == upgrade.coords)) {
-                    if (resourceDiscount > 0) {
-                        let currentDiscount = this.getCurrentDiscount(planet, item.type);
-                        let relativeDiscount = resourceDiscount / (1 - currentDiscount);
-                        mseToSpend -= item.msecost * relativeDiscount;
-                    }
-                    if (timeDiscount > 0) {
-                        let upgradePlanet = this.getPlanetByCoords(item.coords);
-                        let level;
-                        if (item.level.toString().includes("-")) {
-                            level = parseInt(item.level.split("-")[1]);
-                        } else {
-                            level = parseInt(item.level);
-                        }
-
-                        let upgradeTime = this.getUpgradeTime(upgradePlanet, item.technology, level - 1);
-                        let hourlyMseProd;
-                        if (item.technology == "metal" || item.technology == "crystal" || item.technology == "deut")
-                            hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
-                        else
-                            hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level);
-                        mseToSpend -= upgradeTime * timeDiscount * hourlyMseProd;
-                    }
-                }
-                maxMseSpend -= item.msecost;
-                totalMseCost += item.msecost;
-                // if(upgrade.upgrade == "11217" && this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length > 0 && (upgrade.affectedCoords == "account" || item.coords == upgrade.coords)) console.log(item);
-                // if(upgrade.upgrade == "11217") console.log("maxMseSpend: " + this.getBigNumber(maxMseSpend) + " / mseToSpend:" + this.getBigNumber(mseToSpend) + " / totalMseCost:" + this.getBigNumber(totalMseCost))
-                testAmortizationList[0] = this.upgradeAmortizationItem(item);
-                testAmortizationList.sort((a, b) => a.amortization - b.amortization);
-            }
-
-            let amort = totalMseCost / totalHourlyMseProd / 24;
-            amortizationList.push({
+            let costs = this.addArrayValues(this.getPrerequisiteCosts(planet, upgrade.upgrade, curLevel), this.getCosts(planet, upgrade.upgrade, curLevel));
+            let mseCost = this.getMSEValue(costs);
+            
+            upgradesToCheck.push({
+                affected: upgrade.affected,
+                affectedCoords: upgrade.affectedCoords,
                 coords: upgrade.coords,
-                name: this.getPlanetByCoords(upgrade.coords).name,
-                technology: upgrade.upgrade,
-                level: curLevel + 1,
-                amortization: amort,
-                amortizationStopped: maxMseSpend <= 0 ? "true" : "false",
-                msecost: mseCost,
-                type: amorType,
-                color: amorColor,
+                upgrade: upgrade.upgrade,
+                priority: upgrade.priority,
+                resourceDiscount: resourceDiscount,
+                timeDiscount: timeDiscount,
+                amorColor: amorColor,
+                mseProdHourly: mseProd,
+                mseCost: mseCost,
+                costs: costs,
+                mseProduced: 0,
+                upgradeLevel: curLevel + 1,
+                finishedOnce: false,
             });
-            amortizationList.sort((a, b) => a.amortization - b.amortization);
         });
 
+        console.log(upgradesToCheck);
+
+        let testAmortizationList = this.copyArray(amortizationList);
+        let testPlanets = this.copyArray(this.json.player.planets);
+        let maxMseSpend = maxMseProd;
+        let resAvailable = this.getTotalResourcesAvailable();
+
+        let upgradesToFinish = upgradesToCheck.length;
+
+        let totalMseCost = 0;
+        while((maxMseSpend > 0 && upgradesToFinish > 0) || (resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0)){
+            let item = testAmortizationList[0];
+            console.log("new item");
+            console.log(item);
+            upgradesToCheck.forEach(upgrade => {
+                if((upgrade.affectedCoords != "account" && item.coords != upgrade.coords)) return;
+                if(this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length == 0) return;
+
+                console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
+                
+                let upgradePlanet = testPlanets.find(p => p.coords == item.coords);
+
+                if (upgrade.resourceDiscount > 0) { 
+                    console.log(testPlanets);
+                    let currentDiscount = this.getCurrentDiscount(upgradePlanet, item.type);
+                    let relativeDiscount = upgrade.resourceDiscount / (1 - currentDiscount);
+                    upgrade.mseProduced += item.msecost * relativeDiscount;
+                }
+                if (upgrade.timeDiscount > 0) {
+                    let level;
+                    if (item.level.toString().includes("-")) {
+                        level = parseInt(item.level.split("-")[1]);
+                    } else {
+                        level = parseInt(item.level);
+                    }
+
+                    let upgradeTime = this.getUpgradeTime(upgradePlanet, item.technology, level - 1);
+                    let hourlyMseProd;
+                    if (item.technology == "metal" || item.technology == "crystal" || item.technology == "deut")
+                        hourlyMseProd = this.getExtraMSEProduction(upgradePlanet, item.technology, item.level - 1);
+                    else
+                        hourlyMseProd = this.getMSEProduction(upgradePlanet, item.technology, item.level);
+
+                    upgrade.mseProduced += upgradeTime * upgrade.timeDiscount * hourlyMseProd;
+                }
+
+                console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
+
+                while(upgrade.mseProduced >= upgrade.mseCost){
+                    amortizationList.push({
+                        coords: upgrade.coords,
+                        name: this.getPlanetByCoords(upgrade.coords).name,
+                        technology: upgrade.upgrade,
+                        level: upgrade.upgradeLevel,
+                        amortization: totalMseCost / totalHourlyMseProd / 24,
+                        amortizationStopped: "false",
+                        costs: upgrade.costs,
+                        msecost: upgrade.mseCost,
+                        type: upgrade.amorType,
+                        color: upgrade.amorColor,
+                    });
+
+                    console.log("upgrading");
+                    upgrade.costs = this.addArrayValues(upgrade.costs, this.getCosts(upgradePlanet, upgrade.upgrade, upgrade.upgradeLevel));
+                    upgrade.mseCost = this.getMSEValue(upgrade.costs);
+                    upgrade.upgradeLevel++;
+                    if(!upgrade.finishedOnce){
+                        upgrade.finishedOnce = true;
+                        upgradesToFinish--;
+                    }
+                }
+
+                console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
+            });
+
+            maxMseSpend -= item.msecost;
+            totalMseCost += item.msecost;
+            console.log(resAvailable);
+            resAvailable = this.subtractArrayValues(resAvailable, item.costs);
+
+            console.log(this.getBigNumber(maxMseSpend) + " - " + this.getBigNumber(totalMseCost) + " - " + this.getBigNumber(resAvailable[0])  + " / " + this.getBigNumber(resAvailable[1])  + " / " + this.getBigNumber(resAvailable[2]));
+
+            if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
+                let index = amortizationList.findIndex(a => a.id == item.id);
+                if (index >= 0) {
+                    if(amortizationList[index].color == "#00ff00")
+                        amortizationList[index].color = "#add8e6";
+                }
+            }
+
+            testAmortizationList[0] = this.upgradeAmortizationItem(item);
+            testAmortizationList.sort((a, b) => a.amortization - b.amortization);
+        }
+
+        upgradesToCheck.forEach(upgrade => {
+            if(!upgrade.finishedOnce){
+                amortizationList.push({
+                    coords: upgrade.coords,
+                    name: this.getPlanetByCoords(upgrade.coords).name,
+                    technology: upgrade.upgrade,
+                    level: upgrade.upgradeLevel,
+                    amortization: totalMseCost / totalHourlyMseProd / 24,
+                    amortizationStopped: "true",
+                    costs: upgrade.costs,
+                    msecost: upgrade.mseCost,
+                    type: upgrade.amorType,
+                    color: upgrade.amorColor,
+                });
+            }
+        });
+
+        amortizationList.sort((a, b) => a.amortization - b.amortization);
         return amortizationList;
     }
 
@@ -2978,6 +3127,21 @@ class OgameHelper {
     }
 
     getCurrentDiscount(planet, upgradeType) {
+        if(upgradeType == "plasma") {
+            let bonus = 0;
+            this.json.player.planets.forEach(p => {
+                const lifeformBonus = this.getLifeformBonus(p);
+                if (p.lifeforms?.techs?.length > 0) {
+                    p.lifeforms.techs.forEach(t => {
+                        if (t.id == "12209") {
+                            bonus += 0.0015 * this.getLevel(t.level) * (1 + lifeformBonus);
+                        }
+                    });
+                }
+            });
+            return bonus;
+        }
+
         let buildings = planet.lifeforms?.buildings;
         if (!buildings) return 0;
 
@@ -3005,7 +3169,8 @@ class OgameHelper {
         }
 
         item.amortization = this.calculateAmortization(this.getPlanetByCoords(item.coords), item.technology, item.level);
-        item.msecost = this.getMSECosts(this.getPlanetByCoords(item.coords), item.technology, item.level);
+        item.costs = this.getCosts(this.getPlanetByCoords(item.coords), item.technology, item.level);
+        item.msecost = this.getMSEValue(item.costs);
         if (isNaN(item.amortization)) {
             item.amortization = 1000000000;
         }
@@ -3017,17 +3182,21 @@ class OgameHelper {
         return arrayToCopy.map(element => ({ ...element }));
     }
 
-    createAmortization(planet, technology, level, amorType, amorColor) {
+    createAmortization(planet, technology, level, amorType, amorColor, id) {
         level = this.getLevel(level);
+        let costs = this.getCosts(planet, technology, parseInt(level));
+        let mseCost = this.getMSEValue(costs);
         return {
             coords: planet.coords,
             name: planet.name,
             technology: technology,
             level: (parseInt(level) + 1),
             amortization: this.calculateAmortization(planet, technology, level),
-            msecost: this.getMSECosts(planet, technology, parseInt(level)),
+            costs: costs,
+            msecost: mseCost,
             type: amorType,
-            color: amorColor
+            color: amorColor,
+            id: id
         };
     }
 

@@ -83,7 +83,6 @@ export function GetAverageTemp(coords){
 }
 
 export function GetMseValue(ratio, metal, crystal, deut){
-    return parseFloat(metal) + ratio[0] / ratio[1] * parseFloat(crystal) + ratio[0] / ratio[2] * parseFloat(deut);
 }
 
 export function GetDateString(date){
