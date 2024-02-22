@@ -589,7 +589,7 @@ class OgameHelper {
             metalCost = 2000 * Math.pow(2, level) * factor;
             crystalCost = 4000 * Math.pow(2, level) * factor;
             deutCost = 1000 * Math.pow(2, level) * factor;
-        } else if (upgradeType === "astro") {
+        } else if (upgradeType === "astro" || upgradeType == "astrophysics") {
             metalCost = 4000 * Math.pow(1.75, level);
             crystalCost = 8000 * Math.pow(1.75, level);
             deutCost = 4000 * Math.pow(1.75, level);
@@ -3133,11 +3133,6 @@ class OgameHelper {
             if(item.color != this.getColor("toUnlock")){
                 if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
                     console.log(item);
-                    let index = amortizationList.findIndex(a => a.id == item.id);
-                    if (index >= 0) {
-                        if(amortizationList[index].color == this.getColor("ready"))
-                            amortizationList[index].color = this.getColor("recommended");
-                    }
                     
                     let minLevel, maxLevel;
                     if(item.level.toString().includes('-')) {
@@ -3151,7 +3146,11 @@ class OgameHelper {
                     let maxGenerationTime = 0;
 
                     this.createArrayOfItem(item.type).forEach(type => {
-                        if(queueTimes[item.coords + "-" + type] && queueTimes[item.coords + "-" + type] > maxGenerationTime) maxGenerationTime = queueTimes[item.coords + "-" + type];
+                        if(item.coords == "account"){
+                            if(queueTimes["research"] && queueTimes["research"] > maxGenerationTime) maxGenerationTime = queueTimes["research"];
+                        } else {
+                            if(queueTimes[item.coords + "-" + type] && queueTimes[item.coords + "-" + type] > maxGenerationTime) maxGenerationTime = queueTimes[item.coords + "-" + type];
+                        }
                     });
                     
                     for(let l = minLevel; l <= maxLevel; l++){
@@ -3190,6 +3189,16 @@ class OgameHelper {
                             }
                         });
                         maxGenerationTime += upgradeTime;
+                    }
+
+                    if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
+                        let index = amortizationList.findIndex(a => a.id == item.id);
+                        if (index >= 0) {
+                            if(amortizationList[index].color == this.getColor("ready"))
+                                amortizationList[index].color = this.getColor("recommended");
+                            else if(amortizationList[index].color == this.getColor("soon"))
+                                amortizationList[index].color = this.getColor("soonRecommended");
+                        }
                     }
                 }
             }
@@ -4341,6 +4350,8 @@ class OgameHelper {
             case "toUnlock":
                 return "#ffa500";
             case "recommended":
+                return "#0096ff";
+            case "soonRecommended":
                 return "#add8e6";
         }
     }
