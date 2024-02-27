@@ -2906,6 +2906,7 @@ class OgameHelper {
         do {
             l++
             maxMseProd = parseFloat(amortizationList[amortizationList.length - l].amortization) * totalHourlyMseProd * 24;
+            console.log(maxMseProd);
         } while (maxMseProd == Infinity)
 
         if (maxMseProd == Infinity) {
@@ -3038,40 +3039,22 @@ class OgameHelper {
         let testAmortizationList = this.copyArray(amortizationList);
         let testPlanets = this.copyArray(this.json.player.planets);
         let maxMseSpend = maxMseProd;
-        let resAvailable = this.getTotalResourcesAvailable();
-
+        
         let upgradesToFinish = upgradesToCheck.length;
 
         let totalMseCost = 0;
 
-        let blocks = this.checkPlanetBlocks();
-        let queueTimes = {};
-        let timeNow = GetCurrentUnixTimeInSeconds();
-        blocks.forEach(block => {
-            if(block.upgradeType == "research"){
-                queueTimes["research"] = (parseInt(block.timeFinished) - timeNow) / 3600;
-            } else {
-                block.type.forEach(type => {
-                    queueTimes[block.coords + "-" + type] = (parseInt(block.timeFinished) - timeNow) / 3600;
-                });                    
-            }
-        });
-        console.log(queueTimes);
-        let hoursGenerationUsed = [0,0,0];
-        let resourcesPerHour = this.getTotalHourlyProduction(false);
-        console.log(resourcesPerHour);
-
-        while((maxMseSpend > 0 && upgradesToFinish > 0) || (resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0)){
+        while(maxMseSpend > 0 && upgradesToFinish > 0){
             let item = testAmortizationList[0];
-//            console.log("new item");
-//            console.log(item);
+            // console.log("new item");
+            // console.log(item);
             let upgradePlanet = testPlanets.find(p => p.coords == item.coords);
 
             upgradesToCheck.forEach(upgrade => {
                 if((upgrade.affectedCoords != "account" && item.coords != upgrade.coords)) return;
                 if(this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length == 0) return;
 
-//                console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
+                // console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
                 
                 if (upgrade.resourceDiscount > 0) { 
                     let currentDiscount = this.getCurrentDiscount(upgradePlanet, item.type);
@@ -3096,7 +3079,7 @@ class OgameHelper {
                     upgrade.mseProduced += upgradeTime * upgrade.timeDiscount * hourlyMseProd;
                 }
 
-//                console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
+                // console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
 
                 while(upgrade.mseProduced >= upgrade.mseCost){
                     amortizationList.push({
@@ -3112,7 +3095,7 @@ class OgameHelper {
                         color: upgrade.amorColor,
                     });
 
-//                    console.log("upgrading");
+                    // console.log("upgrading");
                     upgrade.costs = this.addArrayValues(upgrade.costs, this.getCosts(testPlanets.find(p => p.coords == upgrade.coords), upgrade.upgrade, upgrade.upgradeLevel));
                     upgrade.mseCost = this.getMSEValue(upgrade.costs);
                     upgrade.upgradeLevel++;
@@ -3122,86 +3105,12 @@ class OgameHelper {
                     }
                 }
 
-//                console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
+                // console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));
             });
 
             maxMseSpend -= item.msecost;
             totalMseCost += item.msecost;
-//            console.log(item.color);
-//            console.log(this.getBigNumber(maxMseSpend) + " - " + this.getBigNumber(totalMseCost) + " - " + this.getBigNumber(resAvailable[0])  + " / " + this.getBigNumber(resAvailable[1])  + " / " + this.getBigNumber(resAvailable[2]));
-
-            if(item.color != this.getColor("toUnlock")){
-                if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
-                    console.log(item);
-                    
-                    let minLevel, maxLevel;
-                    if(item.level.toString().includes('-')) {
-                        let levels = item.level.split('-');
-                        minLevel = parseInt(levels[0]) - 1;
-                        maxLevel = parseInt(levels[1]) - 1;
-                    } else {
-                        minLevel = maxLevel = parseInt(item.level) - 1;
-                    }
-
-                    let maxGenerationTime = 0;
-
-                    this.createArrayOfItem(item.type).forEach(type => {
-                        if(item.coords == "account"){
-                            if(queueTimes["research"] && queueTimes["research"] > maxGenerationTime) maxGenerationTime = queueTimes["research"];
-                        } else {
-                            if(queueTimes[item.coords + "-" + type] && queueTimes[item.coords + "-" + type] > maxGenerationTime) maxGenerationTime = queueTimes[item.coords + "-" + type];
-                        }
-                    });
-                    
-                    for(let l = minLevel; l <= maxLevel; l++){
-                        console.log(maxGenerationTime);
-                        let upgradeTime = this.getUpgradeTime(upgradePlanet, item.technology, l);
-                        let costs = this.getCosts(upgradePlanet, item.technology, l);
-                        console.log("time: " + upgradeTime);
-                        console.log(costs);
-
-                        console.log(hoursGenerationUsed);
-                        console.log(resAvailable);
-                        let generationTimeLeft = this.subtractArrayValues([maxGenerationTime, maxGenerationTime, maxGenerationTime], hoursGenerationUsed);
-                        console.log(generationTimeLeft);
-                        let generationNeeded = this.divideArrayValues(costs, resourcesPerHour);
-                        console.log(generationNeeded);
-
-                        for(let r = 0; r <= 2; r++){
-                            if(generationNeeded[r] <= generationTimeLeft[r]){
-                                hoursGenerationUsed[r] += generationNeeded[r];
-                            } else {
-                                if(generationTimeLeft[r] > 0) {
-                                    hoursGenerationUsed[r] += generationTimeLeft[r];
-                                }
-                                let hoursLeft = generationNeeded[r] - Math.max(generationTimeLeft[r], 0);
-                                resAvailable[r] -= hoursLeft * resourcesPerHour[r];
-                            }
-                        }
-                        console.log(hoursGenerationUsed);
-                        console.log(resAvailable);
-
-                        this.createArrayOfItem(item.type).forEach(type => {
-                            if(queueTimes[item.coords + "-" + type]) {
-                                queueTimes[item.coords + "-" + type] += upgradeTime;
-                            } else {
-                                queueTimes[item.coords + "-" + type] = upgradeTime;
-                            }
-                        });
-                        maxGenerationTime += upgradeTime;
-                    }
-
-                    if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
-                        let index = amortizationList.findIndex(a => a.id == item.id);
-                        if (index >= 0) {
-                            if(amortizationList[index].color == this.getColor("ready"))
-                                amortizationList[index].color = this.getColor("recommended");
-                            else if(amortizationList[index].color == this.getColor("soon"))
-                                amortizationList[index].color = this.getColor("soonRecommended");
-                        }
-                    }
-                }
-            }
+            // console.log(this.getBigNumber(maxMseSpend) + " - " + this.getBigNumber(totalMseCost));
 
             testAmortizationList[0] = this.upgradeAmortizationItem(item);
             testAmortizationList.sort((a, b) => a.amortization - b.amortization);
@@ -3223,8 +3132,99 @@ class OgameHelper {
                 });
             }
         });
-
         amortizationList.sort((a, b) => a.amortization - b.amortization);
+      
+        let resAvailable = this.getTotalResourcesAvailable();
+        let blocks = this.checkPlanetBlocks();
+        let queueTimes = {};
+        let timeNow = GetCurrentUnixTimeInSeconds();
+        blocks.forEach(block => {
+            if(block.upgradeType == "research"){
+                queueTimes["research"] = (parseInt(block.timeFinished) - timeNow) / 3600;
+            } else {
+                block.type.forEach(type => {
+                    queueTimes[block.coords + "-" + type] = (parseInt(block.timeFinished) - timeNow) / 3600;
+                });                    
+            }
+        });
+        console.log(queueTimes);
+        let hoursGenerationUsed = [0,0,0];
+        let resourcesPerHour = this.getTotalHourlyProduction(false);
+        console.log(resourcesPerHour);
+
+        let count = 0;
+        while(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0 && count < amortizationList.length){
+            let item = amortizationList[count];
+            let upgradePlanet = testPlanets.find(p => p.coords == item.coords);
+
+            if(item.color != this.getColor("toUnlock")){
+                console.log(item);
+                let minLevel, maxLevel;
+                if(item.level.toString().includes('-')) {
+                    let levels = item.level.split('-');
+                    minLevel = parseInt(levels[0]) - 1;
+                    maxLevel = parseInt(levels[1]) - 1;
+                } else {
+                    minLevel = maxLevel = parseInt(item.level) - 1;
+                }
+
+                let maxGenerationTime = 0;
+
+                this.createArrayOfItem(item.type).forEach(type => {
+                    if(item.coords == "account"){
+                        if(queueTimes["research"] && queueTimes["research"] > maxGenerationTime) maxGenerationTime = queueTimes["research"];
+                    } else {
+                        if(queueTimes[item.coords + "-" + type] && queueTimes[item.coords + "-" + type] > maxGenerationTime) maxGenerationTime = queueTimes[item.coords + "-" + type];
+                    }
+                });
+                
+                for(let l = minLevel; l <= maxLevel; l++){
+                    console.log(maxGenerationTime);
+                    let upgradeTime = this.getUpgradeTime(upgradePlanet, item.technology, l);
+                    let costs = this.getCosts(upgradePlanet, item.technology, l);
+                    console.log("time: " + upgradeTime);
+                    console.log(costs);
+
+                    console.log(hoursGenerationUsed);
+                    console.log(resAvailable);
+                    let generationTimeLeft = this.subtractArrayValues([maxGenerationTime, maxGenerationTime, maxGenerationTime], hoursGenerationUsed);
+                    console.log(generationTimeLeft);
+                    let generationNeeded = this.divideArrayValues(costs, resourcesPerHour);
+                    console.log(generationNeeded);
+
+                    for(let r = 0; r <= 2; r++){
+                        if(generationNeeded[r] <= generationTimeLeft[r]){
+                            hoursGenerationUsed[r] += generationNeeded[r];
+                        } else {
+                            if(generationTimeLeft[r] > 0) {
+                                hoursGenerationUsed[r] += generationTimeLeft[r];
+                            }
+                            let hoursLeft = generationNeeded[r] - Math.max(generationTimeLeft[r], 0);
+                            resAvailable[r] -= hoursLeft * resourcesPerHour[r];
+                        }
+                    }
+                    console.log(hoursGenerationUsed);
+                    console.log(resAvailable);
+
+                    this.createArrayOfItem(item.type).forEach(type => {
+                        if(queueTimes[item.coords + "-" + type]) {
+                            queueTimes[item.coords + "-" + type] += upgradeTime;
+                        } else {
+                            queueTimes[item.coords + "-" + type] = upgradeTime;
+                        }
+                    });
+                    maxGenerationTime += upgradeTime;
+                }
+
+                if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
+                    if(amortizationList[count].color == this.getColor("ready"))
+                        amortizationList[count].color = this.getColor("recommended");
+                    else if(amortizationList[count].color == this.getColor("soon"))
+                        amortizationList[count].color = this.getColor("soonRecommended");
+                }
+            }
+            count++;
+        }
         return amortizationList;
     }
 
@@ -3603,9 +3603,8 @@ class OgameHelper {
      * @returns the total production per hour calculated in metal
      */
     getTotalHourlyMseProduction() {
-        let ratio = this.json.player.ratio;
         let hourlyProd = this.getTotalHourlyProduction(true);
-        this.getMSEValue(hourlyProd[0] + hourlyProd[1] / ratio[1] * ratio[0] + hourlyProd[2] / ratio[2] * ratio[0]);
+        return this.getMSEValue(hourlyProd);
     }
 
     getTotalHourlyProduction(includeExpoFleetGains) {
