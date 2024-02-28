@@ -1597,115 +1597,65 @@ class OgameHelper {
         let tableBody = document.createElement('tbody');
 
 
+        let isRecursiveList = listType == "recursive";
         let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
         if (this.json.player.includeIndirectProductionBuildings == "true") {
             let indirectProductionUpgrades = this.getIndirectProductionUpgrades();
-            absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, indirectProductionUpgrades, blocked);
+            absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, indirectProductionUpgrades, blocked, isRecursiveList);
         }
 
-        if (listType == "recursive") {
-            //TODO: trim list for planet sided list
-            let totalAmortization = this.createAmortizationListString(absoluteAmortization, this.json.player.recursiveListAmount ?? 50);
+        let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
+        if(isRecursiveList){
+            totalAmortization = this.createAmortizationListString(totalAmortization, this.json.player.recursiveListAmount ?? 50);
+        }
 
-            for (let r = 0; r < totalAmortization.length + 1; r++) {
-                let tr = document.createElement('tr');
-                tr.style.marginLeft = 10;
-                let coords, name, technology, level, amortization, color;
+        for (let r = 0; r < totalAmortization.length + 1; r++) {
+            let tr = document.createElement('tr');
+            tr.style.marginLeft = 10;
+            let coords, name, technology, level, amortization, color;
 
-                if (r == 0) {
-                    coords = "Coords";
-                    name = "Name";
-                    technology = "Technology";
-                    level = "Level";
-                    amortization = "Return of Investment";
-                } else {
-                    coords = totalAmortization[r - 1].coords;
-                    name = totalAmortization[r - 1].name;
-                    technology = totalAmortization[r - 1].technology;
-                    level = totalAmortization[r - 1].level;
-                    color = totalAmortization[r - 1].color;
+            if (r == 0) {
+                coords = "Coords";
+                name = "Name";
+                technology = "Technology";
+                level = "Level";
+                amortization = "Return of Investment";
+            } else {
+                coords = totalAmortization[r - 1].coords;
+                name = totalAmortization[r - 1].name;
+                technology = this.getTechnologyFromId(totalAmortization[r - 1].technology);
+                level = totalAmortization[r - 1].level;
+                color = totalAmortization[r - 1].color;
 
-                    amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + " days";
-                    if (technology == "14204" || technology == "14205" || technology == "14211" || technology == "14218")
-                        amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
-                }
-
-                let td1 = document.createElement('td');
-                td1.appendChild(document.createTextNode(coords));
-                tr.appendChild(td1);
-
-                let td2 = document.createElement('td');
-                td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
-                tr.appendChild(td2);
-
-                let td3 = document.createElement('td');
-                td3.appendChild(document.createTextNode(technology));
-                let span = document.createElement("span");
-                span.style.color = color;
-                span.appendChild(td3);
-                tr.appendChild(span);
-
-                let td4 = document.createElement('td');
-                td4.appendChild(document.createTextNode(level));
-                tr.appendChild(td4);
-
-                let td5 = document.createElement('td');
-                td5.appendChild(document.createTextNode(amortization));
-                tr.appendChild(td5);
-
-                tableBody.appendChild(tr);
+                amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + (totalAmortization[r - 1].amortizationStopped == "true" ? "+ days" : " days");
+                if (["14204", "14205", "14211", "14218"].includes(totalAmortization[r - 1].technology))
+                    amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
             }
-        } else {
-            let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
-            //Every unit once
-            for (let r = 0; r < totalAmortization.length + 1; r++) {
-                let tr = document.createElement('tr');
-                tr.style.marginLeft = 10;
-                let coords, name, technology, level, amortization, color;
 
-                if (r == 0) {
-                    coords = "Coords";
-                    name = "Name";
-                    technology = "Technology";
-                    level = "Level";
-                    amortization = "Return of Investment";
-                } else {
-                    coords = totalAmortization[r - 1].coords;
-                    name = totalAmortization[r - 1].name;
-                    technology = this.getTechnologyFromId(totalAmortization[r - 1].technology);
-                    level = totalAmortization[r - 1].level;
-                    color = totalAmortization[r - 1].color;
+            let td1 = document.createElement('td');
+            td1.appendChild(document.createTextNode(coords));
+            tr.appendChild(td1);
 
-                    amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + (totalAmortization[r - 1].amortizationStopped == "true" ? "+ days" : " days");
-                    if (["14204", "14205", "14211", "14218"].includes(totalAmortization[r - 1].technology))
-                        amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
-                }
+            let td2 = document.createElement('td');
+            td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
+            tr.appendChild(td2);
 
-                let td1 = document.createElement('td');
-                td1.appendChild(document.createTextNode(coords));
-                tr.appendChild(td1);
+            let td3 = document.createElement('td');
+            td3.appendChild(document.createTextNode(technology));
+            let span = document.createElement("span");
+            span.style.color = color;
+            span.appendChild(td3);
+            tr.appendChild(span);
 
-                let td2 = document.createElement('td');
-                td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
-                tr.appendChild(td2);
+            let td4 = document.createElement('td');
+            td4.appendChild(document.createTextNode(level));
+            tr.appendChild(td4);
 
-                let td3 = document.createElement('td');
-                td3.appendChild(document.createTextNode(technology));
-                let span = document.createElement("span");
-                span.style.color = color;
-                span.appendChild(td3);
-                tr.appendChild(span);
+            let td5 = document.createElement('td');
+            td5.appendChild(document.createTextNode(amortization));
+            tr.appendChild(td5);
 
-                let td4 = document.createElement('td');
-                td4.appendChild(document.createTextNode(level));
-                tr.appendChild(td4);
-
-                let td5 = document.createElement('td');
-                td5.appendChild(document.createTextNode(amortization));
-                tr.appendChild(td5);
-
-                tableBody.appendChild(tr);
-            }
+            tableBody.appendChild(tr);
         }
 
         table.appendChild(tableBody);
@@ -2257,13 +2207,17 @@ class OgameHelper {
 
         for (let i = 0; i < amount; i++) {
             let lastUpgrade = amortizationList[0];
+            console.log(lastUpgrade);
             finalList.push({
+                amortization: lastUpgrade.amortization,
+                color: lastUpgrade.color,
                 coords: lastUpgrade.coords,
+                costs: lastUpgrade.costs,
+                id: lastUpgrade.id,
+                level: lastUpgrade.level,
+                msecost: lastUpgrade.msecost,
                 name: lastUpgrade.name,
                 technology: lastUpgrade.technology,
-                level: lastUpgrade.level,
-                amortization: lastUpgrade.amortization,
-                msecost: lastUpgrade.msecost,
                 type: lastUpgrade.type,
             });
 
@@ -2899,7 +2853,7 @@ class OgameHelper {
         return indirectProductionUpgrades;
     }
 
-    addIndirectProductionUpgradesToAmortization(amortizationList, indirectProductionUpgrades, blocked) {
+    addIndirectProductionUpgradesToAmortization(amortizationList, indirectProductionUpgrades, blocked, isRecursiveList) {
         let totalHourlyMseProd = this.getTotalHourlyMseProduction();
         let maxMseProd;
         let l = 0;
@@ -3043,6 +2997,7 @@ class OgameHelper {
         let upgradesToFinish = upgradesToCheck.length;
 
         let totalMseCost = 0;
+        let nextId = amortizationList.length + 1;
 
         while(maxMseSpend > 0 && upgradesToFinish > 0){
             let item = testAmortizationList[0];
@@ -3052,6 +3007,7 @@ class OgameHelper {
 
             upgradesToCheck.forEach(upgrade => {
                 if((upgrade.affectedCoords != "account" && item.coords != upgrade.coords)) return;
+                if((upgrade.finishedOnce && !isRecursiveList)) return;
                 if(this.intersectArrays(this.createArrayOfItem(item.type), this.createArrayOfItem(upgrade.affected)).length == 0) return;
 
                 // console.log(upgrade.coords + " - " + upgrade.upgrade + " - " + this.getBigNumber(upgrade.mseProduced) + " - " + this.getBigNumber(upgrade.mseCost));

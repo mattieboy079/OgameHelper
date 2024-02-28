@@ -1,1 +1,2 @@
 - Feature: List of Upgrades with all remaining upgrade time in 1 overview
+- Bugfix: Fixed the recursive upgrade list
