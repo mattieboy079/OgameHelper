@@ -1714,7 +1714,7 @@ class OgameHelper {
         if (!block) return this.getColor("ready");
 
         const timeLeft = block.timeFinished - Date.now() / 1000;
-        if (timeLeft > 3600 * 10) return this.getColor("blocked");
+        if (timeLeft > 3600 * 24) return this.getColor("blocked");
         if (timeLeft > 0) return this.getColor("soon");
         return this.getColor("ready")
     }
