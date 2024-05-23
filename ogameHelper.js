@@ -3134,6 +3134,8 @@ class OgameHelper {
                     }
                 });
                 
+                let queueTimeBeforeUpgrading = queueTimes[item.coords + "-" + item.type];
+
                 for(let l = minLevel; l <= maxLevel; l++){
                     console.log(maxGenerationTime);
                     let upgradeTime = this.getUpgradeTime(upgradePlanet, item.technology, l);
@@ -3173,13 +3175,36 @@ class OgameHelper {
                 }
 
                 if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
-                    if(amortizationList[count].color == this.getColor("ready"))
-                        amortizationList[count].color = this.getColor("recommended");
-                    else if(amortizationList[count].color == this.getColor("soon"))
-                        amortizationList[count].color = this.getColor("soonRecommended");
+                    if(amortizationList[count].color == this.getColor("ready")){
+                        if(!queueTimeBeforeUpgrading)
+                            amortizationList[count].color = this.getColor("recommended");
+                        else if (queueTimeBeforeUpgrading <= 24)
+                            amortizationList[count].color = this.getColor("soonRecommended");
+                        else
+                            amortizationList[count].color = this.getColor("blocked");
+                    }
+                    else if(amortizationList[count].color == this.getColor("soon")){
+                        if (queueTimeBeforeUpgrading <= 24)
+                            amortizationList[count].color = this.getColor("soonRecommended");
+                        else
+                            amortizationList[count].color = this.getColor("blocked");
+                    }
                 }
             }
             count++;
+        }
+
+        console.log(queueTimes);
+
+        for(let c = count; c < amortizationList.length; c++){
+            var item = amortizationList[c];
+            var queueTime = queueTimes[item.coords + "-" + item.type];
+            if(queueTime){
+                if (queueTime <= 24)
+                    amortizationList[c].color = this.getColor("soon");
+                else
+                    amortizationList[c].color = this.getColor("blocked");
+            }
         }
         return amortizationList;
     }
