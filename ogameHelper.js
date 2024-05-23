@@ -1599,11 +1599,9 @@ class OgameHelper {
 
         let isRecursiveList = listType == "recursive";
         let absoluteAmortization = this.createAbsoluteAmortizationList(blocked);
-        if (this.json.player.includeIndirectProductionBuildings == "true") {
-            let indirectProductionUpgrades = this.getIndirectProductionUpgrades();
-            absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, indirectProductionUpgrades, blocked, isRecursiveList);
-        }
-
+        let indirectProductionUpgrades = this.getIndirectProductionUpgrades();
+        absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, indirectProductionUpgrades, blocked, isRecursiveList);
+    
         let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
         if(isRecursiveList){
             totalAmortization = this.createAmortizationListString(totalAmortization, this.json.player.recursiveListAmount ?? 50);
@@ -4189,10 +4187,6 @@ class OgameHelper {
                         <td><label for="RecursiveListAmount">Amount of upgrades in recursive list:</label></td>
                         <td><input type="text" id="RecursiveListAmount" RecursiveListAmount="RecursiveListAmount" style="width:100%" value="${this.json.player.recursiveListAmount ?? 50}"></td>
                     </tr>
-                    <tr>    
-                        <td><label for="IncludeIndirectProductionBuildings">Indirect production upgrades in amortizationtable (true/false)(WIP, calculation times 5+ sec):</label></td>
-                        <td><input type="text" id="IncludeIndirectProductionBuildings" IncludeIndirectProductionBuildings="IncludeIndirectProductionBuildings" style="width:100%" value="${this.json.player.includeIndirectProductionBuildings == "true" ?? "false"}"></td>
-                    </tr>
                     <tr style="height:30px"></tr>
                     <tr>
                         <td></td>
@@ -4219,7 +4213,6 @@ class OgameHelper {
         }
         this.json.player.expofleetValue = parseInt(document.querySelector("#ExpoFleetValue").value);
         this.json.player.recursiveListAmount = parseInt(document.querySelector("#RecursiveListAmount").value);
-        this.json.player.includeIndirectProductionBuildings = document.querySelector("#IncludeIndirectProductionBuildings").value;
 
         this.saveData();
     }
