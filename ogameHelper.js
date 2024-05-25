@@ -4274,9 +4274,10 @@ class OgameHelper {
 
         for (let i = 1; i <= 4; i++) {
             if (document.querySelector(".technology.lifeformTech1" + i + "2" + slot)) {
+                console.log(document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("data-tooltip-title"));
                 return {
                     id: "1" + i + "2" + slot,
-                    name: document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("title").split("<br/>")[0].replace("\n", ""),
+                    name: document.querySelector(".technology.lifeformTech1" + i + "2" + slot).getAttribute("data-tooltip-title"),
                     level: this.getTechnologyLevel("lifeformTech1" + i + "2" + slot)
                 }
             }
