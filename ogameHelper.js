@@ -2718,7 +2718,138 @@ class OgameHelper {
                             'levelNeeded': skyscraperLevelNeeded,
                         },
                     ];
-            }
+                case LIFEFORM_CLASS_MECHA:
+                    let microchipAssemblyLineLevel = this.getLevel(planet.lifeforms.buildings.microchipAssemblyLine);
+                    let microchipAssemblyLineLevelNeeded = 0;
+                    let productionAssemblyHallLevel = this.getLevel(planet.lifeforms.buildings.productionAssemblyHall);
+                    let productionAssemblyHallLevelNeeded = 0;
+                    switch (slot) {
+                        case 6:
+                            quartersLevelNeeded = 41;
+                            foodLevelNeeded = 44;
+                            t2popBuildingLevelNeeded = 5;
+                            microchipAssemblyLineLevelNeeded = 1;
+                            productionAssemblyHallLevelNeeded = 1;
+                            break;
+                        case 7:
+                            quartersLevelNeeded = 42;
+                            foodLevelNeeded = 49;
+                            t2popBuildingLevelNeeded = 6;
+                            microchipAssemblyLineLevelNeeded = 1;
+                            productionAssemblyHallLevelNeeded = 2;
+                            break;
+                        case 8:
+                            quartersLevelNeeded = 44;
+                            foodLevelNeeded = 52;
+                            t2popBuildingLevelNeeded = 6;
+                            microchipAssemblyLineLevelNeeded = 2;
+                            productionAssemblyHallLevelNeeded = 2;
+                            break;
+                        case 9:
+                            quartersLevelNeeded = 45;
+                            foodLevelNeeded = 53;
+                            t2popBuildingLevelNeeded = 7;
+                            microchipAssemblyLineLevelNeeded = 2;
+                            productionAssemblyHallLevelNeeded = 2;
+                            break;
+                        case 10:
+                            quartersLevelNeeded = 46;
+                            foodLevelNeeded = 54;
+                            t2popBuildingLevelNeeded = 7;
+                            microchipAssemblyLineLevelNeeded = 4;
+                            productionAssemblyHallLevelNeeded = 4;
+                            break;
+                        case 11:
+                            quartersLevelNeeded = 47;
+                            foodLevelNeeded = 55;
+                            t2popBuildingLevelNeeded = 7;
+                            microchipAssemblyLineLevelNeeded = 5;
+                            productionAssemblyHallLevelNeeded = 4;
+                            break;
+                        case 12:
+                            quartersLevelNeeded = 58;
+                            foodLevelNeeded = 68;
+                            t2popBuildingLevelNeeded = 10;
+                            t3popBuildingLevelNeeded = 7;
+                            microchipAssemblyLineLevelNeeded = 11;
+                            productionAssemblyHallLevelNeeded = 14;
+                            break;
+
+                            
+                        case 13:
+                            quartersLevelNeeded = 65;
+                            foodLevelNeeded = 61;
+                            t2popBuildingLevelNeeded = 12;
+                            t3popBuildingLevelNeeded = 8;
+                            microchipAssemblyLineLevelNeeded = 24;
+                            productionAssemblyHallLevelNeeded = 16;
+                            break;
+                        case 14:
+                            quartersLevelNeeded = 68;
+                            foodLevelNeeded = 64;
+                            t2popBuildingLevelNeeded = 12;
+                            t3popBuildingLevelNeeded = 8;
+                            microchipAssemblyLineLevelNeeded = 29;
+                            productionAssemblyHallLevelNeeded = 20;
+                            break;
+                        case 15:
+                            quartersLevelNeeded = 70;
+                            foodLevelNeeded = 65;
+                            t2popBuildingLevelNeeded = 14;
+                            t3popBuildingLevelNeeded = 9;
+                            microchipAssemblyLineLevelNeeded = 37;
+                            productionAssemblyHallLevelNeeded = 21;
+                            break;
+                        case 16:
+                            quartersLevelNeeded = 73;
+                            foodLevelNeeded = 67;
+                            t2popBuildingLevelNeeded = 14;
+                            t3popBuildingLevelNeeded = 10;
+                            microchipAssemblyLineLevelNeeded = 40;
+                            productionAssemblyHallLevelNeeded = 24;
+                            break;
+                        case 17:
+                            quartersLevelNeeded = 74;
+                            foodLevelNeeded = 68;
+                            t2popBuildingLevelNeeded = 15;
+                            t3popBuildingLevelNeeded = 10;
+                            microchipAssemblyLineLevelNeeded = 44;
+                            productionAssemblyHallLevelNeeded = 26;
+                            break;
+                    }
+                    return [
+                        {
+                            'name': 'assemblyLine',
+                            'level': quartersLevel,
+                            'levelNeeded': quartersLevelNeeded,
+                        },
+                        {
+                            'name': 'fusionCellFactory',
+                            'level': foodLevel,
+                            'levelNeeded': foodLevelNeeded,
+                        },
+                        {
+                            'name': 'updateNetwork',
+                            'level': t2popBuildingLevel,
+                            'levelNeeded': t2popBuildingLevelNeeded,
+                        },
+                        {
+                            'name': 'quantumComputerCentre',
+                            'level': t3popBuildingLevel,
+                            'levelNeeded': t3popBuildingLevelNeeded,
+                        },
+                        {
+                            'name': 'microchipAssemblyLine',
+                            'level': microchipAssemblyLineLevel,
+                            'levelNeeded': microchipAssemblyLineLevelNeeded,
+                        },
+                        {
+                            'name': 'productionAssemblyHall',
+                            'level': productionAssemblyHallLevel,
+                            'levelNeeded': productionAssemblyHallLevelNeeded,
+                        },
+                    ];
+                }
         } else {
             console.error("slot higher than 18");
             return 0;
