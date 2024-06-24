@@ -1,1 +1,1 @@
-- Feature: Added support for mecha prerequisites to unlock all techslots
+- Feature: Added support for kaelesh prerequisites to unlock all techslots

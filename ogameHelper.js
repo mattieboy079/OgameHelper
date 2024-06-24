@@ -2847,6 +2847,153 @@ class OgameHelper {
                             'levelNeeded': productionAssemblyHallLevelNeeded,
                         },
                     ];
+                    case LIFEFORM_CLASS_KAELESH:
+                        let antimatterConvectorLevel = this.getLevel(planet.lifeforms.buildings.antimatterConvector);
+                        let antimatterConvectorLevelNeeded = 0;
+                        let chrysalisAcceleratorLevel = this.getLevel(planet.lifeforms.buildings.chrysalisAccelerator);
+                        let chrysalisAcceleratorLevelNeeded = 0;
+                        let psionicModulatorLevel = this.getLevel(planet.lifeforms.buildings.psionicModulator);
+                        let psionicModulatorLevelNeeded = 0;
+                        switch (slot) {
+                            case 6:
+                                quartersLevelNeeded = 43;
+                                foodLevelNeeded = 45;
+                                t2popBuildingLevelNeeded = 3;
+                                chrysalisAcceleratorLevelNeeded = 1;
+                                break;
+                            case 7:
+                                quartersLevelNeeded = 44;
+                                foodLevelNeeded = 45;
+                                t2popBuildingLevelNeeded = 6;
+                                antimatterConvectorLevelNeeded = 6;
+                                chrysalisAcceleratorLevelNeeded = 3;
+                                psionicModulatorLevelNeeded = 2;
+                                break;
+                            case 8:
+                                quartersLevelNeeded = 46;
+                                foodLevelNeeded = 48;
+                                t2popBuildingLevelNeeded = 6;
+                                antimatterConvectorLevelNeeded = 6;
+                                chrysalisAcceleratorLevelNeeded = 3;
+                                psionicModulatorLevelNeeded = 2;
+                                break;
+                            case 9:
+                                quartersLevelNeeded = 47;
+                                foodLevelNeeded = 49;
+                                t2popBuildingLevelNeeded = 7;
+                                antimatterConvectorLevelNeeded = 6;
+                                chrysalisAcceleratorLevelNeeded = 3;
+                                psionicModulatorLevelNeeded = 2;
+                                break;
+                            case 10:
+                                quartersLevelNeeded = 48;
+                                foodLevelNeeded = 50;
+                                t2popBuildingLevelNeeded = 7;
+                                antimatterConvectorLevelNeeded = 6;
+                                chrysalisAcceleratorLevelNeeded = 4;
+                                psionicModulatorLevelNeeded = 2;
+                                break;
+                            case 11:
+                                quartersLevelNeeded = 49;
+                                foodLevelNeeded = 51;
+                                t2popBuildingLevelNeeded = 7;
+                                antimatterConvectorLevelNeeded = 6;
+                                chrysalisAcceleratorLevelNeeded = 4;
+                                psionicModulatorLevelNeeded = 2;
+                                break;
+                            case 12:
+                                quartersLevelNeeded = 60;
+                                foodLevelNeeded = 62;
+                                t2popBuildingLevelNeeded = 10;
+                                t3popBuildingLevelNeeded = 6;
+                                antimatterConvectorLevelNeeded = 13;
+                                chrysalisAcceleratorLevelNeeded = 18;
+                                psionicModulatorLevelNeeded = 6;
+                                break;
+                            case 13:
+                                quartersLevelNeeded = 62;
+                                foodLevelNeeded = 64;
+                                t2popBuildingLevelNeeded = 10;
+                                t3popBuildingLevelNeeded = 7;
+                                antimatterConvectorLevelNeeded = 15;
+                                chrysalisAcceleratorLevelNeeded = 25;
+                                psionicModulatorLevelNeeded = 7;
+                                break;
+                            case 14:
+                                quartersLevelNeeded = 64;
+                                foodLevelNeeded = 66;
+                                t2popBuildingLevelNeeded = 11;
+                                t3popBuildingLevelNeeded = 8;
+                                antimatterConvectorLevelNeeded = 17;
+                                chrysalisAcceleratorLevelNeeded = 31;
+                                psionicModulatorLevelNeeded = 9;
+                                break;
+                            case 15:
+                                quartersLevelNeeded = 66;
+                                foodLevelNeeded = 68;
+                                t2popBuildingLevelNeeded = 12;
+                                t3popBuildingLevelNeeded = 9;
+                                antimatterConvectorLevelNeeded = 18;
+                                chrysalisAcceleratorLevelNeeded = 33;
+                                psionicModulatorLevelNeeded = 11;
+                                break;
+                            case 16:
+                                quartersLevelNeeded = 69;
+                                foodLevelNeeded = 71;
+                                t2popBuildingLevelNeeded = 12;
+                                t3popBuildingLevelNeeded = 9;
+                                antimatterConvectorLevelNeeded = 20;
+                                chrysalisAcceleratorLevelNeeded = 40;
+                                psionicModulatorLevelNeeded = 11;
+                                break;
+                            case 17:
+                                quartersLevelNeeded = 71;
+                                foodLevelNeeded = 73;
+                                t2popBuildingLevelNeeded = 13;
+                                t3popBuildingLevelNeeded = 10;
+                                antimatterConvectorLevelNeeded = 22;
+                                chrysalisAcceleratorLevelNeeded = 47;
+                                psionicModulatorLevelNeeded = 12;
+                                break;
+                        }
+                        return [
+                            {
+                                'name': 'sanctuary',
+                                'level': quartersLevel,
+                                'levelNeeded': quartersLevelNeeded,
+                            },
+                            {
+                                'name': 'antimatterCondenser',
+                                'level': foodLevel,
+                                'levelNeeded': foodLevelNeeded,
+                            },
+                            {
+                                'name': 'hallsOfRealisation',
+                                'level': t2popBuildingLevel,
+                                'levelNeeded': t2popBuildingLevelNeeded,
+                            },
+                            {
+                                'name': 'forumOfTranscendence',
+                                'level': t3popBuildingLevel,
+                                'levelNeeded': t3popBuildingLevelNeeded,
+                            },
+                            {
+                                'name': 'antimatterConvector',
+                                'level': antimatterConvectorLevel,
+                                'levelNeeded': antimatterConvectorLevelNeeded,
+                            },
+                            {
+                                'name': 'chrysalisAccelerator',
+                                'level': chrysalisAcceleratorLevel,
+                                'levelNeeded': chrysalisAcceleratorLevelNeeded,
+                            },
+                            {
+                                'name': 'psionicModulator',
+                                'level': psionicModulatorLevel,
+                                'levelNeeded': psionicModulatorLevelNeeded,
+                            },
+                        ];
+    
                 }
         } else {
             console.error("slot higher than 18");
