@@ -1,2 +1,1 @@
-- Enhancement: Significant performance improvement in the calculation of indirect production upgrades (removed the setting)
-- Adaptation: Fix the reading of lifeform technologies after the update.
+- Feature: Added support for mecha prerequisites to unlock all techslots

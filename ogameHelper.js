@@ -2773,48 +2773,46 @@ class OgameHelper {
                             t3popBuildingLevelNeeded = 7;
                             microchipAssemblyLineLevelNeeded = 11;
                             productionAssemblyHallLevelNeeded = 14;
-                            break;
-
-                            
+                            break;    
                         case 13:
-                            quartersLevelNeeded = 65;
-                            foodLevelNeeded = 61;
-                            t2popBuildingLevelNeeded = 12;
-                            t3popBuildingLevelNeeded = 8;
-                            microchipAssemblyLineLevelNeeded = 24;
-                            productionAssemblyHallLevelNeeded = 16;
+                            quartersLevelNeeded = 61;
+                            foodLevelNeeded = 71;
+                            t2popBuildingLevelNeeded = 11;
+                            t3popBuildingLevelNeeded = 7;
+                            microchipAssemblyLineLevelNeeded = 15;
+                            productionAssemblyHallLevelNeeded = 14;
                             break;
                         case 14:
-                            quartersLevelNeeded = 68;
-                            foodLevelNeeded = 64;
+                            quartersLevelNeeded = 64;
+                            foodLevelNeeded = 74;
                             t2popBuildingLevelNeeded = 12;
-                            t3popBuildingLevelNeeded = 8;
-                            microchipAssemblyLineLevelNeeded = 29;
-                            productionAssemblyHallLevelNeeded = 20;
+                            t3popBuildingLevelNeeded = 7;
+                            microchipAssemblyLineLevelNeeded = 22;
+                            productionAssemblyHallLevelNeeded = 18;
                             break;
                         case 15:
-                            quartersLevelNeeded = 70;
-                            foodLevelNeeded = 65;
-                            t2popBuildingLevelNeeded = 14;
-                            t3popBuildingLevelNeeded = 9;
-                            microchipAssemblyLineLevelNeeded = 37;
-                            productionAssemblyHallLevelNeeded = 21;
+                            quartersLevelNeeded = 67;
+                            foodLevelNeeded = 77;
+                            t2popBuildingLevelNeeded = 12;
+                            t3popBuildingLevelNeeded = 8;
+                            microchipAssemblyLineLevelNeeded = 25;
+                            productionAssemblyHallLevelNeeded = 18;
                             break;
                         case 16:
-                            quartersLevelNeeded = 73;
-                            foodLevelNeeded = 67;
-                            t2popBuildingLevelNeeded = 14;
-                            t3popBuildingLevelNeeded = 10;
-                            microchipAssemblyLineLevelNeeded = 40;
-                            productionAssemblyHallLevelNeeded = 24;
+                            quartersLevelNeeded = 69;
+                            foodLevelNeeded = 79;
+                            t2popBuildingLevelNeeded = 13;
+                            t3popBuildingLevelNeeded = 9;
+                            microchipAssemblyLineLevelNeeded = 32;
+                            productionAssemblyHallLevelNeeded = 22;
                             break;
                         case 17:
-                            quartersLevelNeeded = 74;
-                            foodLevelNeeded = 68;
-                            t2popBuildingLevelNeeded = 15;
+                            quartersLevelNeeded = 72;
+                            foodLevelNeeded = 82;
+                            t2popBuildingLevelNeeded = 13;
                             t3popBuildingLevelNeeded = 10;
-                            microchipAssemblyLineLevelNeeded = 44;
-                            productionAssemblyHallLevelNeeded = 26;
+                            microchipAssemblyLineLevelNeeded = 37;
+                            productionAssemblyHallLevelNeeded = 23;
                             break;
                     }
                     return [
