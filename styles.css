@@ -108,3 +108,39 @@
     display: block;
 }
 
+#oghLegenda {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+#oghLegenda h3 {
+    margin-top: 0;
+}
+
+#oghLegenda ul {
+    list-style: none;
+    padding: 0;
+}
+
+#oghLegenda li {
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+}
+
+.legenda-item {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.legenda-text {
+    position: relative;
+}

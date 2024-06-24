@@ -1564,6 +1564,33 @@ class OgameHelper {
         return blocked.filter(b => parseInt(b.timeFinished) * 1000 > Date.now());
     }
 
+    getAmortizationTableLegendaDiv() {
+        const legendaItems = [
+            { color: this.getColor("ready"), text: "" },
+            { color: this.getColor("soon"), text: "" },
+            { color: this.getColor("blocked"), text: "" },
+            { color: this.getColor("recommended"), text: "" },
+            { color: this.getColor("soonRecommended"), text: "" },
+            { color: this.getColor("toUnlock"), text: "" },
+        ];
+    
+        // Maak een div-element voor de legenda
+        var legendaDiv = document.createElement("div");
+        legendaDiv.id = "oghLegenda";
+    
+        // Voeg de legenda-items toe
+        var legendaHTML = "<h3>Legenda</h3><ul>";
+        legendaItems.forEach(item => {
+            legendaHTML += `<li><span class="legenda-item" style="background-color: ${item.color};"></span><span class="legenda-text">${item.text}</span></li>`;
+        });
+        legendaHTML += "</ul>";
+    
+        legendaDiv.innerHTML = legendaHTML;
+    
+        // Voeg de legenda toe aan de body van de pagina
+        return legendaDiv;
+    }
+
     createAmortizationTable(coords = undefined, listType) {
         const blocked = this.checkPlanetBlocks();
 
@@ -1659,6 +1686,7 @@ class OgameHelper {
         table.appendChild(tableBody);
 
         let divBody = document.createElement('div');
+        divBody.appendChild(this.getAmortizationTableLegendaDiv());
         divBody.appendChild(table);
 
         div.appendChild(divBody);
