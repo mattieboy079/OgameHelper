@@ -108,3 +108,15 @@
     display: block;
 }
 
+.fold-icon {
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+.indented {
+    padding-left: 20px;
+}

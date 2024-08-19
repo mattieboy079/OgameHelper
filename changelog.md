@@ -1,1 +1,2 @@
 - Feature: Added support for kaelesh prerequisites to unlock all techslots
+- Feature: Added foldable dependencies in the amortization table

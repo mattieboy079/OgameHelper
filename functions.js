@@ -117,9 +117,17 @@ export function GetTimeString(seconds){
     return text;
 }
 
+let ExpeditionData;
+
 export function GetExpeditionData(universe){
+    if(ExpeditionData)
+        return ExpeditionData;
+
     let data = JSON.parse(localStorage.getItem("ogh-" + universe + "-expeditions"));
     console.log(data);
+    ExpeditionData = data;
+    if(ExpeditionData == null)
+        ExpeditionData = {};
     return data;
 }
 
@@ -129,4 +137,10 @@ export function GetCurrentUnixTimeInSeconds(){
 
 export function GetRelativeSecondsToUnixTime(unixTime){
     return unixTime - Math.floor(Date.now() / 1000);
+}
+
+export function ToggleDependencies(id) {
+    document.querySelectorAll(`.dependency-${id}`).forEach(depRow => {
+        depRow.classList.toggle('hidden');
+    });
 }
