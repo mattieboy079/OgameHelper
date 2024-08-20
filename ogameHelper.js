@@ -1,6 +1,6 @@
 //import { Player } from './logic/player.js';
 import { MessageAnalyzer } from './messageAnalyzer.js';
-import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString, GetMseValue, ToggleDependencies } from './functions.js';
+import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString, ToggleDependencies } from './functions.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_GENERAL = "generaal";
@@ -142,19 +142,30 @@ class OgameHelper {
         localStorage.setItem("ogh-" + UNIVERSE, JSON.stringify(this.json));
     }
 
-    getEffectiveLifeformTechLevel(techId){
-        if(TotalLifeformTechLevelBoni[techId] || TotalLifeformTechLevelBoni[techId] == 0) return TotalLifeformTechLevelBoni[techId];
+    getEffectiveLifeformTechLevel(techId, planets){
+        let useCache = planets == undefined;
 
-        let totalBonus = 0;
-        this.json.player.planets.forEach(planet => {
+        if(useCache && (TotalLifeformTechLevelBoni[techId] || TotalLifeformTechLevelBoni[techId] == 0)) 
+            return TotalLifeformTechLevelBoni[techId];
+
+        let totalLevel = 0;
+        if(planets == undefined)
+            planets = this.json.player.planets;
+
+        planets.forEach(planet => {
             let foundTech = planet.lifeforms?.techs?.find(tech => tech.id == techId);
-            if(foundTech) totalBonus += this.getLevel(foundTech.level) * (1 + this.getLifeformBonus(planet));
+            if(foundTech) totalLevel += this.getLevel(foundTech.level) * (1 + this.getLifeformBonus(planet));
         });
-        TotalLifeformTechLevelBoni[techId] = totalBonus;
-        return totalBonus;
+        if(useCache)
+            TotalLifeformTechLevelBoni[techId] = totalLevel;
+
+        return totalLevel;
     }
 
-    getBonus(planet, resource, totalPlanets = this.json.player.planets) {
+    getBonus(planet, resource, planets) {
+        if(planets == undefined) 
+            planets = this.json.player.planets;
+        
         let verzamelaarVersterker = this.getEffectiveLifeformTechLevel("12218") * 0.002;
         let verzamelaarBonus = this.json.player.playerClass == PLAYER_CLASS_COLLECTOR ? 0.25 * verzamelaarVersterker : 0;
         let handelaarBonus = this.json.player.allyClass == ALLY_CLASS_TRADER ? 0.05 : 0;
@@ -182,38 +193,38 @@ class OgameHelper {
                 }
             }
 
-            let HoogwaardigeExtractoren = this.getEffectiveLifeformTechLevel("11202");
+            let HoogwaardigeExtractoren = this.getEffectiveLifeformTechLevel("11202", planets);
             lifeformTechBonus += 0.0006 * HoogwaardigeExtractoren;
-            let MagmaPoweredProduction = this.getEffectiveLifeformTechLevel("12205")
+            let MagmaPoweredProduction = this.getEffectiveLifeformTechLevel("12205", planets);
             lifeformTechBonus += 0.0008 * MagmaPoweredProduction;
-            let GeautomatiseerdeTransportlijnen = this.getEffectiveLifeformTechLevel("13206")
+            let GeautomatiseerdeTransportlijnen = this.getEffectiveLifeformTechLevel("13206", planets);
             lifeformTechBonus += 0.0006 * GeautomatiseerdeTransportlijnen;
-            let VerbeterdeProductieTechnologien = this.getEffectiveLifeformTechLevel("11208")
+            let VerbeterdeProductieTechnologien = this.getEffectiveLifeformTechLevel("11208", planets);
             lifeformTechBonus += 0.0006 * VerbeterdeProductieTechnologien;
-            let Psychoharmonisator = this.getEffectiveLifeformTechLevel("14212")
+            let Psychoharmonisator = this.getEffectiveLifeformTechLevel("14212", planets);
             lifeformTechBonus += 0.0006 * Psychoharmonisator;
-            let ArtificialSwarmIntelligence = this.getEffectiveLifeformTechLevel("13213")
+            let ArtificialSwarmIntelligence = this.getEffectiveLifeformTechLevel("13213", planets);
             lifeformTechBonus += 0.0006 * ArtificialSwarmIntelligence;
 
             if (resource == "metal") {
-                let Dieptepeiling = this.getEffectiveLifeformTechLevel("12207")
+                let Dieptepeiling = this.getEffectiveLifeformTechLevel("12207", planets);
                 lifeformTechBonus += 0.0008 * Dieptepeiling;
-                let VerhardeDiamantenBoorkoppen = this.getEffectiveLifeformTechLevel("12210")
+                let VerhardeDiamantenBoorkoppen = this.getEffectiveLifeformTechLevel("12210", planets);
                 lifeformTechBonus += 0.0008 * VerhardeDiamantenBoorkoppen;
             }
             else if (resource == "crystal") {
-                let AkoestischScannen = this.getEffectiveLifeformTechLevel("12202")
+                let AkoestischScannen = this.getEffectiveLifeformTechLevel("12202", planets);
                 lifeformTechBonus += 0.0008 * AkoestischScannen;
-                let SeismischeMijntechnologie = this.getEffectiveLifeformTechLevel("12211")
+                let SeismischeMijntechnologie = this.getEffectiveLifeformTechLevel("12211", planets);
                 lifeformTechBonus += 0.0008 * SeismischeMijntechnologie;
             } else if (resource == "deut") {
-                let HogeEnergiePompSystemen = this.getEffectiveLifeformTechLevel("12203")
+                let HogeEnergiePompSystemen = this.getEffectiveLifeformTechLevel("12203", planets);
                 lifeformTechBonus += 0.0008 * HogeEnergiePompSystemen;
-                let Katalysatortechnologie = this.getEffectiveLifeformTechLevel("13201")
+                let Katalysatortechnologie = this.getEffectiveLifeformTechLevel("13201", planets);
                 lifeformTechBonus += 0.0008 * Katalysatortechnologie;
-                let Sulfideproces = this.getEffectiveLifeformTechLevel("14202")
+                let Sulfideproces = this.getEffectiveLifeformTechLevel("14202", planets);
                 lifeformTechBonus += 0.0008 * Sulfideproces;
-                let MagmaAangedrevenPompsystemen = this.getEffectiveLifeformTechLevel("12212")
+                let MagmaAangedrevenPompsystemen = this.getEffectiveLifeformTechLevel("12212", planets);
                 lifeformTechBonus += 0.0008 * MagmaAangedrevenPompsystemen;
             }
 
@@ -1026,7 +1037,6 @@ class OgameHelper {
             //upgrade previous planets with lifeforms boni
             this.json.player.planets.forEach(p => {
                 //console.log(p);
-                //console.log(this.getBonus(p, "metal", planets));
                 metalProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "metal", planets) - this.getBonus(p, "metal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
                 //console.log(metalProd);
                 crystalProd += this.getRawProduction(p, "crystal", p.crystal) * (this.getBonus(p, "crystal", planets) - this.getBonus(p, "crystal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
@@ -1747,7 +1757,7 @@ class OgameHelper {
                     depTr.appendChild(depTd2);
         
                     let depTd3 = document.createElement('td');
-                    depTd3.appendChild(document.createTextNode(dep.technology));
+                    depTd3.appendChild(document.createTextNode(this.getTechnologyFromId(dep.technology)));
                     depTd3.className = 'indented';
                     if(dep.amorColor){
                         console.log("yes: " + dep.amorColor);
@@ -1996,6 +2006,10 @@ class OgameHelper {
 
         totalAmortization.push(this.createAstroAmortizationObject(blocked, totalAmortization.length));
 
+        if(this.json.player.playerClass == PLAYER_CLASS_EXPLORER){
+            totalAmortization.push(this.createKaeleshExplorerExpoSlotBonusAmortizationObject(blocked, totalAmortization.length))
+        }
+
         totalAmortization.sort((a, b) => a.amortization - b.amortization);
         console.log(totalAmortization);
         return totalAmortization;
@@ -2153,8 +2167,6 @@ class OgameHelper {
         const preRequisiteAstroCosts = this.getPrerequisiteMSECosts(undefined, "astro");
         let totalMSECostsAstroNewPlanet = preRequisiteAstroCosts;
         let totalMSECostsAstroNewExpo = preRequisiteAstroCosts;
-        let totalMSEProdAstroNewPlanet = 0;
-        let totalMSEProdAstroNewExpo = 0;
         let newPlanetExpoBoostProduction = 0;
 
         let avgPlanet = this.getAvgPlanet();
@@ -2179,82 +2191,7 @@ class OgameHelper {
             totalMSECostsAstroNewPlanet += this.getMSECosts(undefined, "astro", parseInt(astro) + 1);
         }
 
-        let newPlanetMSECost = 0;
-
-        for (let l = 0; l < avgPlanet.metal; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "metal", l);
-        for (let l = 0; l < avgPlanet.crystal; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystal", l);
-        for (let l = 0; l < avgPlanet.deut; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deut", l);
-        for (let l = 0; l < avgPlanet.solar; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "solar", l);
-        for (let l = 0; l < avgPlanet.roboticsFactory; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "roboticsFactory", l);
-        for (let l = 0; l < avgPlanet.shipyard; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "shipyard", l);
-        for (let l = 0; l < avgPlanet.researchlab; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "researchlab", l);
-        for (let l = 0; l < avgPlanet.missileSilo; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "missileSilo", l);
-        for (let l = 0; l < avgPlanet.nanite; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "nanite", l);
-
-        if (this.json.settings.lifeforms) {
-            avgPlanet.lifeforms?.techs?.forEach(t => {
-                for (let l = 0; l < t.level; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, t.id, l);
-            });
-
-            switch (avgPlanet.lifeforms?.lifeformClass) {
-                case LIFEFORM_CLASS_MENSEN:
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.residentialSector; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "residentialSector", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.biosphereFarm; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "biosphereFarm", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.researchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "researchCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.academyOfSciences; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "academyOfSciences", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.neuroCalibrationCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "neuroCalibrationCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.highEnergySmelting; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "highEnergySmelting", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.foodSilo; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "foodSilo", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.fusionPoweredProduction; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "fusionPoweredProduction", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.skyscraper; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "skyscraper", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.biotechLab; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "biotechLab", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.metropolis; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "metropolis", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.planetaryShield; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "planetaryShield", l);
-                    break;
-                case LIFEFORM_CLASS_ROCKTAL:
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.meditationEnclave; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "meditationEnclave", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.crystalFarm; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalFarm", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.runeTechnologium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeTechnologium", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.runeForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "runeForge", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.oriktorium; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "oriktorium", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.magmaForge; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "magmaForge", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.disruptionChamber; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "disruptionChamber", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.megalith; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "megalith", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.crystalRefinery; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "crystalRefinery", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.deuteriumSynthesizer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "deuteriumSynthesizer", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.mineralResearchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "mineralResearchCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.advancedRecyclingPlant; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "advancedRecyclingPlant", l);
-                    break;
-                case LIFEFORM_CLASS_MECHA:
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.assemblyLine; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "assemblyLine", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.fusionCellFactory; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "fusionCellFactory", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.roboticsResearchCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "roboticsResearchCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.updateNetwork; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "updateNetwork", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.quantumComputerCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "quantumComputerCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.automatisedAssemblyCentre; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "automatisedAssemblyCentre", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.highPerformanceTransformer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "highPerformanceTransformer", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.microchipAssemblyLine; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "microchipAssemblyLine", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.productionAssemblyHall; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "productionAssemblyHall", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.highPerformanceSynthesizer; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "highPerformanceSynthesizer", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.chipMassProduction; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "chipMassProduction", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.nanoRepairBots; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "nanoRepairBots", l);
-                    break;
-                case LIFEFORM_CLASS_KAELESH:
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.sanctuary; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "sanctuary", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.antimatterCondenser; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "antimatterCondenser", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.vortexChamber; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "vortexChamber", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.hallsOfRealisation; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "hallsOfRealisation", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.forumOfTranscendence; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "forumOfTranscendence", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.antimatterConvector; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "antimatterConvector", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.cloningLaboratory; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "cloningLaboratory", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.chrysalisAccelerator; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "chrysalisAccelerator", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.bioModifier; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "bioModifier", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.psionicModulator; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "psionicModulator", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.shipManufacturingHall; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "shipManufacturingHall", l);
-                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.supraRefractor; l++) newPlanetMSECost += this.getMSECosts(avgPlanet, "supraRefractor", l);
-                    break;
-            }
-        }
+        let newPlanetMSECost = this.getMSEValue(this.getNewPlanetCosts(avgPlanet));
 
         let astroLevelStringNewPlanet = (parseInt(astro) + 1)
 
@@ -2281,8 +2218,49 @@ class OgameHelper {
         totalMSECostsAstroNewPlanet += newPlanetMSECost;
         totalMSECostsAstroNewExpo += newPlanets * newPlanetMSECost;
 
-        totalMSEProdAstroNewPlanet += newPlanetProductionNewPlanet + newPlanetExpoBoostProduction;
-        totalMSEProdAstroNewExpo += newPlanetsProductionNewExpo + newExpoSlotProduction + newPlanets * newPlanetExpoBoostProduction;
+        let totalMSEProdAstroNewPlanet = newPlanetProductionNewPlanet;
+        let totalMSEProdAstroNewExpo = newPlanetsProductionNewExpo;
+
+        console.log("prod 1 planet: " + this.getBigNumber(newPlanetProductionNewPlanet));
+        console.log("prod " + newPlanets + " planets: " + this.getBigNumber(newPlanetsProductionNewExpo));
+        let playerClass = this.json.player.playerClass;
+        //extra expo income due to higher boni
+        const fleetIncOld = this.getEffectiveLifeformTechLevel("14204");
+        const resIncOld = this.getEffectiveLifeformTechLevel("14205") + this.getEffectiveLifeformTechLevel("14211");
+        const kealeshIncOld = this.getEffectiveLifeformTechLevel("14218");
+        
+        let fleetIncomeOld = this.multiplyArray(this.calcBaseExpoShipProd(playerClass), (1 + fleetIncOld * 0.002));
+        let resIncomeOld = this.multiplyArray(this.calcBaseExpoResProd(playerClass), (1 + resIncOld * 0.002));
+        let expoIncomeOld = (this.getMSEValue(this.addArrayValues(fleetIncomeOld, resIncomeOld))) * (1 + kealeshIncOld * 0.002)
+
+        let planets = this.copyArray(this.json.player.planets);
+        planets.push(avgPlanet);
+        const fleetIncNewPlanet = this.getEffectiveLifeformTechLevel("14204", planets);
+        const resIncNewPlanet = this.getEffectiveLifeformTechLevel("14205", planets) + this.getEffectiveLifeformTechLevel("14211", planets);
+        const kealeshIncNewPlanet = this.getEffectiveLifeformTechLevel("14218", planets);
+
+        let fleetIncomeNewPlanet = this.multiplyArray(this.calcBaseExpoShipProd(playerClass), (1 + fleetIncNewPlanet * 0.002));
+        let resIncomeNewPlanet = this.multiplyArray(this.calcBaseExpoResProd(playerClass), (1 + resIncNewPlanet * 0.002));
+        let expoIncomeNewPlanet = (this.getMSEValue(this.addArrayValues(fleetIncomeNewPlanet, resIncomeNewPlanet))) * (1 + kealeshIncNewPlanet * 0.002);
+        let hourlyNewPlanetExpoIncome = (expoIncomeNewPlanet - expoIncomeOld) * this.getAmountOfExpeditionSlots() * this.getExpoRoundsPerDay() / 24;
+        console.log("new planet expo income: " + this.getBigNumber(hourlyNewPlanetExpoIncome));
+
+
+        for(let i = 1; i < newPlanets; i++){
+            planets.push(avgPlanet);
+        }
+        const fleetIncNewExpo = this.getEffectiveLifeformTechLevel("14204", planets);
+        const resIncNewExpo = this.getEffectiveLifeformTechLevel("14205", planets) + this.getEffectiveLifeformTechLevel("14211", planets);
+        const kealeshIncNewExpo = this.getEffectiveLifeformTechLevel("14218", planets);
+        
+        let fleetIncomeNewExpo = this.multiplyArray(this.calcBaseExpoShipProd(playerClass), (1 + fleetIncNewExpo * 0.002));
+        let resIncomeNewExpo = this.multiplyArray(this.calcBaseExpoResProd(playerClass), (1 + resIncNewExpo * 0.002));
+        let expoIncomeNewExpo = (this.getMSEValue(this.addArrayValues(fleetIncomeNewExpo, resIncomeNewExpo))) * (1 + kealeshIncNewExpo * 0.002);
+        let hourlyNewExpoIncome = expoIncomeNewExpo + (expoIncomeNewExpo - expoIncomeOld) * this.getAmountOfExpeditionSlots() * this.getExpoRoundsPerDay() / 24;
+        console.log("new expo slot expo income: " + this.getBigNumber(hourlyNewExpoIncome));
+
+        totalMSEProdAstroNewPlanet += hourlyNewPlanetExpoIncome;
+        totalMSEProdAstroNewExpo += hourlyNewExpoIncome;
 
         console.log("astro expo unlock cost: " + this.getBigNumber(totalMSECostsAstroNewExpo));
         console.log("astro expo unlock prod: " + this.getBigNumber(totalMSEProdAstroNewExpo));
@@ -2322,6 +2300,284 @@ class OgameHelper {
                 id: id,
             };
         }
+    }
+
+    getNewPlanetCosts(avgPlanet){
+        let newPlanetCost = [0,0,0];
+
+        for (let l = 0; l < avgPlanet.metal; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "metal", l));
+        for (let l = 0; l < avgPlanet.crystal; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "crystal", l));
+        for (let l = 0; l < avgPlanet.deut; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "deut", l));
+        for (let l = 0; l < avgPlanet.solar; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "solar", l));
+        for (let l = 0; l < avgPlanet.roboticsFactory; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "roboticsFactory", l));
+        for (let l = 0; l < avgPlanet.shipyard; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "shipyard", l));
+        for (let l = 0; l < avgPlanet.researchlab; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "researchlab", l));
+        for (let l = 0; l < avgPlanet.missileSilo; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "missileSilo", l));
+        for (let l = 0; l < avgPlanet.nanite; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "nanite", l));
+
+        if (this.json.settings.lifeforms) {
+            avgPlanet.lifeforms?.techs?.forEach(t => {
+                for (let l = 0; l < t.level; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, t.id, l));
+            });
+
+            switch (avgPlanet.lifeforms?.lifeformClass) {
+                case LIFEFORM_CLASS_MENSEN:
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.residentialSector; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "residentialSector", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.biosphereFarm; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "biosphereFarm", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.researchCentre; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "researchCentre", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.academyOfSciences; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "academyOfSciences", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.neuroCalibrationCentre; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "neuroCalibrationCentre", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.highEnergySmelting; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "highEnergySmelting", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.foodSilo; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "foodSilo", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.fusionPoweredProduction; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "fusionPoweredProduction", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.skyscraper; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "skyscraper", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.biotechLab; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "biotechLab", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.metropolis; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "metropolis", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.planetaryShield; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "planetaryShield", l));
+                    break;
+                case LIFEFORM_CLASS_ROCKTAL:
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.meditationEnclave; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "meditationEnclave", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.crystalFarm; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "crystalFarm", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.runeTechnologium; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "runeTechnologium", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.runeForge; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "runeForge", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.oriktorium; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "oriktorium", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.magmaForge; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "magmaForge", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.disruptionChamber; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "disruptionChamber", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.megalith; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "megalith", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.crystalRefinery; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "crystalRefinery", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.deuteriumSynthesizer; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "deuteriumSynthesizer", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.mineralResearchCentre; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "mineralResearchCentre", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.advancedRecyclingPlant; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "advancedRecyclingPlant", l));
+                    break;
+                case LIFEFORM_CLASS_MECHA:
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.assemblyLine; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "assemblyLine", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.fusionCellFactory; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "fusionCellFactory", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.roboticsResearchCentre; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "roboticsResearchCentre", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.updateNetwork; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "updateNetwork", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.quantumComputerCentre; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "quantumComputerCentre", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.automatisedAssemblyCentre; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "automatisedAssemblyCentre", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.highPerformanceTransformer; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "highPerformanceTransformer", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.microchipAssemblyLine; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "microchipAssemblyLine", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.productionAssemblyHall; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "productionAssemblyHall", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.highPerformanceSynthesizer; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "highPerformanceSynthesizer", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.chipMassProduction; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "chipMassProduction", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.nanoRepairBots; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "nanoRepairBots", l));
+                    break;
+                case LIFEFORM_CLASS_KAELESH:
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.sanctuary; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "sanctuary", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.antimatterCondenser; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "antimatterCondenser", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.vortexChamber; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "vortexChamber", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.hallsOfRealisation; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "hallsOfRealisation", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.forumOfTranscendence; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "forumOfTranscendence", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.antimatterConvector; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "antimatterConvector", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.cloningLaboratory; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "cloningLaboratory", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.chrysalisAccelerator; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "chrysalisAccelerator", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.bioModifier; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "bioModifier", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.psionicModulator; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "psionicModulator", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.shipManufacturingHall; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "shipManufacturingHall", l));
+                    for (let l = 0; l < avgPlanet.lifeforms?.buildings?.supraRefractor; l++) newPlanetCost = this.addArrayValues(newPlanetCost, this.getCosts(avgPlanet, "supraRefractor", l));
+                    break;
+            }
+        }
+
+        return newPlanetCost;
+    }
+
+    createKaeleshExplorerExpoSlotBonusAmortizationObject(blocked, id){
+        let currentLevel = this.getEffectiveLifeformTechLevel("14218");
+        console.log(currentLevel);
+        let levelNeeded = Math.ceil(currentLevel / 250) * 250;
+        let extraPlanets = 0;
+        let lowestAmorObject = null;
+        let baseAstro = parseInt(this.json.player.astro);
+
+        const currentDailyExpoIncome = this.calcExpoMseProfit() * this.getExpoRoundsPerDay() * this.getAmountOfExpeditionSlots();
+
+        const newPlanet = this.getAvgPlanet();
+        const newPlanetCosts = this.getNewPlanetCosts(newPlanet);
+
+        while(true){
+            console.log("extra planets: " + extraPlanets);
+            let currentCosts = [0,0,0];
+            let astro = baseAstro;
+            let planets = this.copyArray(this.json.player.planets);
+            let newPlanets = [];
+            for(let i = 0; i < extraPlanets; i++){
+                newPlanets.push(newPlanet);
+                planets.push(newPlanet);
+                astro = Math.ceil(astro / 2) * 2 + 1;
+                currentCosts = this.addArrayValues(currentCosts, newPlanetCosts);
+            }
+
+            let newPlanetsIncome = 0;
+            if(extraPlanets > 0){
+                newPlanetsIncome = this.getMSEProduction(newPlanet, "astro", extraPlanets);
+            }
+
+            console.log("astro needed: " + astro);
+            for(let a = baseAstro; a < astro; a++){
+                currentCosts = this.addArrayValues(currentCosts, this.getCosts(null, "astro", a));
+            }
+
+            console.log("astro costs: " + this.getBigNumber(this.getMSEValue(currentCosts)));
+
+            let bonusPerPlanet = [];
+            let totalBonus = 0;
+            planets.forEach(p => {
+                let bonus = this.getLifeformBonus(p);
+                totalBonus += bonus;
+                bonusPerPlanet.push({
+                    planet: p,
+                    bonus: bonus
+                });
+            })
+    
+            bonusPerPlanet.sort((a, b) => a.bonus - b.bonus);
+            console.log(bonusPerPlanet);
+    
+            let averageBonus = totalBonus / bonusPerPlanet.length;
+            console.log(averageBonus);
+    
+            let estimatedTotalLevelsNeeded = levelNeeded / (1+averageBonus);
+            console.log(estimatedTotalLevelsNeeded);
+    
+            let avgLevelNeeded = estimatedTotalLevelsNeeded / bonusPerPlanet.length;
+            console.log(avgLevelNeeded);
+    
+            let minLevelPerPlanet = Math.floor(avgLevelNeeded);
+            console.log(minLevelPerPlanet);
+    
+            var effectiveLevel = 0;
+            bonusPerPlanet.forEach(bpp => {
+                bpp.level = minLevelPerPlanet;
+                effectiveLevel += bpp.level * (1 + bpp.bonus);
+            });
+    
+            console.log(bonusPerPlanet);
+            console.log(effectiveLevel);
+    
+            bonusPerPlanet.forEach(bpp => {
+                if(effectiveLevel < levelNeeded){
+                    bpp.level++;
+                    effectiveLevel += 1 + bpp.bonus;    
+                }
+            });
+    
+            console.log(bonusPerPlanet);
+            console.log(effectiveLevel);
+            
+            let dependencies = [];
+            let level = 0;
+            if(extraPlanets > 0){
+                if(baseAstro + 1 == astro){
+                    level = astro;
+                } else {
+                    level = (baseAstro + 1) + "-" + astro;
+                }
+                dependencies.push({
+                    coords: "account",
+                    name: "account",
+                    technology: "astrophysics",
+                    level: level,
+                    amorColor: this.getAmortizationColor("account", "research", blocked)
+                });  
+            }
+            bonusPerPlanet.forEach(bpp => {
+                let planet = this.json.player.planets.find(p => p.coords == bpp.planet.coords);
+                
+                if(planet != null){
+                    let curLevel = this.getLevel(planet.lifeforms.techs.find(t => t.id == "14218").level);
+                    if(bpp.level > curLevel){
+                        for(let l = curLevel; l < bpp.level; l++){
+                            currentCosts = this.addArrayValues(currentCosts, this.getCosts(planet, "14218", l));
+                        }
+
+                        if(bpp.level > curLevel + 1){
+                            level = (curLevel + 1) + "-" + bpp.level;
+                        } else {
+                            level = bpp.level;
+                        }
+
+                        dependencies.push({
+                            coords: planet.coords,
+                            name: planet.name,
+                            technology: "14218",
+                            level: level,
+                            amorColor: this.getAmortizationColor(planet.coords, "lifeformtech", blocked)
+                        });       
+                    }
+                }
+            });
+
+            console.log(currentCosts);
+            let mseCost = this.getMSEValue(currentCosts);
+            console.log(this.getBigNumber(mseCost));
+
+            let playerClass = this.json.player.playerClass;
+            //extra expo income due to higher boni
+            const fleetIncOld = this.getEffectiveLifeformTechLevel("14204");
+            const resIncOld = this.getEffectiveLifeformTechLevel("14205") + this.getEffectiveLifeformTechLevel("14211");
+            const kealeshIncOld = currentLevel;
+            
+            let fleetIncomeOld = this.multiplyArray(this.calcBaseExpoShipProd(playerClass), (1 + fleetIncOld * 0.002));
+            let resIncomeOld = this.multiplyArray(this.calcBaseExpoResProd(playerClass), (1 + resIncOld * 0.002));
+            let expoIncomeOld = (this.getMSEValue(this.addArrayValues(fleetIncomeOld, resIncomeOld))) * (1 + kealeshIncOld * 0.002)
+
+            const fleetIncNewExpo = this.getEffectiveLifeformTechLevel("14204", planets);
+            const resIncNewExpo = this.getEffectiveLifeformTechLevel("14205", planets) + this.getEffectiveLifeformTechLevel("14211", planets);
+            const kealeshIncNewExpo = effectiveLevel;
+
+            let fleetIncomeNewExpo = this.multiplyArray(this.calcBaseExpoShipProd(playerClass), (1 + fleetIncNewExpo * 0.002));
+            let resIncomeNewExpo = this.multiplyArray(this.calcBaseExpoResProd(playerClass), (1 + resIncNewExpo * 0.002));
+            let expoIncomeNewExpo = (this.getMSEValue(this.addArrayValues(fleetIncomeNewExpo, resIncomeNewExpo))) * (1 + kealeshIncNewExpo * 0.002);
+            console.log(this.getBigNumber(expoIncomeOld));
+            console.log(this.getBigNumber(this.calcExpoMseProfit()));
+            console.log(this.getBigNumber(expoIncomeNewExpo));
+            let hourlyNewExpoExpoIncome = expoIncomeNewExpo * (this.getAmountOfExpeditionSlots() + 1) * this.getExpoRoundsPerDay() / 24;
+            console.log("new planet expo income: " + this.getBigNumber(hourlyNewExpoExpoIncome));
+
+        
+            
+            
+            const factor = (1 + effectiveLevel * 0.002) / (1 + currentLevel * 0.002);
+            console.log(factor);
+
+
+            const newDailyExpoIncome = hourlyNewExpoExpoIncome * 24;
+            console.log(this.getBigNumber(currentDailyExpoIncome));
+            console.log(this.getBigNumber(newDailyExpoIncome));
+            const extraDailyExpoIncome = newDailyExpoIncome - currentDailyExpoIncome;
+            console.log(this.calcExpoMseProfit() * this.getExpoRoundsPerDay());
+            console.log(this.getBigNumber(extraDailyExpoIncome));
+
+            console.log(this.getBigNumber(newPlanetsIncome * 24));
+
+            let amortizationObject = {
+                coords: "account",
+                name: "account",
+                technology: "Discoverer Enhancement Exposlot",
+                level: levelNeeded / 250,
+                dependencies: dependencies,
+                amortization: mseCost / (extraDailyExpoIncome + newPlanetsIncome * 24),
+                costs: currentCosts,
+                msecost: mseCost,
+                type: "",
+                color: "",
+                id: id,
+            };
+
+            console.log(amortizationObject);
+
+            if(lowestAmorObject == null || amortizationObject.amortization < lowestAmorObject.amortization){
+                lowestAmorObject = amortizationObject;
+                extraPlanets++;
+            } else {
+                break;
+            }
+        }
+        
+        console.log(lowestAmorObject);
+        return lowestAmorObject;
     }
 
     createAmortizationListString(amortizationList, amount) {
@@ -3639,18 +3895,7 @@ class OgameHelper {
 
     getCurrentDiscount(planet, upgradeType) {
         if(upgradeType == "plasma") {
-            let bonus = 0;
-            this.json.player.planets.forEach(p => {
-                const lifeformBonus = this.getLifeformBonus(p);
-                if (p.lifeforms?.techs?.length > 0) {
-                    p.lifeforms.techs.forEach(t => {
-                        if (t.id == "12209") {
-                            bonus += 0.0015 * this.getLevel(t.level) * (1 + lifeformBonus);
-                        }
-                    });
-                }
-            });
-            return bonus;
+            return 0.0015 * this.getEffectiveLifeformTechLevel("12209");
         }
 
         let buildings = planet.lifeforms?.buildings;
@@ -4061,7 +4306,16 @@ class OgameHelper {
      * @returns the average MSE an expedition produces
      */
     calcExpoMseProfit(playerClass) {
-        return this.getMSEValue(this.calcExpoProfit(playerClass, true));
+        if(playerClass == undefined)
+            playerClass = this.json.player.playerClass;
+
+        let factor = 1;
+        if(playerClass == PLAYER_CLASS_EXPLORER){
+            const kaeleshInc = this.getEffectiveLifeformTechLevel("14218");
+            factor += kaeleshInc * 0.002;
+        }
+
+        return this.getMSEValue(this.calcExpoProfit(playerClass, true)) * factor;
     }
 
     calcExpoProfit(playerClass, includeExpoFleetGains) {
