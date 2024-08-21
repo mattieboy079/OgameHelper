@@ -1697,7 +1697,7 @@ class OgameHelper {
                 color = totalAmortization[r - 1].color;
 
                 amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + (totalAmortization[r - 1].amortizationStopped == "true" ? "+ days" : " days");
-                if (["14204", "14205", "14211", "14218"].includes(totalAmortization[r - 1].technology))
+                if (["14204", "14205", "14211", "14218", "astrophysics", "Discoverer Enhancement Exposlot"].includes(totalAmortization[r - 1].technology))
                     amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
             }
 
