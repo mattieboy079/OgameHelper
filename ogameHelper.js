@@ -1040,7 +1040,7 @@ class OgameHelper {
                 metalProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "metal", planets) - this.getBonus(p, "metal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "metal");
                 //console.log(metalProd);
                 crystalProd += this.getRawProduction(p, "crystal", p.crystal) * (this.getBonus(p, "crystal", planets) - this.getBonus(p, "crystal", this.json.player.planets)) * this.json.settings.economySpeed * this.getFactor(planet, "crystal");
-                deutProd += this.getRawProduction(p, "metal", p.metal) * (this.getBonus(p, "deut", planets) - this.getBonus(p, "deut", this.json.player.planets)) * this.json.settings.economySpeed;
+                deutProd += this.getRawProduction(p, "deut", p.deut) * (this.getBonus(p, "deut", planets) - this.getBonus(p, "deut", this.json.player.planets)) * this.json.settings.economySpeed;
             });
 
             //new planet mines with new boni
