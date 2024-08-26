@@ -332,7 +332,8 @@ class OgameHelper {
 
     getLockedPrerequisites(planet, upgradeType, blocked) {
         const requiredUpgrades = this.getPrerequisites(upgradeType);
-
+        console.log(planet);
+        console.log(requiredUpgrades);
         if (!requiredUpgrades) {
             return [];
         }
@@ -345,8 +346,8 @@ class OgameHelper {
                 let techType = this.getTechnologyType(building);
                 let coords = techType == "research" ? "account" : planet.coords;
                 dependencies.push({
-                    coords: planet.coords,
-                    name: planet.name,
+                    coords: coords,
+                    name: planet?.name ?? "account",
                     technology: building,
                     level: level, 
                     amorColor: this.getAmortizationColor(coords, techType, blocked)
@@ -378,6 +379,10 @@ class OgameHelper {
             case "skyscraper":
             case "neuroCalibrationCentre":
                 return ["lifeformbuilding"];
+            case "ion":
+            case "laser":
+            case "energy":
+                return ["research"];
 
 
             default:
@@ -487,7 +492,7 @@ class OgameHelper {
      */
     getUpgradeTime(planet, upgradeType, level) {
         if(level.toString().includes('-')){
-            let levels = level.split('-');
+            let levels = level.toString().split('-');
             let first = parseInt(levels[0]) - 1;
             let last = parseInt(levels[1]) - 1;
             let totalTime = 0;
@@ -1760,7 +1765,6 @@ class OgameHelper {
                     depTd3.appendChild(document.createTextNode(this.getTechnologyFromId(dep.technology)));
                     depTd3.className = 'indented';
                     if(dep.amorColor){
-                        console.log("yes: " + dep.amorColor);
                         let span = document.createElement("span");
                         span.style.color = dep.amorColor;
                         span.appendChild(depTd3); 
@@ -2007,7 +2011,8 @@ class OgameHelper {
         totalAmortization.push(this.createAstroAmortizationObject(blocked, totalAmortization.length));
 
         if(this.json.player.playerClass == PLAYER_CLASS_EXPLORER){
-            totalAmortization.push(this.createKaeleshExplorerExpoSlotBonusAmortizationObject(blocked, totalAmortization.length))
+            let obj = this.createKaeleshExplorerExpoSlotBonusAmortizationObject(blocked, totalAmortization.length);
+            if(obj) totalAmortization.push(obj);
         }
 
         totalAmortization.sort((a, b) => a.amortization - b.amortization);
@@ -2386,6 +2391,9 @@ class OgameHelper {
     createKaeleshExplorerExpoSlotBonusAmortizationObject(blocked, id){
         let currentLevel = this.getEffectiveLifeformTechLevel("14218");
         console.log(currentLevel);
+        if(currentLevel == 0)
+            return;
+
         let levelNeeded = Math.ceil(currentLevel / 250) * 250;
         let extraPlanets = 0;
         let lowestAmorObject = null;
@@ -2432,21 +2440,13 @@ class OgameHelper {
                 });
             })
     
-            bonusPerPlanet.sort((a, b) => a.bonus - b.bonus);
+            bonusPerPlanet.sort((a, b) => b.bonus - a.bonus);
             console.log(bonusPerPlanet);
     
-            let averageBonus = totalBonus / bonusPerPlanet.length;
-            console.log(averageBonus);
-    
+            let averageBonus = totalBonus / bonusPerPlanet.length;    
             let estimatedTotalLevelsNeeded = levelNeeded / (1+averageBonus);
-            console.log(estimatedTotalLevelsNeeded);
-    
             let avgLevelNeeded = estimatedTotalLevelsNeeded / bonusPerPlanet.length;
-            console.log(avgLevelNeeded);
-    
             let minLevelPerPlanet = Math.floor(avgLevelNeeded);
-            console.log(minLevelPerPlanet);
-    
             var effectiveLevel = 0;
             bonusPerPlanet.forEach(bpp => {
                 bpp.level = minLevelPerPlanet;
@@ -2454,7 +2454,6 @@ class OgameHelper {
             });
     
             console.log(bonusPerPlanet);
-            console.log(effectiveLevel);
     
             bonusPerPlanet.forEach(bpp => {
                 if(effectiveLevel < levelNeeded){
@@ -2486,7 +2485,7 @@ class OgameHelper {
                 let planet = this.json.player.planets.find(p => p.coords == bpp.planet.coords);
                 
                 if(planet != null){
-                    let curLevel = this.getLevel(planet.lifeforms.techs.find(t => t.id == "14218").level);
+                    let curLevel = this.getLevel(planet.lifeforms.techs.find(t => t.id == "14218")?.level);
                     if(bpp.level > curLevel){
                         for(let l = curLevel; l < bpp.level; l++){
                             currentCosts = this.addArrayValues(currentCosts, this.getCosts(planet, "14218", l));
@@ -2536,18 +2535,11 @@ class OgameHelper {
             let hourlyNewExpoExpoIncome = expoIncomeNewExpo * (this.getAmountOfExpeditionSlots() + 1) * this.getExpoRoundsPerDay() / 24;
             console.log("new planet expo income: " + this.getBigNumber(hourlyNewExpoExpoIncome));
 
-        
-            
-            
-            const factor = (1 + effectiveLevel * 0.002) / (1 + currentLevel * 0.002);
-            console.log(factor);
-
-
             const newDailyExpoIncome = hourlyNewExpoExpoIncome * 24;
             console.log(this.getBigNumber(currentDailyExpoIncome));
             console.log(this.getBigNumber(newDailyExpoIncome));
             const extraDailyExpoIncome = newDailyExpoIncome - currentDailyExpoIncome;
-            console.log(this.calcExpoMseProfit() * this.getExpoRoundsPerDay());
+            console.log(this.getBigNumber(this.calcExpoMseProfit() * this.getExpoRoundsPerDay()));
             console.log(this.getBigNumber(extraDailyExpoIncome));
 
             console.log(this.getBigNumber(newPlanetsIncome * 24));
@@ -3530,7 +3522,7 @@ class OgameHelper {
         do {
             l++
             maxMseProd = parseFloat(amortizationList[amortizationList.length - l].amortization) * totalHourlyMseProd * 24;
-            console.log(maxMseProd);
+            console.log(this.getBigNumber(maxMseProd));
         } while (maxMseProd == Infinity)
 
         if (maxMseProd == Infinity) {
@@ -3785,9 +3777,9 @@ class OgameHelper {
             let item = amortizationList[count];
             let upgradePlanet = testPlanets.find(p => p.coords == item.coords);
 
-            console.log(item.type);
+            //console.log(item.type);
             if(item.color != this.getColor("toUnlock")){
-                console.log(item);
+                //console.log(item);
                 let minLevel, maxLevel;
                 if(item.level.toString().includes('-')) {
                     let levels = item.level.split('-');
@@ -4382,17 +4374,7 @@ class OgameHelper {
 
     calcExpoResBonus() {
         if (this.json.settings.lifeforms) {
-            let bonus = 0.0;
-            this.json.player.planets.forEach(p => {
-                const lifeformBonus = this.getLifeformBonus(p);
-                if (p.lifeforms?.techs?.length > 0) {
-                    p.lifeforms?.techs?.forEach(t => {
-                        if (t.id == "14205" || t.id == "14211") {
-                            bonus += 0.002 * this.getLevel(t.level) * (1 + lifeformBonus);
-                        }
-                    });
-                }
-            });
+            let bonus = 0.002 * (this.getEffectiveLifeformTechLevel("14205") + this.getEffectiveLifeformTechLevel("14211"));
             return bonus;
         } else {
             return 0;
@@ -4458,7 +4440,7 @@ class OgameHelper {
                 break;
         }
         const resPercentage = .325;
-        return this.GetAverageExpoFind(this.json.player.playerClass) * (1 + this.calcExpoResBonus()) * resPercentage * factor;
+        return this.GetAverageExpoFind(this.json.player.playerClass) * (1 + this.calcExpoResBonus()) * resPercentage * factor * (1 + this.getEffectiveLifeformTechLevel("14218") * 0.002);
     }
 
     calcExpoShipResProdPerType(resource) {
