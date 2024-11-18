@@ -32,6 +32,7 @@ const CULTURE = UNIVERSE.split("-")[1];
 
 let ExpoRounsPerDay;
 let TotalLifeformTechLevelBoni = {};
+let Cache = {}
 
 function getLanguage() {
     fetch(`https://${UNIVERSE}.ogame.gameforge.com/api/localization.xml`)
@@ -332,8 +333,6 @@ class OgameHelper {
 
     getLockedPrerequisites(planet, upgradeType, blocked) {
         const requiredUpgrades = this.getPrerequisites(upgradeType);
-        console.log(planet);
-        console.log(requiredUpgrades);
         if (!requiredUpgrades) {
             return [];
         }
@@ -355,6 +354,13 @@ class OgameHelper {
             }
         }
 
+        if(dependencies.length > 0){
+            console.log({
+                coords: planet.coords ?? planet,
+                upgradeType: upgradeType,
+                dependencies: dependencies
+            });    
+        }
         return dependencies;
     }
 
@@ -1225,11 +1231,15 @@ class OgameHelper {
     }
 
     getAmountOfExpeditionSlots() {
-        const astroSlots = Math.floor(Math.sqrt(this.getLevel(this.json.player.astro)));
-        const explorerSlots = this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0;
-        const admiralSlots = this.json.player.admiral ? 1 : 0;
-        const bonusSlots = this.getAmountOfExpeditionBoosterSlots();
-        return astroSlots + explorerSlots + admiralSlots + bonusSlots;
+        if(!Cache.ExpeditionSlots) {
+            const astroSlots = Math.floor(Math.sqrt(this.getLevel(this.json.player.astro)));
+            const explorerSlots = this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? 2 : 0;
+            const explorerBonusSlots = this.json.player.playerClass == PLAYER_CLASS_EXPLORER ? Math.floor(this.getEffectiveLifeformTechLevel("14218") / 250) : 0;
+            const admiralSlots = this.json.player.admiral ? 1 : 0;
+            const bonusSlots = this.getAmountOfExpeditionBoosterSlots();
+            Cache.ExpeditionSlots = astroSlots + explorerSlots + explorerBonusSlots + admiralSlots + bonusSlots;
+        }
+        return Cache.ExpeditionSlots;
     }
 
     getAmountOfExpeditionBoosterSlots(){
@@ -1639,6 +1649,7 @@ class OgameHelper {
     }
 
     createAmortizationTable(coords = undefined, listType) {
+        // var startTime = Date.now();
         const blocked = this.checkPlanetBlocks();
 
         console.log(blocked);
@@ -1792,6 +1803,8 @@ class OgameHelper {
         divBody.appendChild(table);
 
         div.appendChild(divBody);
+        // var endTime = Date.now();
+        // console.log(endTime - startTime);
     }
 
     trimAmortizationList(amortizationList, coords) {
@@ -2394,7 +2407,7 @@ class OgameHelper {
         if(currentLevel == 0)
             return;
 
-        let levelNeeded = Math.ceil(currentLevel / 250) * 250;
+        let levelNeeded = (Math.floor(currentLevel / 250) + 1) * 250;
         let extraPlanets = 0;
         let lowestAmorObject = null;
         let baseAstro = parseInt(this.json.player.astro);
@@ -2403,6 +2416,7 @@ class OgameHelper {
 
         const newPlanet = this.getAvgPlanet();
         const newPlanetCosts = this.getNewPlanetCosts(newPlanet);
+        console.log(this.getBigNumber(this.getMSEValue(newPlanetCosts)));
 
         while(true){
             console.log("extra planets: " + extraPlanets);

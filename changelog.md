@@ -2,3 +2,4 @@
 - Enhancement: Added support for kaelesh prerequisites to unlock all techslots
 - Enhancement: Added ROI Calculation for Kaelesh Enhancement expo slot
 - Feature: Added foldable dependencies in the amortization table
+- Bugfix: Added explorer bonus slots from tech 18 to total expedition slots formula
