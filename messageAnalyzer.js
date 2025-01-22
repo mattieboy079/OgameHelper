@@ -33,24 +33,27 @@ export class MessageAnalyzer {
     }
 
     doMessagesPage(){
-        if (document.querySelector("li[id=subtabs-nfFleet20].ui-state-active")){
+        const activeTab = document.querySelector('.innerTabItem.active');
+        const selectedId = activeTab ? activeTab.getAttribute('data-subtab-id') : null;
+
+        if (selectedId == 20){
             console.log("spy");
             this.doSpyTable();
         }
-        else if (document.querySelector("li[id=subtabs-nfFleet21].ui-state-active")){
+        else if (selectedId == 21){
             console.log("fights");
             SpyTable = false;
         }
-        else if (document.querySelector("li[id=subtabs-nfFleet22].ui-state-active")){
+        else if (selectedId == 22){
             console.log("expeditions");
             SpyTable = false;
             this.readExpeditions();
         }
-        else if (document.querySelector("li[id=subtabs-nfFleet23].ui-state-active")){
+        else if (selectedId == 23){
             console.log("transport");
             SpyTable = false;
         }
-        else if (document.querySelector("li[id=subtabs-nfFleet24].ui-state-active")){
+        else if (selectedId == 24){
             console.log("other");
             SpyTable = false;
         }
@@ -72,6 +75,7 @@ export class MessageAnalyzer {
                 let messageElements = document.querySelectorAll('.msg');
                 if(messageElements){
                     console.log(messageElements);
+                    console.log(messageElements[0]);
                     messageElements.forEach(message => {
                         let status = message.getAttribute('data-status');
                         if(status != 'inactive' && status != 'longinactive') return;
@@ -147,7 +151,7 @@ export class MessageAnalyzer {
                         SavedInactives = SavedInactives.filter(i => InactivePlanets.some(p => p.coords === i.coords));
                         this.saveInactiveData(SavedInactives);
                         let notSeenInactives = InactivePlanets.filter(i => !SavedInactives.some(s => s.coords === i.coords));
-                        console.log(notSeenInactives);
+                        console.log(notSeenInactives.sort(b => b.coords));
                         if(SavedInactives?.length > 0){
                             const unixNow = Math.floor(Date.now() / 1000);
                             let SpyTableObjects = [];
