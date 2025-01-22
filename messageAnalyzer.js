@@ -74,35 +74,30 @@ export class MessageAnalyzer {
     
                 let messageElements = document.querySelectorAll('.msg');
                 if(messageElements){
-                    console.log(messageElements);
-                    console.log(messageElements[0]);
                     messageElements.forEach(message => {
-                        let status = message.getAttribute('data-status');
-                        if(status != 'inactive' && status != 'longinactive') return;
-                        if(message.getAttribute('data-is-moon') == "1") return;
+                        let statusArray = JSON.parse(message.getAttribute('data-messages-filters-playerstatus'));
+                        console.log(statusArray);
+                        if(!statusArray.includes("longinactive") && !statusArray.includes("longinactive")) return;
+                        
+                        const rawData = message.querySelector('.rawMessageData');
+                        console.log(rawData);
+                        if(!rawData)
+                            return;
+
+                        if(message.getAttribute('data-raw-targetplanettype') == "3") 
+                            return;
+
+                        let coords = rawData.getAttribute("data-raw-coordinates");
     
-                        let title = message.querySelector('.msg_title.blue_txt a')
-                        let href = title.getAttribute('href');
-                        let coordinates = href.match(/galaxy=(\d+)&system=(\d+)&position=(\d+)/);
-                        let x = coordinates[1];
-                        let y = coordinates[2];
-                        let z = coordinates[3];
-                        let coords = x + ':' + y + ':' + z;
-    
-                        let timestamp = message.querySelector('.msg_date').textContent;
-                        let [day, month, year, hours, minutes, seconds] = timestamp.split(/\.|:|\s/);
-                        // Month value in JavaScript's Date object is zero-based, so subtract 1 from the month
-                        let dateObject = new Date(year, month - 1, day, hours, minutes, seconds);                        
-                        let unixTimestamp = dateObject.getTime() / 1000;
-    
+                        let unixTimestamp = rawData.getAttribute("data-raw-timestamp");    
     
                         let savedSpyIndex = SavedInactives?.findIndex(s => s.coords === coords);
                         let savedSpyReport = SavedInactives[savedSpyIndex];
     
+                        console.log(savedSpyReport);
                         if (savedSpyIndex != -1 && unixTimestamp <= savedSpyReport.timestamp) {
                             if(savedSpyReport.Plasmatechniek == undefined || savedSpyReport.Plasmatechniek == "-1"){
-                                let button = message.querySelector('.fright.txt_link.msg_action_link.overlay');
-                                button.addEventListener('click', () => { this.readOpenSpyReportContent(savedSpyReport) });    
+                                this.readSpyReportContent(savedSpyReport, rawData);
                             }    
                             return;
                         };
@@ -220,6 +215,11 @@ export class MessageAnalyzer {
 
         prod *= factor * (1 + bonus) * Ecospeed;
         return prod;
+    }
+
+    readSpyReportContent(savedReport, spyReport){
+        console.log(savedReport);
+        console.log(spyReport);
     }
 
     readOpenSpyReportContent(spyReport){
