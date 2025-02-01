@@ -356,7 +356,7 @@ class OgameHelper {
 
         if(dependencies.length > 0){
             console.log({
-                coords: planet.coords ?? planet,
+                coords: planet?.coords ?? planet,
                 upgradeType: upgradeType,
                 dependencies: dependencies
             });    
