@@ -1,4 +1,4 @@
-import { GetPlayers, GetHighscore, GetUniverse, GetFactorForPos, GetAverageTemp, GetMseValue, GetExpeditionData } from "./functions.js";
+import { GetPlayers, GetHighscore, GetUniverse, GetFactorForPos, GetAverageTemp, GetMseValue, GetExpeditionData, GetStorageCapacityByLevel } from "./functions.js";
 
 let Universe;
 let SavedInactives;
@@ -8,6 +8,12 @@ let ExpeditionData;
 let Exposlots;
 let Ecospeed;
 let SpyTable;
+
+let MessageIdsProcessed = [];
+const ExcludeCoords = [
+    "1:124:4", "1:272:12", "1:49:12", "1:163:14", "1:219:4", "1:163:13", "1:336:4", "1:272:6", "1:272:13", "1:272:14", "1:272:15", "1:139:4",
+    "1:58:10", "1:58:11", "1:180:12", "1:180:14","1:300:13", "1:420:9", "1:420:10", "2:300:12", "2:300:14", "3:250:13", "3:250:14", "4:250:11", ":4:200:12"
+]
 
 export class MessageAnalyzer {
     constructor(universe, ratio, exposlots, ecospeed){
@@ -42,6 +48,7 @@ export class MessageAnalyzer {
         else if (selectedId == 21){
             console.log("fights");
             SpyTable = false;
+            this.readCombats();
         }
         else if (selectedId == 22){
             console.log("expeditions");
@@ -62,6 +69,86 @@ export class MessageAnalyzer {
         }, 200)
     }
 
+    readCombats(){
+        setTimeout(() => {
+            let messageElements = document.querySelectorAll('.msg');
+            if(messageElements){
+                let saveDataChanged = false;
+                let SavedInactives;
+
+                messageElements.forEach(message => {
+                    const msgId = message.getAttribute('data-msg-id').toString();
+                    if(MessageIdsProcessed.includes(msgId))
+                        return;
+
+                    MessageIdsProcessed.push(msgId);
+
+                    const rawData = message.querySelector('.rawMessageData');
+                    if(!rawData)
+                        return;
+                        
+                    let defenderInfo = rawData.getAttribute('data-raw-defenderspaceobject');
+                    if(!defenderInfo)
+                        return;
+
+                    defenderInfo = JSON.parse(defenderInfo);
+                    if(!defenderInfo.owner) 
+                        return;
+
+                    if(defenderInfo.owner.name == "Governor Leto")
+                        return;
+
+                    if(defenderInfo.type != "planet")
+                        return;
+
+                    const coords = rawData.getAttribute('data-raw-coords');
+
+                    if(!SavedInactives){
+                        SavedInactives = this.getInactiveData();
+                    }
+
+                    let spyReportIndex = SavedInactives.findIndex(s => s.coords === coords);
+                    if(spyReportIndex == -1)
+                        return;
+
+                    let spyReport = SavedInactives[spyReportIndex];
+
+                    if(spyReport.fights != undefined && spyReport.fights.some(f => f.id == msgId))
+                        return;
+
+                    let timeStamp = rawData.getAttribute('data-raw-timestamp');
+                    if(timeStamp < spyReport.timestamp)
+                        return;
+
+                    const result = JSON.parse(rawData.getAttribute('data-raw-result'));
+                    console.log(result);
+
+                    const metalStolen = parseInt(result.loot.resources[0].amount);
+                    const crystalStolen = parseInt(result.loot.resources[1].amount);
+                    const deutStolen = parseInt(result.loot.resources[2].amount);
+
+                    if(spyReport.fights == undefined){
+                        spyReport.fights = [];
+                    }
+
+                    spyReport.fights.push({
+                        id: msgId,
+                        metal: metalStolen,
+                        crystal: crystalStolen,
+                        deuterium: deutStolen,
+                        mseStolen: GetMseValue(Ratio, metalStolen, crystalStolen, deutStolen)
+                    });
+                    SavedInactives[spyReportIndex] = spyReport;
+                    console.log(SavedInactives[spyReportIndex].fights);
+                    saveDataChanged = true;
+                });
+
+                if(saveDataChanged)
+                    this.saveInactiveData(SavedInactives);
+            }
+        }, 1500);
+    }
+
     doSpyTable(){
         if(!SpyTable){
             SpyTable = true;
@@ -75,7 +162,7 @@ export class MessageAnalyzer {
                 if(messageElements){
                     messageElements.forEach(message => {
                         let statusArray = JSON.parse(message.getAttribute('data-messages-filters-playerstatus'));
-                        if(!statusArray.includes("longinactive") && !statusArray.includes("longinactive")) return;
+                        if(!statusArray.includes("longinactive") && !statusArray.includes("inactive")) return;
                         
                         if(statusArray.includes("banned")) return;
 
@@ -93,6 +180,7 @@ export class MessageAnalyzer {
     
                         let savedSpyIndex = SavedInactives?.findIndex(s => s.coords === coords);
                         if(savedSpyIndex == -1){
+                            console.log("Add spy report " + coords);
                             let spyReport = this.createNewSpyReport(rawData);
                             spyReport.coords = coords;
                             spyReport.timestamp = unixTimestamp;
@@ -104,10 +192,12 @@ export class MessageAnalyzer {
                             if(savedSpyReport.timestamp < unixTimestamp){
                                 if(savedSpyReport.plasmatechniek == "-1"){
                                     savedSpyReport = this.createNewSpyReport(rawData);
-                                } else {   
+                                } else {
+                                    console.log("Update spy report " + coords);
                                     savedSpyReport.metal = rawData.getAttribute('data-raw-metal');
                                     savedSpyReport.crystal = rawData.getAttribute('data-raw-crystal');
                                     savedSpyReport.deuterium = rawData.getAttribute('data-raw-deuterium');
+                                    savedSpyReport.fights = [];
                                     savedSpyReport.timestamp = unixTimestamp;
                                 }
     
@@ -140,27 +230,50 @@ export class MessageAnalyzer {
                                 let crystal = parseInt(inactive.kristalmijn ?? 0);
                                 let deut = parseInt(inactive.deuteriumfabriek ?? 0);
                                 let plasma = parseInt(inactive.plasmatechniek ?? 0);
+                                
+                                let resourcesStolen = {metal: 0, crystal: 0, deut: 0};
+                                if (inactive.fights != undefined && inactive.fights.length > 0){
+                                    console.log(inactive.fights);
+                                    console.log(inactive.coords);
+                                    inactive.fights.forEach(fight => {
+                                        resourcesStolen.metal += fight.metal;
+                                        resourcesStolen.crystal += fight.crystal;
+                                        resourcesStolen.deut += fight.deuterium;
+                                    });
+                                    console.log(resourcesStolen);
+                                }
+
                                 let metalHourlyProd = this.getProductionForInactive(inactive.coords, "metal", metal >= 0 ? metal : 0, plasma >= 0 ? plasma : 0, 0);
-                                let tempMetal = parseInt(inactive.metal) + metalHourlyProd / 3600 * secondsPast;
+                                let tempMetal = parseInt(inactive.metal) + metalHourlyProd / 3600 * secondsPast - (resourcesStolen?.metal ?? 0);
+                                let metalStorage = GetStorageCapacityByLevel(parseInt(inactive.metaalopslag));
+                                if(tempMetal > metalStorage) tempMetal = metalStorage;
+
                                 let crystalHourlyProd = this.getProductionForInactive(inactive.coords, "crystal", crystal >= 0 ? crystal : 0, plasma >= 0 ? plasma : 0, 0);
-                                let tempCrystal = parseInt(inactive.crystal) + crystalHourlyProd / 3600 * secondsPast;
+                                let tempCrystal = parseInt(inactive.crystal) + crystalHourlyProd / 3600 * secondsPast - (resourcesStolen?.crystal ?? 0);
+                                let crystalStorage = GetStorageCapacityByLevel(parseInt(inactive.kristalopslag));
+                                if (tempCrystal > crystalStorage) tempCrystal = crystalStorage;
+
                                 let deutHourlyProd = this.getProductionForInactive(inactive.coords, "deut", deut >= 0 ? deut : 0, plasma >= 0 ? plasma : 0, 0);
-                                let tempDeut = parseInt(inactive.deut) + deutHourlyProd / 3600 * secondsPast;
+                                let tempDeut = parseInt(inactive.deut) + deutHourlyProd / 3600 * secondsPast - (resourcesStolen?.deut ?? 0);
+                                let deutStorage = GetStorageCapacityByLevel(parseInt(inactive.deuteriumtank));
+                                if (tempDeut > deutStorage) tempDeut = deutStorage;
+                                
                                 let minutesPast = Math.floor(secondsPast / 60);
                                 secondsPast = secondsPast % 60;
                                 let hoursPast = Math.floor(minutesPast / 60);
                                 minutesPast = minutesPast % 60;
                                 spyTableObject.timePast = hoursPast + ":" + minutesPast + ":" + secondsPast;
-                                spyTableObject.mseValue = GetMseValue(Ratio, tempMetal, tempCrystal, tempDeut);
-                                spyTableObject.metal = tempMetal;
-                                spyTableObject.crystal = tempCrystal;
-                                spyTableObject.deut = tempDeut;                                
+                                spyTableObject.mseLoot = GetMseValue(Ratio, tempMetal, tempCrystal, tempDeut) * 0.75;
+                                spyTableObject.resourcesStolen = resourcesStolen;
+                                spyTableObject.metal = inactive.metal;
+                                spyTableObject.crystal = inactive.crystal;
+                                spyTableObject.deut = inactive.deut;                                
                                 
                                 spyTableObject.data = inactive.plasmatechniek ? "complete" : "incomplete";
                                 SpyTableObjects.push(spyTableObject);
                             });
-                            SpyTableObjects = SpyTableObjects.filter(b => b.mseValue > 3000000);
-                            SpyTableObjects.sort((a,b) => b.mseValue - a.mseValue);
+                            SpyTableObjects = SpyTableObjects.filter(b => b.mseLoot > 3000000 && !ExcludeCoords.includes(b.coords));
+                            SpyTableObjects.sort((a,b) => b.mseLoot - a.mseLoot);
                             console.log(SpyTableObjects);
                         }        
                     });
@@ -203,13 +316,15 @@ export class MessageAnalyzer {
         inactives.forEach(player => {
             player.points = parseInt(highscore.find(p => p.id == player.id)?.score ?? -1);
         });
+        inactives = inactives.sort((a, b) => b.points - a.points);
         let inactivePlanets = await this.getPlanetsByFilter(inactives);
         return inactivePlanets;
     }
 
     async getPlanetsByFilter(playerFilter){
         let planets = await GetUniverse(Universe);
-        return planets.filter(planet => playerFilter.map(player => player.id).includes(planet.player));
+        planets = planets.filter(planet => playerFilter.map(player => player.id).includes(planet.player));
+        return planets.sort((a, b) => playerFilter.findIndex(p => p.id == a.player) - playerFilter.findIndex(p => p.id == b.player));
     }
 
     getProductionForInactive(coords, type, level, plasma, bonus){

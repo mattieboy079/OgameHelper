@@ -86,6 +86,25 @@ export function GetMseValue(ratio, metal, crystal, deut){
     return metal + (crystal / ratio[1] + deut / ratio[2]) * ratio[0];
 }
 
+export function GetStorageCapacityByLevel(level){
+    switch(level){
+        case 1: 20000; break;
+        case 2: 40000; break;
+        case 3: 75000; break;
+        case 4: 140000; break;
+        case 5: 255000; break;
+        case 6: 470000; break;
+        case 7: 865000; break;
+        case 8: 1590000; break;
+        case 9: 2920000; break;
+        case 10: 5355000; break;
+        case 11: 9820000; break;
+        case 12: 18005000; break;
+        case 13: 33005000; break;
+        default: 10000; break;
+    }
+}
+
 export function GetDateString(date){
     return date.toLocaleDateString('en-GB', {
         day: '2-digit',
