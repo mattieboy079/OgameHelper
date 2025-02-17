@@ -1692,10 +1692,12 @@ class OgameHelper {
             totalAmortization = this.createAmortizationListString(totalAmortization, this.json.player.recursiveListAmount ?? 50);
         }
 
+
+        let showColonyNames = false;
         for (let r = 0; r < totalAmortization.length + 1; r++) {
             let tr = document.createElement('tr');
             tr.style.marginLeft = 10;
-            let coords, name, technology, level, amortization, color, hasDependencies;
+            let coords, name, technology, level, amortization, color, hasDependencies, msuh;
 
             if (r == 0) {
                 coords = "Coords";
@@ -1704,6 +1706,7 @@ class OgameHelper {
                 hasDependencies = false;
                 level = "Level";
                 amortization = "Return of Investment";
+                msuh = "MSUh/h";
             } else {
                 coords = totalAmortization[r - 1].coords;
                 name = totalAmortization[r - 1].name;
@@ -1711,19 +1714,22 @@ class OgameHelper {
                 hasDependencies = !(totalAmortization[r - 1].dependencies == undefined || totalAmortization[r - 1].dependencies.length == 0);
                 level = totalAmortization[r - 1].level;
                 color = totalAmortization[r - 1].color;
-
+                msuh = this.getBigNumber(Math.round(totalAmortization[r - 1].msuh * 100) / 100);
+        
                 amortization = Math.round(totalAmortization[r - 1].amortization * 100) / 100 + (totalAmortization[r - 1].amortizationStopped == "true" ? "+ days" : " days");
                 if (["14204", "14205", "14211", "14218", "astrophysics", "Discoverer Enhancement Exposlot"].includes(totalAmortization[r - 1].technology))
-                    amortization += " (" + this.getAmountOfExpeditionsPerDay() + " expo/day)";
+                    amortization += " (" + this.getAmountOfExpeditionsPerDay() + " ex/d)";
             }
 
             let td1 = document.createElement('td');
             td1.appendChild(document.createTextNode(coords));
             tr.appendChild(td1);
 
-            let td2 = document.createElement('td');
-            td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
-            tr.appendChild(td2);
+            if(showColonyNames){
+                let td2 = document.createElement('td');
+                td2.appendChild(document.createTextNode(name == undefined ? "Unknown" : name));
+                tr.appendChild(td2);    
+            }
 
             let td3 = document.createElement('td');
 
@@ -1756,6 +1762,10 @@ class OgameHelper {
             let td5 = document.createElement('td');
             td5.appendChild(document.createTextNode(amortization));
             tr.appendChild(td5);
+
+            let td6 = document.createElement('td');
+            td6.appendChild(document.createTextNode(msuh ?? "-"));
+            tr.appendChild(td6);
 
             tableBody.appendChild(tr);
 
@@ -1913,12 +1923,14 @@ class OgameHelper {
                             if (extraMSE > 0) {
                                 let costs = this.getCosts(planet, tech.id, level);
                                 let mseCosts = this.getMSEValue(costs);
+                                let upgradeTime = this.getUpgradeTime(planet, tech.id, parseInt(level))
                                 totalAmortization.push({
                                     coords: planet.coords,
                                     name: planet.name,
                                     technology: tech.id,
                                     level: level + 1,
-                                    amortization: (mseCosts / extraMSE + this.getUpgradeTime(planet, tech.id, parseInt(level))) / 24,
+                                    amortization: (mseCosts / extraMSE + upgradeTime) / 24,
+                                    msuh: extraMSE / upgradeTime,
                                     costs: costs,
                                     msecost: mseCosts,
                                     type: "lifeformtech",
@@ -1947,6 +1959,7 @@ class OgameHelper {
                                         }
 
                                         let mseCost = this.getMSEValue(totalCost);
+                                        let upgradeTime = this.getUpgradeTime(planet, tech, level);
 
                                         possibleTechsAmortizations.push({
                                             coords: planet.coords,
@@ -1954,7 +1967,8 @@ class OgameHelper {
                                             technology: tech,
                                             dependencies: lockedPrerequisites,
                                             level: level == 0 ? "1" : "1-" + (level + 1),
-                                            amortization: (mseCost / gainMse + this.getUpgradeTime(planet, tech, level)) / 24,
+                                            amortization: (mseCost / gainMse + upgradeTime) / 24,
+                                            msuh: gainMse / upgradeTime,
                                             msecost: mseCost,
                                             costs: totalCost,
                                             type: "lifeformtech",
@@ -2603,6 +2617,7 @@ class OgameHelper {
                 name: lastUpgrade.name,
                 technology: lastUpgrade.technology,
                 type: lastUpgrade.type,
+                msuh: lastUpgrade.msuh,
             });
 
             lastUpgrade.level = parseInt(lastUpgrade.level.toString().includes("-") ? lastUpgrade.level.split("-")[1] : lastUpgrade.level);
@@ -3954,6 +3969,7 @@ class OgameHelper {
             technology: technology,
             level: (parseInt(level) + 1),
             amortization: this.calculateAmortization(planet, technology, level),
+            msuh: this.calculateMSUh(planet, technology, level),
             costs: costs,
             msecost: mseCost,
             type: amorType,
@@ -3970,6 +3986,15 @@ class OgameHelper {
             return (this.getMSECosts(planet, technology, parseInt(level)) / this.getExtraMSEProduction(planet, technology, parseInt(level)) + this.getUpgradeTime(planet, technology, parseInt(level))) / 24;
         } else {
             return (this.getMSECosts(planet, technology, parseInt(level)) / this.getMSEProduction(planet, technology, parseInt(level)) + this.getUpgradeTime(planet, technology, parseInt(level))) / 24;
+        }
+    }
+
+    calculateMSUh(planet, technology, level) {
+        level = this.getLevel(level);
+        if (technology == "astro") {
+            return "-"
+        } else {
+            return (this.getExtraMSEProduction(planet, technology, parseInt(level))) /  + this.getUpgradeTime(planet, technology, parseInt(level));
         }
     }
 
