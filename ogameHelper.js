@@ -536,19 +536,19 @@ class OgameHelper {
             else if (this.json.settings.lifeforms) {
                 if (upgradeType == "residentialSector") { base = 40; incFactor = 1.21; }
                 else if (upgradeType == "biosphereFarm") { base = 40; incFactor = 1.25; }
+                else if (upgradeType == "researchCentre") { base = 16000; incFactor = 1.25; }
                 else if (upgradeType == "academyOfSciences") { base = 16000; incFactor = 1.6; }
                 else if (upgradeType == "neuroCalibrationCentre") { base = 64000; incFactor = 1.7; }
-                
+                else if (upgradeType == "highEnergySmelting") { base = 2000; incFactor = 1.3; }
+                else if (upgradeType == "fusionPoweredProduction") { base = 28000; incFactor = 1.2; }
+                else if (upgradeType == "skyscraper") { base = 40000; incFactor = 1.2; }
+                else if (upgradeType == "metropolis") { base = 90000; incFactor = 1.3; }
 
                 else if (upgradeType == "magmaForge") { base = 2000; incFactor = 1.3; }
                 else if (upgradeType == "crystalRefinery") { base = 40000; incFactor = 1.2; }
                 else if (upgradeType == "deuteriumSynthesizer") { base = 52000; incFactor = 1.2; }
                 else if (upgradeType == "mineralResearchCentre") { base = 90000; incFactor = 1.3; }
                 else if (upgradeType == "runeTechnologium") { base = 16000; incFactor = 1.25; }
-
-                else if (upgradeType == "researchCentre") { base = 16000; incFactor = 1.25; }
-                else if (upgradeType == "highEnergySmelting") { base = 2000; incFactor = 1.3; }
-                else if (upgradeType == "fusionPoweredProduction") { base = 28000; incFactor = 1.2; }
 
                 else if (upgradeType == "roboticsResearchCentre") { base = 16000; incFactor = 1.25; }
                 else if (upgradeType == "highPerformanceSynthesizer") { base = 52000; incFactor = 1.2; }
@@ -1207,6 +1207,7 @@ class OgameHelper {
         if(!ExpoRounsPerDay){
             if(parseInt(this.json.player.exporounds) < 0){
                 let expeditionData = GetExpeditionData(UNIVERSE);
+                return 0;
                 if(!expeditionData) 
                     return 0;
                 else{
@@ -1778,10 +1779,11 @@ class OgameHelper {
                     depTd1.appendChild(document.createTextNode(dep.coords));
                     depTr.appendChild(depTd1);
         
-                    let depTd2 = document.createElement('td');
-                    depTd2.appendChild(document.createTextNode(dep.name));
-                    depTr.appendChild(depTd2);
-        
+                    if(showColonyNames){
+                        let depTd2 = document.createElement('td');
+                        depTd2.appendChild(document.createTextNode(dep.name));
+                        depTr.appendChild(depTd2);
+                    }
                     let depTd3 = document.createElement('td');
                     depTd3.appendChild(document.createTextNode(this.getTechnologyFromId(dep.technology)));
                     depTd3.className = 'indented';
@@ -1801,6 +1803,10 @@ class OgameHelper {
                     let depTd5 = document.createElement('td');
                     depTd5.appendChild(document.createTextNode("-"));
                     depTr.appendChild(depTd5);
+
+                    let depTd6 = document.createElement('td');
+                    depTd6.appendChild(document.createTextNode("-"));
+                    depTr.appendChild(depTd6);
         
                     tableBody.appendChild(depTr);
                 });
@@ -1898,6 +1904,7 @@ class OgameHelper {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "highEnergySmelting", this.getLevel(planet.lifeforms.buildings.highEnergySmelting), "productionbuilding", amorColorBuilding, totalAmortization.length, blocked));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "fusionPoweredProduction", this.getLevel(planet.lifeforms.buildings.fusionPoweredProduction), "productionbuilding", amorColorBuilding, totalAmortization.length, blocked));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "metropolis", this.getLevel(planet.lifeforms.buildings.metropolis), "productionbuilding", amorColorBuilding, totalAmortization.length, blocked));
+                        console.log(totalAmortization[totalAmortization.length - 1]);
                     } else if (planet.lifeforms.lifeformClass == LIFEFORM_CLASS_ROCKTAL) {
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "magmaForge", this.getLevel(planet.lifeforms.buildings.magmaForge), ["rocktalbuilding", "productionbuilding"], amorColorBuilding, totalAmortization.length, blocked));
                         totalAmortization.push(this.createAmortizationWithPrerequisite(planet, "crystalRefinery", this.getLevel(planet.lifeforms.buildings.crystalRefinery), ["rocktalbuilding", "productionbuilding"], amorColorBuilding, totalAmortization.length, blocked));
