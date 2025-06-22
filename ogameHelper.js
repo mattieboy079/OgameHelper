@@ -3790,6 +3790,7 @@ class OgameHelper {
         amortizationList.sort((a, b) => a.amortization - b.amortization);
       
         let resAvailable = this.getTotalResourcesAvailable();
+        let mseAvailable = this.getMSEValue(resAvailable);
         let blocks = this.checkPlanetBlocks();
         let queueTimes = {};
         let timeNow = GetCurrentUnixTimeInSeconds();
@@ -3809,7 +3810,7 @@ class OgameHelper {
         console.log(resourcesPerHour);
 
         let count = 0;
-        while(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0 && count < amortizationList.length){
+        while(mseAvailable > 0 && count < amortizationList.length){
             let item = amortizationList[count];
             let upgradePlanet = testPlanets.find(p => p.coords == item.coords);
 
@@ -3875,10 +3876,15 @@ class OgameHelper {
                     maxGenerationTime += upgradeTime;
                 }
 
-                if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
+                mseAvailable = this.getMSEValue(resAvailable);
+                if(mseAvailable > 0) {
                     if(amortizationList[count].color == this.getColor("ready")){
                         if(!queueTimeBeforeUpgrading)
-                            amortizationList[count].color = this.getColor("recommended");
+                            if(resAvailable[0] > 0 && resAvailable[1] > 0 && resAvailable[2] > 0) {
+                                amortizationList[count].color = this.getColor("recommended");
+                            } else {
+                                amortizationList[count].color = this.getColor("merchantNeeded");
+                            }
                         else if (queueTimeBeforeUpgrading <= 24)
                             amortizationList[count].color = this.getColor("soonRecommended");
                         else
@@ -5030,6 +5036,8 @@ class OgameHelper {
                 return "#0096ff";
             case "soonRecommended":
                 return "#add8e6";
+            case "merchantNeeded":
+                return "#b642f5";
         }
     }
 }
