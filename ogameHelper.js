@@ -2431,7 +2431,7 @@ class OgameHelper {
         let levelNeeded = (Math.floor(currentLevel / 250) + 1) * 250;
         let extraPlanets = 0;
         let lowestAmorObject = null;
-        let baseAstro = parseInt(this.json.player.astro);
+        let baseAstro = this.getLevel(this.json.player.astro);
 
         const currentDailyExpoIncome = this.calcExpoMseProfit() * this.getExpoRoundsPerDay() * this.getAmountOfExpeditionSlots();
 
