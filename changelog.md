@@ -1,2 +1,2 @@
-- Feature: Added MSUh/h column in amortization tables: representing the amount of (MSU) production gained per hour of upgrading
-- Bugfixes: Fixed several bugs
+- Enhancement: Added better styling for the settings button
+- Feature: Made a hyperlink to the discord server
