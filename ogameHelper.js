@@ -1315,8 +1315,22 @@ class OgameHelper {
     createSettingsButton() {
         const container = document.createElement("li");
 
+        const icon_container = document.createElement("span")
+        icon_container.classList.add("menu_icon")
+        container.appendChild(icon_container)
+
+        const icon = document.createElement("div")
+        icon.classList.add("menuImage", "artifactshop")
+
+        const icon_link = document.createElement("a")
+        icon_link.href = "https://discord.gg/65U4buktPJ"
+        icon_link.target = "_blank"
+        icon_link.appendChild(icon)
+        icon_container.appendChild(icon_link)
+
         const btn = document.createElement("a");
         btn.classList.add("menubutton");
+        btn.href = "javascript:void(0);"
         btn.setAttribute("target", "_self");
 
         const label = document.createElement("span");
