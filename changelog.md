@@ -1,0 +1,2 @@
+- Feature: Added MSUh/h column in amortization tables: representing the amount of (MSU) production gained per hour of upgrading
+- Bugfixes: Fixed several bugs
