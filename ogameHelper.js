@@ -1664,32 +1664,11 @@ class OgameHelper {
     }
 
     createAmortizationTable(coords = undefined, listType) {
-        // var startTime = Date.now();
         const blocked = this.checkPlanetBlocks();
 
-        console.log(blocked);
-
         //create table
-        this.removeButtons();
 
-        let div = document.querySelector('.amortizationtable');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#facilitiescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable" }));
-
-        let divHeader = document.createElement('div');
-        divHeader.innerHTML = `
-            <div class="popup-header">
-            <div class="title">Amortization Table</div>
-            <button settings-close-button class="close-button">&times;</button>
-            </div>
-            `
-        div.appendChild(divHeader);
-
-        let closeButton = document.querySelector(".close-button");
-        closeButton.addEventListener("click", () => {
-            let div = document.querySelector('.amortizationtable');
-            div.remove();
-            this.checkPage();
-        })
+        let div = document.createElement("div")
 
         let table = document.createElement('table');
         table.style.width = '100%';
@@ -1702,6 +1681,7 @@ class OgameHelper {
         let indirectProductionUpgrades = this.getIndirectProductionUpgrades();
         absoluteAmortization = this.addIndirectProductionUpgradesToAmortization(absoluteAmortization, indirectProductionUpgrades, blocked, isRecursiveList);
     
+
         let totalAmortization = this.trimAmortizationList(absoluteAmortization, coords);
         if(isRecursiveList){
             totalAmortization = this.createAmortizationListString(totalAmortization, this.json.player.recursiveListAmount ?? 50);
@@ -1828,13 +1808,9 @@ class OgameHelper {
         }
 
         table.appendChild(tableBody);
+        div.appendChild(table);
 
-        let divBody = document.createElement('div');
-        divBody.appendChild(table);
-
-        div.appendChild(divBody);
-        // var endTime = Date.now();
-        // console.log(endTime - startTime);
+        return div
     }
 
     trimAmortizationList(amortizationList, coords) {
@@ -4026,27 +4002,8 @@ class OgameHelper {
     }
 
     createAccountProduction() {
-        this.removeButtons();
+        const accountProductionDiv = document.createElement("div")
 
-        const pageContent = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent"));
-        const accountProductionDiv = this.createDOM("div", { class: "accountproduction" });
-        pageContent.appendChild(accountProductionDiv);
-
-        let divHeader = document.createElement('div');
-        divHeader.innerHTML = `
-            <div class="popup-header">
-            <div class="title">Account production</div>
-            <button settings-close-button class="close-button">&times;</button>
-            </div>
-            `;
-        accountProductionDiv.appendChild(divHeader);
-
-        let closeButton = document.querySelector(".close-button");
-        closeButton.addEventListener("click", () => {
-            let div = document.querySelector('.accountproduction');
-            div.remove();
-            this.checkPage();
-        })
         const table = document.createElement('table');
         table.style.width = '100%';
         table.setAttribute('border', '1');
@@ -4056,7 +4013,6 @@ class OgameHelper {
         planets.sort((a, b) => parseInt(a.coords.split(":")[2]) - parseInt(b.coords.split(":")[2]));
         planets.sort((a, b) => parseInt(a.coords.split(":")[1]) - parseInt(b.coords.split(":")[1]));
         planets.sort((a, b) => parseInt(a.coords.split(":")[0]) - parseInt(b.coords.split(":")[0]));
-        console.log(planets);
 
         let metalProd = 0, crystalProd = 0, deutProd = 0;
 
@@ -4220,32 +4176,14 @@ class OgameHelper {
 
         table.appendChild(tableBody);
         accountProductionDiv.appendChild(table);
+
+        return accountProductionDiv
     }
 
     createUpgradesList() {
-        this.removeButtons();
-
         let blocks = this.checkPlanetBlocks();
-        console.log(blocks);
 
-        let div = document.querySelector('.upgradeslist');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#facilitiescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "upgradeslist" }));
-
-        let divHeader = document.createElement('div');
-        divHeader.innerHTML = `
-            <div class="popup-header">
-            <div class="title">Upgrades List</div>
-            <button settings-close-button class="close-button">&times;</button>
-            </div>
-            `
-        div.appendChild(divHeader);
-
-        let closeButton = document.querySelector(".close-button");
-        closeButton.addEventListener("click", () => {
-            let div = document.querySelector('.upgradeslist');
-            div.remove();
-            this.checkPage();
-        })
+        let div = document.createElement("div")
         
         let table = document.createElement('table');
         table.style.width = '100%';
@@ -4300,6 +4238,8 @@ class OgameHelper {
         divBody.appendChild(table);
 
         div.appendChild(divBody);
+
+        return div
     }
 
     /**
@@ -4853,27 +4793,80 @@ class OgameHelper {
         return [metal, crystal, deut];
     }
 
-    createButtons(coords = undefined) {
-        let div = document.querySelector('.amortizationtableAbsolute');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#facilitiescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable" }));
-        div.addEventListener("click", () => this.createAmortizationTable(coords, "absolute"));
-        div.appendChild(document.createTextNode("Absolute Amortization Table"));
+    toggleUIElementState(id) {
+        // TODO: Export to UI Module
+        let element = document.getElementById(id)
+        if (!element) {
+            console.log("Toggle element state failed. Could not find element with id: " + id)
+            return
+        }
+        if (element.style.display === "none") {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
 
-        div = document.querySelector('.amortizationtableRecursive');
-        div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#facilitiescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent")).appendChild(this.createDOM("div", { class: "amortizationtable" }));
-        div.addEventListener("click", () => this.createAmortizationTable(coords, "recursive"));
-        div.appendChild(document.createTextNode("Recursive Amortization Table"));
+    createUIWindow(id, title, body, toggle = false, toggle_default = false) {
+        // TODO: Export to UI Module
+        let box = document.createElement("div")
+        box.classList.add("contentbox")
+
+        // Header
+        let header = document.createElement("div")
+        if (toggle == true) {
+            header.style.cursor = "pointer";
+            header.addEventListener("click", () => this.toggleUIElementState(id));
+        }
+        header.innerHTML = `
+            <div class="header">
+                <h1>
+                    <span class="c-right"></span>
+                    <span class="c-left"></span>
+                    ${String(title)}
+                </h1>
+            </div>
+        `
+        box.appendChild(header)
+
+        // Body
+        let content = document.createElement("div")
+        content.setAttribute("id", id)
+        
+        content.classList.add("content")
+        if (toggle == true && toggle_default == false) {
+            content.style.display = "none"
+        }
+        if (body instanceof Node){
+            content.appendChild(body)
+        } else {
+            content.append(body)
+        }
+        box.appendChild(content)
+
+        // Footer
+        let footer_container = document.createElement("div")
+        footer_container.classList.add("footer")
+        footer_container.style.width = "98%"
+        footer_container.innerHTML = `
+            <!-- I do not really want to add inline styles here but the right footer is way too broad without. TODO: Find out why and how to fix it -->
+            <div class="c-right"></div>
+            <div class="c-left"></div>
+        `
+        box.appendChild(footer_container)
+
+        return box
+    }
+
+    createButtons(coords = undefined) {
+        let container = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent") || document.querySelector("#facilitiescomponent.maincontent") || document.querySelector("#lfbuildingscomponent.maincontent") || document.querySelector("#lfresearchcomponent.maincontent"))
+        
+        container.appendChild(this.createUIWindow("absoluteAmortization", "Absolute Amortization Table", this.createAmortizationTable(coords, "absolute"), true, false))
+        container.appendChild(this.createUIWindow("recursiveAmortization", "Recursive Amortization Table", this.createAmortizationTable(coords, "recursive"), true, false))
 
         if (coords == undefined) {
-            div = document.querySelector('.accountproduction');
-            div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "accountproduction" }));
-            div.addEventListener("click", () => this.createAccountProduction());
-            div.appendChild(document.createTextNode("Account Production"));
-
-            div = document.querySelector('.upgradeslist');
-            div = (document.querySelector("#inhalt") || document.querySelector("#suppliescomponent.maincontent")).appendChild(this.createDOM("div", { class: "upgradeslist" }));
-            div.addEventListener("click", () => this.createUpgradesList());
-            div.appendChild(document.createTextNode("Upgrades List"));
+            container.appendChild(this.createUIWindow("accountProduction", "Account Production", this.createAccountProduction(), true, false))
+            container.appendChild(this.createUIWindow("upgradesList", "Upgrades List", this.createUpgradesList(), true, false))
         }
     }
 
@@ -4958,28 +4951,6 @@ class OgameHelper {
         popup.classList.remove("active");
         popup.classList.remove("popup-overlay");
         document.body.removeChild(popup);
-    }
-
-    removeButtons() {
-        let div = document.querySelector('.amortizationtable');
-        if (div) {
-            div.remove();
-        }
-
-        div = document.querySelector('.amortizationtable');
-        if (div) {
-            div.remove();
-        }
-
-        div = document.querySelector('.accountproduction');
-        if (div) {
-            div.remove();
-        }
-
-        div = document.querySelector('.upgradeslist');
-        if (div) {
-            div.remove();
-        }
     }
 
     getTechnologyLevel(technologysearch) {
