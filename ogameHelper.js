@@ -581,6 +581,7 @@ class OgameHelper {
                 else if (upgradeType == "14212") { base = 8000; incFactor = 1.3; buildSpeed = this.json.settings.economySpeed; }
                 else if (upgradeType == "14218") { base = 11000; incFactor = 1.4; buildSpeed = this.json.settings.economySpeed; }
 
+                if(upgradeType == "12210") console.log(level * base * Math.pow(incFactor, level) / (3600 * buildSpeed));
                 return level * base * Math.pow(incFactor, level) / (3600 * buildSpeed);
             }
 
@@ -3996,9 +3997,9 @@ class OgameHelper {
         if (technology == "astro") {
             //TODO: plasma and astro
         } else if (technology == "metal" || technology == "crystal" || technology == "deut") {
-            return (this.getMSECosts(planet, technology, parseInt(level)) / this.getExtraMSEProduction(planet, technology, parseInt(level)) + this.getUpgradeTime(planet, technology, parseInt(level))) / 24;
+            return (this.getMSECosts(planet, technology, level) / this.getExtraMSEProduction(planet, technology, level) + this.getUpgradeTime(planet, technology, level)) / 24;
         } else {
-            return (this.getMSECosts(planet, technology, parseInt(level)) / this.getMSEProduction(planet, technology, parseInt(level)) + this.getUpgradeTime(planet, technology, parseInt(level))) / 24;
+            return (this.getMSECosts(planet, technology, level) / this.getMSEProduction(planet, technology, level) + this.getUpgradeTime(planet, technology, level)) / 24;
         }
     }
 
@@ -4007,7 +4008,7 @@ class OgameHelper {
         if (technology == "astro") {
             return "-"
         } else {
-            return (this.getExtraMSEProduction(planet, technology, parseInt(level))) /  + this.getUpgradeTime(planet, technology, parseInt(level));
+            return this.getExtraMSEProduction(planet, technology, level) / this.getUpgradeTime(planet, technology, level);
         }
     }
 
@@ -4743,25 +4744,33 @@ class OgameHelper {
             this.createButtons(currentCoords);
         } else if (page === LIFEFORM_SETTINGS) {
             let planet = this.json.player.planets.find(p => p.coords == currentCoords);
-            let lf = document.querySelector(".lifeform-item-wrapper");
-            let level = parseInt(lf.childNodes[9].innerHTML.split(' ')[1].split(':')[0]);
-            console.log(planet.lifeforms.lifeformClass + " level " + level);
+            let lf = document.querySelectorAll(".lfsettingsContent");
             if (!this.json.player.lifeformLevels)
                 this.json.player.lifeformLevels = {};
-            switch (planet.lifeforms.lifeformClass) {
-                case LIFEFORM_CLASS_MENSEN:
-                    this.json.player.lifeformLevels.mensen = level;
-                    break;
-                case LIFEFORM_CLASS_ROCKTAL:
-                    this.json.player.lifeformLevels.rocktal = level;
-                    break;
-                case LIFEFORM_CLASS_MECHA:
-                    this.json.player.lifeformLevels.mecha = level;
-                    break;
-                case LIFEFORM_CLASS_KAELESH:
-                    this.json.player.lifeformLevels.kaelesh = level;
-                    break;
-            }
+            lf.forEach(lfContent => {
+                let levelInfo = lfContent.querySelector(".currentlevel");
+                let level = parseInt(levelInfo.childNodes[0].innerHTML);
+                let lfClass = lfContent.childNodes[5].classList[1];
+                console.log(lfClass + " level " + level);
+                switch(lfClass){
+                    case "lifeform1":
+                        planet.lifeforms.lifeformClass = LIFEFORM_CLASS_MENSEN;
+                        this.json.player.lifeformLevels.mensen = level;
+                        break;
+                    case "lifeform2":
+                        planet.lifeforms.lifeformClass = LIFEFORM_CLASS_ROCKTAL;
+                        this.json.player.lifeformLevels.rocktal = level;
+                        break;
+                    case "lifeform3":
+                        planet.lifeforms.lifeformClass = LIFEFORM_CLASS_MECHA;
+                        this.json.player.lifeformLevels.mecha = level;
+                        break;
+                    case "lifeform4":
+                        planet.lifeforms.lifeformClass = LIFEFORM_CLASS_KAELESH;
+                        this.json.player.lifeformLevels.kaelesh = level;
+                        break;
+                }
+            });
             console.log(this.json.player);
             this.saveData();
         } else if (page === FACILITIES) {
