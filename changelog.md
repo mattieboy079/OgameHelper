@@ -1,0 +1,4 @@
+- Enhancement: First iteration of restyling the UI components
+    - This implements initial calculation of all amortizations on page loading time. Should not be noticable but will be adjusted after next iteration of ui rework to speed up page generation time on slow browsers
+- Enhancement: Added better styling for the settings button
+- Feature: Made a hyperlink to the discord server
