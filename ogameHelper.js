@@ -1,6 +1,6 @@
 //import { Player } from './logic/player.js';
 import { MessageAnalyzer } from './messageAnalyzer.js';
-import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString, ToggleDependencies } from './functions.js';
+import { GetAverageTemp, GetExpeditionData, GetCurrentUnixTimeInSeconds, GetRelativeSecondsToUnixTime, GetTimeString, ToggleDependencies, GetMseValueFromArray } from './functions.js';
 
 const PLAYER_CLASS_EXPLORER = "ontdekker";
 const PLAYER_CLASS_GENERAL = "generaal";
@@ -1310,6 +1310,27 @@ class OgameHelper {
 
     getExtraMSEProduction(planet, productionType, level) {
         level = this.getLevel(level);
+
+        if(productionType == "metal" || productionType == "crystal" || productionType == "deut"){
+            let hourlyProd = [0,0,0];
+            let tempHighPlanet = this.remakePlanet(planet);
+            let tempLowPlanet = this.remakePlanet(planet);
+            tempHighPlanet[productionType] = level + 1;
+            tempLowPlanet[productionType] = level;
+            
+            hourlyProd[0] += (30 + this.getRawProduction(tempHighPlanet, "metal", tempHighPlanet.metal) * (1 + this.getBonus(tempHighPlanet, "metal"))) * this.json.settings.economySpeed * this.getFactor(tempHighPlanet, "metal");
+            hourlyProd[1] += (15 + this.getRawProduction(tempHighPlanet, "crystal", tempHighPlanet.crystal) * (1 + this.getBonus(tempHighPlanet, "crystal"))) * this.json.settings.economySpeed * this.getFactor(tempHighPlanet, "crystal");
+            hourlyProd[2] += (this.getRawProduction(tempHighPlanet, "deut", tempHighPlanet.deut) * (1 + this.getBonus(tempHighPlanet, "deut"))) * this.json.settings.economySpeed;
+
+            hourlyProd[0] -= (30 + this.getRawProduction(tempLowPlanet, "metal", tempLowPlanet.metal) * (1 + this.getBonus(tempLowPlanet, "metal"))) * this.json.settings.economySpeed * this.getFactor(tempLowPlanet, "metal");
+            hourlyProd[1] -= (15 + this.getRawProduction(tempLowPlanet, "crystal", tempLowPlanet.crystal) * (1 + this.getBonus(tempLowPlanet, "crystal"))) * this.json.settings.economySpeed * this.getFactor(tempLowPlanet, "crystal");
+            hourlyProd[2] -= (this.getRawProduction(tempLowPlanet, "deut", tempLowPlanet.deut) * (1 + this.getBonus(tempLowPlanet, "deut"))) * this.json.settings.economySpeed;
+
+            console.log(planet.coords + " " + productionType + " level " + (level + 1) + " extra MSE prod: " + this.getBigNumber(hourlyProd[0]) + " / " + this.getBigNumber(hourlyProd[1]) + " / " + this.getBigNumber(hourlyProd[2]));
+            console.log(GetMseValueFromArray(this.json.player.ratio, hourlyProd));
+            return GetMseValueFromArray(this.json.player.ratio, hourlyProd);
+        } 
+
         return this.getMSEProduction(planet, productionType, level + 1) - this.getMSEProduction(planet, productionType, level);
     }
 

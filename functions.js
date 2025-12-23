@@ -82,6 +82,10 @@ export function GetAverageTemp(coords){
     return averageTemperatures[parseInt(coords.split(":")[2])];
 }
 
+export function GetMseValueFromArray(ratio, array){
+    return GetMseValue(ratio, array[0], array[1], array[2]);
+}
+
 export function GetMseValue(ratio, metal, crystal, deut){
     return metal + (crystal / ratio[1] + deut / ratio[2]) * ratio[0];
 }
